@@ -238,10 +238,11 @@ This project is for educational purposes and demonstrates best practices in Sele
 
 ## 👨‍💻 Author
 
-**Bhargav** - Test Automation Engineer
+**Bhargav Reddy** - Test Automation Engineer & Project Creator
 - Comprehensive Selenium WebDriver framework
 - Modern Java and TestNG implementation
 - Production-ready test automation patterns
+- Created and developed this complete testing framework
 
 ---
 

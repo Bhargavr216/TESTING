@@ -355,10 +355,11 @@ This project is for educational purposes and demonstrates comprehensive e-commer
 
 ## 👨‍💻 Author
 
-**Bhargav** - Test Automation Engineer
+**Bhargav Reddy** - Test Automation Engineer & Project Creator
 - Comprehensive e-commerce testing framework
 - End-to-end user journey validation
 - Modern Java and Selenium implementation
+- Created and developed this complete e-commerce testing solution
 
 ---
 

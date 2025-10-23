@@ -248,11 +248,12 @@ This repository is for educational purposes and demonstrates best practices in t
 
 ## 👨‍💻 Author
 
-**Bhargav** - Test Automation Engineer & Full Stack Developer
+**Bhargav Reddy** - Test Automation Engineer & Full Stack Developer
 - Comprehensive testing frameworks
 - Modern web development
 - API testing and validation
 - Educational content and best practices
+- Created and developed this complete test automation portfolio
 
 ## 🌟 Acknowledgments
 

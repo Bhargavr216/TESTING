@@ -332,10 +332,11 @@ This project is for educational purposes and demonstrates modern web development
 
 ## 👨‍💻 Author
 
-**Bhargav** - Full Stack Developer & Test Automation Engineer
+**Bhargav Reddy** - Full Stack Developer & Test Automation Engineer
 - Modern web development with HTML5, CSS3, JavaScript
 - Comprehensive Selenium WebDriver testing
 - Responsive design and user experience
+- Created and developed this complete web application and testing framework
 
 ---
 

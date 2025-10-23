@@ -1,4 +1,6 @@
-// VBR - BHARGAV 
+// VBR - BHARGAV REDDY
+// Created by: Bhargav Reddy
+// Project: EcommerceWebsiteAutomation - Complete E-commerce Testing Suite 
 import java.util.HashMap;
 import java.util.Map;
 
@@ -152,4 +154,5 @@ public class EcommerceWebsiteAutomation {
 
 }
 
-//VBR - BHARGAV 
+//VBR - BHARGAV REDDY
+//Created by: Bhargav Reddy 

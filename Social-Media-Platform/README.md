@@ -435,10 +435,11 @@ This project is for educational purposes and demonstrates comprehensive REST API
 
 ## 👨‍💻 Author
 
-**Bhargav** - API Testing Engineer
+**Bhargav Reddy** - API Testing Engineer & Project Creator
 - Comprehensive REST API testing framework
 - Advanced Chai and HTTP testing
 - Social media platform validation
+- Created and developed this complete API testing solution
 
 ---
 
