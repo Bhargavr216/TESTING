@@ -1,0 +1,21 @@
+<suite name="BhargavAutomationSuite">
+	<test name="LoginTests">
+		<parameter name="username" value="admin@yourstore.com"/>
+		<parameter name="password" value="admin"/>
+		<classes>
+			<class name="com.bhargav.automation.tests.LoginTest" />
+		</classes>
+	</test>
+	
+	<test name="UserManagementTests">
+		<classes>
+			<class name="com.bhargav.automation.tests.UserManagementTest" />
+		</classes>
+	</test>
+	
+	<test name="ProductManagementTests">
+		<classes>
+			<class name="com.bhargav.automation.tests.ProductManagementTest" />
+		</classes>
+	</test>
+</suite>
