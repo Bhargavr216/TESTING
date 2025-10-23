@@ -1,5 +1,11 @@
 package mouseRelated_And_OtherOperations;
 
+/**
+ * Created by: Bhargav Reddy
+ * Project: DemoProjectSelenium - Selenium WebDriver Framework
+ * Description: Advanced mouse operations - Drag and drop functionality
+ */
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

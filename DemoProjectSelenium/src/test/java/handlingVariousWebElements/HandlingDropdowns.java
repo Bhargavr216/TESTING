@@ -1,5 +1,11 @@
 package handlingVariousWebElements;
 
+/**
+ * Created by: Bhargav Reddy
+ * Project: DemoProjectSelenium - Selenium WebDriver Framework
+ * Description: Web element handling - Dropdown operations and interactions
+ */
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;

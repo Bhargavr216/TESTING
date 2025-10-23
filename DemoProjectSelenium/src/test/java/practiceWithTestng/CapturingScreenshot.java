@@ -1,5 +1,11 @@
 package practiceWithTestng;
 
+/**
+ * Created by: Bhargav Reddy
+ * Project: DemoProjectSelenium - Selenium WebDriver Framework
+ * Description: Screenshot capture functionality for test reporting and debugging
+ */
+
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;

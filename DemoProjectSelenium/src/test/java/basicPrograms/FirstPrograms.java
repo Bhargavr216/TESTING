@@ -1,5 +1,11 @@
 package basicPrograms;
 
+/**
+ * Created by: Bhargav Reddy
+ * Project: DemoProjectSelenium - Selenium WebDriver Framework
+ * Description: Basic Selenium WebDriver operations and browser automation
+ */
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 
