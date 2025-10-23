@@ -1,2 +1,0 @@
-# TESTING
-My Projects collection
