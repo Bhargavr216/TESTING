@@ -64,3 +64,26 @@ Notes
 - All SQL queries use prepared statements.
 - Cart and orders enforce stock checks during checkout.
 - UI is responsive and uses a modern dark theme.
+
+Screenshots
+- The following screenshots illustrate key pages and flows. Place images under `public/assets/screenshots/` using the suggested filenames.
+
+1) Authentication
+- Login: ![Login](public/assets/screenshots/login.png)
+- Register: ![Register](public/assets/screenshots/register.png)
+
+2) Shopping Flow
+- Homepage: ![Homepage](public/assets/screenshots/home.png)
+- Products listing: ![Products](public/assets/screenshots/products.png)
+- Cart: ![Cart](public/assets/screenshots/cart.png)
+- Checkout: ![Checkout](public/assets/screenshots/checkout.png)
+- Order history: ![Orders](public/assets/screenshots/order_history.png)
+
+3) Admin Panel
+- Products management: ![Admin Products](public/assets/screenshots/admin_products.png)
+- Add product: ![Admin Add Product](public/assets/screenshots/admin_add_product.png)
+
+How to Capture Screenshots
+- Run the site locally: `http://localhost/supermarket/`
+- Use your browser’s screenshot tool to capture the full page for each view.
+- Save PNG files to `public/assets/screenshots/` with the exact names above so the README displays them automatically.
