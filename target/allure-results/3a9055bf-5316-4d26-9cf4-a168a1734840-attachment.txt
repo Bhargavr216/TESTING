@@ -1,0 +1,36 @@
+Scenario event-id=Event-203 order-id=ORD203
+Table: audit
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+Table: item_details
+orderid -> PASS
+time -> PASS
+eventpayload.replacement.eligible -> PASS
+eventpayload.replacement.reason -> PASS
+poiresponse.refund.amount -> PASS
+poiresponse.refund.method -> PASS
+jobsettime -> PASS
+Table: job_queue_arch
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.reasons[0] -> PASS
+eventpayload.reasons[1] -> PASS
+poiresponse.status -> PASS
+poiresponse.errorCode -> PASS
+jobsettime -> PASS
+Table: job_queue
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.reasons[0] -> PASS
+eventpayload.reasons[1] -> PASS
+poiresponse.status -> PASS
+poiresponse.errorCode -> PASS
+jobsettime -> PASS

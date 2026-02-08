@@ -1,0 +1,7 @@
+[
+{"event-id":"Event-201","order-id":"ORD201","eventType":"ORDER_CREATED","customer":{"customerId":"C201","name":"Ravi","contacts":[{"type":"email","value":"ravi@gmail.com"},{"type":"phone","value":"8888888888"}]},"items":[{"itemId":"I301","name":"Laptop","attributes":{"brand":"Dell","ram":"16GB"}},{"itemId":"I302","name":"Mouse","qty":2}],"shipping":{"address":{"city":"Hyderabad","state":"Telangana","pincode":"500081"},"modes":["COD","UPI"]}},
+{"event-id":"Event-202","order-id":"ORD202","eventType":"ORDER_VALIDATED","retry":{"count":1,"max":3},"validationErrors":[]},
+{"event-id":"Event-203","order-id":"ORD203","eventType":"ORDER_FAILED","reasons":["Inventory shortage","Payment timeout"]},
+{"event-id":"Event-204","order-id":"ORD204","eventType":"ORDER_QUEUED","queue":{"priority":"HIGH","nodes":["N1","N2","N3"]}},
+{"event-id":"Event-205","order-id":"ORD205","eventType":"ORDER_COMPLETED","summary":{"items":3,"amount":72000}}
+]

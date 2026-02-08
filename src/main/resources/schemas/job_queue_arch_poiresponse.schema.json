@@ -1,0 +1,10 @@
+{
+  "type": "json",
+  "jsonRequiredPaths": [
+    "status"
+  ],
+  "jsonOptionalPaths": [
+    "poiId",
+    "timeline"
+  ]
+}

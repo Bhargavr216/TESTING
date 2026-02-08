@@ -1,0 +1,11 @@
+{
+  "java.import.maven.enabled": true,
+  "java.import.maven.offline.enabled": false,
+  "java.project.sourcePaths": [
+    "src/main/java"
+  ],
+  "java.project.testSourcePaths": [
+    "src/test/java"
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive"
+}
