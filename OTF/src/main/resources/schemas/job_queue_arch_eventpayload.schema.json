@@ -1,0 +1,7 @@
+{
+  "type": "json",
+  "jsonRequiredPaths": [
+    "eventType"
+  ],
+  "jsonIgnorePaths": []
+}

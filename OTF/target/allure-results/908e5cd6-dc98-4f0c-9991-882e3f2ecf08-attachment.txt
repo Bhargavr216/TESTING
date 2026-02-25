@@ -1,0 +1,37 @@
+Scenario event-id=Event-205 order-id=ORD205
+Table: audit
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+Table: item_details
+orderid -> PASS
+time -> PASS
+eventpayload.feedback.rating -> PASS
+eventpayload.feedback.comment -> PASS
+poiresponse.loyalty.points -> PASS
+jobsettime -> PASS
+Table: job_queue_arch
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.summary.items -> PASS
+eventpayload.summary.amount -> PASS
+poiresponse.status -> PASS
+poiresponse.receipt.id -> PASS
+poiresponse.receipt.url -> PASS
+jobsettime -> PASS
+Table: job_queue
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.summary.items -> PASS
+eventpayload.summary.amount -> PASS
+poiresponse.status -> PASS
+poiresponse.receipt.id -> PASS
+poiresponse.receipt.url -> PASS
+jobsettime -> PASS

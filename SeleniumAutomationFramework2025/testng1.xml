@@ -1,0 +1,9 @@
+<suite name="BhargavEndToEndSuite">
+	<test name="EndToEndTests">
+		<classes>
+			<class name="com.bhargav.automation.tests.LoginTest" />
+			<class name="com.bhargav.automation.tests.UserManagementTest" />
+			<class name="com.bhargav.automation.tests.ProductManagementTest" />
+		</classes>
+	</test>
+</suite>
