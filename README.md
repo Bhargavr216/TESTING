@@ -92,6 +92,24 @@ Outputs:
 - Console execution summary
 - HTML report at `idea1_project/reports/idea1_report.html`
 
+## Database Bootstrap Script
+
+A full DB setup script is included:
+
+- `idea1_project/db/setup_database.sql`
+
+It will:
+- create database `idea1_testing` if missing
+- create all required tables
+- seed sample rows for `ORD123`, `ORD124`, and `ORD500`
+
+Run from PowerShell:
+
+```powershell
+$env:PGPASSWORD="<your_password>"
+psql -h localhost -p 5432 -U postgres -d postgres -f idea1_project/db/setup_database.sql
+```
+
 ## Scenarios in Payloads
 
 `payloads/event_payloads.json` defines test cases.
