@@ -1,0 +1,312 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Idea 1 Automation Report</title>
+<style>
+:root {
+  --bg: #f3f7fb;
+  --panel: #ffffff;
+  --panel-soft: #f8fbff;
+  --line: #d9e4f1;
+  --text: #1f2a37;
+  --muted: #5b6b80;
+  --accent: #0f5cab;
+  --accent-soft: #e7f1ff;
+  --ok: #0f7a43;
+  --ok-soft: #ddf7e8;
+  --warn: #9a6600;
+  --warn-soft: #fff4d6;
+  --err: #b12235;
+  --err-soft: #ffe6ea;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: "Manrope", "Segoe UI", Arial, sans-serif;
+  background:
+    radial-gradient(circle at 5% 5%, #e8f1ff 0%, transparent 32%),
+    radial-gradient(circle at 95% 0%, #f0f7ff 0%, transparent 28%),
+    var(--bg);
+  margin: 0;
+  color: var(--text);
+}
+h1 { margin: 0; color: #0f1a2b; font-size: 22px; letter-spacing: 0.2px; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.toolbar { display: flex; gap: 8px; }
+.toolbar button {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #ffffff 0%, #f6faff 100%);
+  color: #0f2842;
+  border-radius: 10px;
+  padding: 7px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+.toolbar button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(15, 92, 171, 0.12);
+  border-color: #bcd3ec;
+}
+.layout { display: grid; grid-template-columns: 260px 1fr; gap: 16px; padding: 16px; }
+.sidebar {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  height: calc(100vh - 110px);
+  position: sticky;
+  top: 82px;
+  overflow: auto;
+  box-shadow: 0 10px 24px rgba(16, 38, 68, 0.07);
+}
+.sidebar h3 {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted);
+}
+.case-link {
+  display: block;
+  text-decoration: none;
+  color: #0f2842;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+.case-link:hover {
+  background: #eef5ff;
+  border-color: #bfd5ef;
+  transform: translateX(2px);
+}
+.content { min-width: 0; }
+.case {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 28px rgba(18, 40, 70, 0.08);
+  overflow: hidden;
+}
+.case summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #fcfeff 0%, #f4f8fd 100%);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.case summary::-webkit-details-marker { display:none; }
+.case-id {
+  font-weight: 800;
+  color: #0f2842;
+  background: #e2edf9;
+  border: 1px solid #c8dbee;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+.case-title { font-weight: 700; color: #0f1f34; }
+.case-meta { color: var(--muted); font-size: 13px; }
+.case-body { padding: 14px 16px 16px 16px; }
+.case-overview {
+  background: linear-gradient(180deg, #f8fbff 0%, #f3f8ff 100%);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.case-overview p { margin: 4px 0; }
+.box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+}
+.box h3 {
+  margin: 0 0 8px 0;
+  color: #0f1f34;
+  font-size: 15px;
+}
+.pass {
+  color: var(--ok);
+  font-weight: 600;
+  background: var(--ok-soft);
+  border: 1px solid #b9ebcd;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.fail {
+  color: var(--err);
+  font-weight: 600;
+}
+.fail pre {
+  margin: 0 0 8px 0;
+  background: linear-gradient(180deg, #fff7f8 0%, #fff0f3 100%);
+  border: 1px solid #ffc7d0;
+  padding: 10px;
+  border-radius: 10px;
+  white-space: pre-wrap;
+  line-height: 1.35;
+  font-weight: 500;
+}
+h2, h3 { color: #0f1f34; margin-top: 0; }
+.case-footer {
+  border-top: 1px dashed var(--line);
+  margin-top: 10px;
+  padding-top: 10px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.chip {
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+.chip-pass { background: var(--ok-soft); color: var(--ok); border-color: #b9ebcd; }
+.chip-fail { background: var(--err-soft); color: var(--err); border-color: #ffcad2; }
+.chip-skip { background: var(--warn-soft); color: var(--warn); border-color: #f2d99a; }
+@media (max-width: 960px) {
+  .layout { grid-template-columns:1fr; }
+  .sidebar { position:relative; top:0; height:auto; }
+}
+</style>
+<script>
+function expandAllCases() {
+  document.querySelectorAll('details.case').forEach(function(el) { el.open = true; });
+}
+function collapseAllCases() {
+  document.querySelectorAll('details.case').forEach(function(el) { el.open = false; });
+}
+</script>
+</head>
+<body>
+<div class="topbar">
+  <h1>Idea 1 Automation Execution Report</h1>
+  <div class="toolbar">
+    <button type="button" onclick="expandAllCases()">Expand All</button>
+    <button type="button" onclick="collapseAllCases()">Collapse All</button>
+  </div>
+</div>
+<div class="layout">
+<aside class="sidebar">
+<h3>Project / Testcases</h3>
+<a class="case-link" href="#case-TC_001">TC_001</a>
+<a class="case-link" href="#case-TC_NEG_001">TC_NEG_001</a>
+<a class="case-link" href="#case-TC_RETRY_001">TC_RETRY_001</a>
+</aside>
+<main class="content">
+<details class="case" id="case-TC_001" open>
+<summary>
+  <span class="case-id">TC_001</span>
+  <span class="case-title">Order Created – Happy Path</span>
+  <span class="case-meta">Event: ORDER_CREATED | Order: ORD123</span>
+</summary>
+<div class="case-body">
+<div class="case-overview">
+<p><b>Scenario:</b> Order Created – Happy Path</p>
+<p><b>Event:</b> ORDER_CREATED</p>
+<p><b>Order ID:</b> ORD123</p>
+</div>
+<div class='box'>
+<h3>Table : job_queue</h3>
+<p class='pass'>[SKIPPED] Presence validation only (NOT_PERSIST)</p>
+</div>
+<div class='box'><h3>Table : orders</h3><p class='pass'>[OK] order_id : ORD123</p><p class='pass'>[OK] status : CONFIRMED</p><p class='pass'>[OK] total_amount : 500</p></div><div class='box'><h3>Table : fulfilment</h3><p class='pass'>[OK] fulfilment_id : FUL123</p><p class='pass'>[OK] order_id : ORD123</p><p class='pass'>[OK] status : SHIPPED</p></div><div class='box'><h3>Table : operations</h3><p class='pass'>[OK] order_id : ORD123</p><p class='pass'>[OK] operation_type : CREATE</p><p class='pass'>[OK] status : SUCCESS</p><p class='pass'>[OK] order_id : ORD123</p><p class='pass'>[OK] operation_type : VALIDATE</p><p class='pass'>[OK] status : SUCCESS</p></div><div class='box'><h3>Table : audit_logs</h3><p class='pass'>[OK] order_id : ORD123</p><p class='pass'>[OK] operation : ORDER_CREATED</p><p class='pass'>[OK] status : SUCCESS</p><p class='pass'>[OK] order_id : ORD123</p><p class='pass'>[OK] operation : ORDER_VALIDATED</p><p class='pass'>[OK] status : SUCCESS</p></div><div class="case-footer">
+  <span class="chip chip-pass">RESULT: PASSED</span>
+  <span class="chip chip-pass">PASSED TABLES: 4</span>
+  <span class="chip chip-fail">FAILED TABLES: 0</span>
+  <span class="chip chip-skip">SKIPPED TABLES: 1</span>
+</div>
+</div>
+</details>
+<details class="case" id="case-TC_NEG_001" open>
+<summary>
+  <span class="case-id">TC_NEG_001</span>
+  <span class="case-title">Order Validation Failed – Routed to Job Queue</span>
+  <span class="case-meta">Event: ORDER_EVENT | Order: ORD124</span>
+</summary>
+<div class="case-body">
+<div class="case-overview">
+<p><b>Scenario:</b> Order Validation Failed – Routed to Job Queue</p>
+<p><b>Event:</b> ORDER_EVENT</p>
+<p><b>Order ID:</b> ORD124</p>
+</div>
+<div class='box'>
+<h3>Table : orders</h3>
+<p class='pass'>[SKIPPED] Presence validation only (NOT_PERSIST)</p>
+</div>
+<div class='box'>
+<h3>Table : fulfilment</h3>
+<p class='pass'>[SKIPPED] Presence validation only (NOT_PERSIST)</p>
+</div>
+<div class='box'>
+<h3>Table : operations</h3>
+<p class='pass'>[SKIPPED] Presence validation only (NOT_PERSIST)</p>
+</div>
+<div class='box'><h3>Table : audit_logs</h3><p class='pass'>[OK] order_id : ORD124</p><p class='pass'>[OK] operation : CREATE</p><p class='pass'>[OK] status : SUCCESS</p><p class='pass'>[OK] order_id : ORD124</p><p class='pass'>[OK] operation : VALIDATE</p><p class='pass'>[OK] status : FAILED</p></div><div class='box'><h3>Table : job_queue</h3><p class='pass'>[OK] order_id : ORD124</p><p class='pass'>[OK] operation : ERROR</p><p class='pass'>[OK] retry_count : 0</p></div><div class="case-footer">
+  <span class="chip chip-pass">RESULT: PASSED</span>
+  <span class="chip chip-pass">PASSED TABLES: 2</span>
+  <span class="chip chip-fail">FAILED TABLES: 0</span>
+  <span class="chip chip-skip">SKIPPED TABLES: 3</span>
+</div>
+</div>
+</details>
+<details class="case" id="case-TC_RETRY_001" open>
+<summary>
+  <span class="case-id">TC_RETRY_001</span>
+  <span class="case-title">Order Validation Retry Failed 3 Times</span>
+  <span class="case-meta">Event: ORDER_EVENT | Order: ORD500</span>
+</summary>
+<div class="case-body">
+<div class="case-overview">
+<p><b>Scenario:</b> Order Validation Retry Failed 3 Times</p>
+<p><b>Event:</b> ORDER_EVENT</p>
+<p><b>Order ID:</b> ORD500</p>
+</div>
+<div class='box'>
+<h3>Table : orders</h3>
+<p class='pass'>[SKIPPED] Presence validation only (NOT_PERSIST)</p>
+</div>
+<div class='box'>
+<h3>Table : fulfilment</h3>
+<p class='pass'>[SKIPPED] Presence validation only (NOT_PERSIST)</p>
+</div>
+<div class='box'>
+<h3>Table : operations</h3>
+<p class='pass'>[SKIPPED] Presence validation only (NOT_PERSIST)</p>
+</div>
+<div class='box'><h3>Table : audit_logs</h3><p class='pass'>[OK] order_id : ORD500</p><p class='pass'>[OK] operation : CREATE</p><p class='pass'>[OK] status : SUCCESS</p><p class='pass'>[OK] order_id : ORD500</p><p class='pass'>[OK] operation : VALIDATE</p><p class='pass'>[OK] status : FAILED</p><p class='pass'>[OK] order_id : ORD500</p><p class='pass'>[OK] operation : VALIDATE</p><p class='pass'>[OK] status : FAILED</p></div><div class='box'><h3>Table : job_queue</h3><p class='pass'>[OK] order_id : ORD500</p><p class='pass'>[OK] operation : VALIDATE</p><p class='pass'>[OK] retry_count : 3</p></div><div class="case-footer">
+  <span class="chip chip-pass">RESULT: PASSED</span>
+  <span class="chip chip-pass">PASSED TABLES: 2</span>
+  <span class="chip chip-fail">FAILED TABLES: 0</span>
+  <span class="chip chip-skip">SKIPPED TABLES: 3</span>
+</div>
+</div>
+</details>
+</main></div></body></html>
