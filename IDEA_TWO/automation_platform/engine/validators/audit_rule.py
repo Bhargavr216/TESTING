@@ -11,9 +11,12 @@ class AuditRule(BaseRule):
         conn = context.get('conn')
         default_lookup = context.get('lookup_key')
         resolved_lookups = context.get('resolved_lookups', {})
+        schema = context.get('schema', 'public')
         
-        # Determine table name based on service
-        table_name = f"{service.lower()}_audit"
+        # Determine table name based on service and schema
+        base_table = f"{service.lower()}_audit"
+        table_name = f"{schema}.{base_table}" if schema != 'public' else base_table
+        
         validations = self.rule_config.get('validations', {})
         
         # Use event_id from resolved lookups if available, else default
@@ -24,7 +27,9 @@ class AuditRule(BaseRule):
         total_failures = []
 
         # 1. Fetch and Sort Audit Rows
-        query = f"SELECT operation, exception, event_time FROM {table_name} WHERE event_id = %s ORDER BY event_time ASC"
+        param_placeholder = '?' if hasattr(conn, 'getinfo') else '%s'
+        query = f"SELECT operation, exception, event_time FROM {table_name} WHERE event_id = {param_placeholder} ORDER BY event_time ASC"
+        
         try:
             with conn.cursor() as cursor:
                 cursor.execute(query, (event_id,))

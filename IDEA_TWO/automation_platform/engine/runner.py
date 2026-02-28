@@ -60,10 +60,18 @@ class Runner:
                 continue
                 
             try:
+                # 2. Get connection using DatabaseFactory (now supports Azure Connection Strings)
                 conn = DatabaseFactory.get_connection(service_name, db_config_path)
                 
-                # Execute states and rules
-                scenario_results = StateExecutor.execute_states(scenario_data, conn)
+                if not conn:
+                    print(f"Skipping scenario {scenario_no} due to DB connection failure.")
+                    continue
+
+                # Execute states and rules (Pass full config instead of just path)
+                with open(db_config_path, 'r') as f:
+                    service_config = json.load(f)
+                
+                scenario_results = StateExecutor.execute_states(scenario_data, conn, service_config)
                 self.report_builder.add_results(scenario_results)
                 
             except Exception as e:

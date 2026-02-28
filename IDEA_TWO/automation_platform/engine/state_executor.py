@@ -2,6 +2,8 @@ import time
 from typing import List, Dict, Any
 from .rule_registry import RuleRegistry
 from .result_model import RuleResult
+from .azure_trigger import AzureEventHubProducer
+from .db_factory import DBFactory
 
 class StateExecutor:
     @staticmethod
@@ -21,34 +23,34 @@ class StateExecutor:
         return current
 
     @staticmethod
-    def execute_states(scenario_data: Dict[str, Any], conn: Any) -> List[RuleResult]:
+    def execute_states(scenario_data: Dict[str, Any], conn: Any, service_config: Dict[str, Any]) -> List[RuleResult]:
         """
-        Executes rules for each state in the scenario.
+        Executes all states in a scenario sequentially.
         """
         scenario_results = []
         service = scenario_data.get('service')
         scenario_no = scenario_data.get('scenario_no')
         states = scenario_data.get('states', [])
-        
-        # In a real engine, we'd trigger the event first, but the requirements focus on rule validation.
-        # Let's assume the event has been triggered or we just validate the resulting state.
-        # We need a lookup_key, let's assume it's part of the scenario_data for now, or extracted from the event file.
-        # For simplicity, let's assume scenario_no is the event_id for now or there's a specific lookup_key.
         lookup_key = scenario_data.get('lookup_key', scenario_no)
 
         for state_config in states:
-            state_name = state_config.get('name')
-            wait_config = state_config.get('wait', {})
-            timeout = wait_config.get('timeout', 0)
-            interval = wait_config.get('interval', 2)
+            state_name = state_config.get('name', 'Unknown')
             
-            # 1. Trigger Event Payload if present
+            # 1. Trigger REAL Azure Event Hub Event if present
             event_payload = state_config.get('event_payload')
             look_up_ref = state_config.get('look_up_ref', {})
             
+            if event_payload and service_config.get('event_hub'):
+                eh_config = service_config['event_hub']
+                AzureEventHubProducer.trigger_event(
+                    eh_config['connection_string'],
+                    eh_config['event_hub_name'],
+                    event_payload
+                )
+
             resolved_lookups = {}
             if event_payload:
-                # Extract values based on look_up_ref
+                # Extract values based on look_up_ref for validation lookup
                 payload_data = event_payload[0] if isinstance(event_payload, list) else event_payload
                 for payload_key, db_column in look_up_ref.items():
                     val = StateExecutor._get_nested_payload(payload_data, payload_key)
@@ -56,11 +58,6 @@ class StateExecutor:
                         resolved_lookups[db_column] = val
 
             rules = state_config.get('rules', [])
-            
-            # Wait if timeout is specified
-            if timeout > 0:
-                time.sleep(timeout) # Simplified: should actually poll until success or timeout
-
             for rule_config in rules:
                 try:
                     context = {
@@ -70,19 +67,12 @@ class StateExecutor:
                         'conn': conn,
                         'lookup_key': lookup_key,
                         'resolved_lookups': resolved_lookups,
-                        'look_up_ref': look_up_ref
+                        'look_up_ref': look_up_ref,
+                        'schema': service_config.get('schema', 'public') # Pass schema to context
                     }
                     
                     result = RuleRegistry.execute_rule(rule_config, **context)
-                    # If it's a SmartRule, we want to see the detailed structured logs
-                    if result.rule_type == 'smart_validate':
-                        # The results are already stored in the result object for the report builder
-                        pass
-                    
                     scenario_results.append(result)
-                    
-                    # If a critical rule fails, should we stop the scenario?
-                    # For now, let's just keep going and collect all results.
                     
                 except Exception as e:
                     # Capture rule execution error

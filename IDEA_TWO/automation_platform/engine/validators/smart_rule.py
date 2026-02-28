@@ -11,6 +11,7 @@ class SmartRule(BaseRule):
         conn = context.get('conn')
         default_lookup = context.get('lookup_key')
         resolved_lookups = context.get('resolved_lookups', {})
+        schema = context.get('schema', 'public')
         
         validations_config = self.rule_config.get('validations', {})
         
@@ -38,10 +39,16 @@ class SmartRule(BaseRule):
             look_up_id_name = checks.get('look_up_id', p_check.get('look_up_id'))
             lookup_val = resolved_lookups.get(look_up_id_name, default_lookup)
             
-            # 1. Fetch record
-            query = f"SELECT * FROM {table_name} WHERE {look_up_id_name or 'event_id'} = %s"
+            # 1. Fetch record with SCHEMA support
+            full_table_name = f"{schema}.{table_name}" if schema != 'public' else table_name
+            query = f"SELECT * FROM {full_table_name} WHERE {look_up_id_name or 'event_id'} = ?"
+            
             try:
                 with conn.cursor() as cursor:
+                    # Use ? for ODBC/Azure, %s for psycopg2/Local
+                    param_placeholder = '?' if hasattr(conn, 'getinfo') else '%s'
+                    query = query.replace('?', param_placeholder)
+                    
                     cursor.execute(query, (lookup_val,))
                     row = cursor.fetchone()
                     columns = [desc[0] for desc in cursor.description] if cursor.description else []

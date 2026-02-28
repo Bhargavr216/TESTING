@@ -1,7 +1,9 @@
 {
-  "host": "localhost",
-  "port": 5432,
   "database": "mfs_db",
-  "user": "postgres",
-  "password": "ajet"
+  "connection_string": "Driver={ODBC Driver 18 for SQL Server};Server=tcp:your-azure-server.database.windows.net,1433;Database=mfs_db;Uid=your_user;Pwd=your_password;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;",
+  "schema": "mfs_schema",
+  "event_hub": {
+    "connection_string": "Endpoint=sb://your-namespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=your_key",
+    "event_hub_name": "mfs-events"
+  }
 }
