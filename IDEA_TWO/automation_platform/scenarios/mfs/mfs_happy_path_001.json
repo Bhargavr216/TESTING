@@ -1,0 +1,35 @@
+{
+  "scenario_no": "MFS_HAPPY_PATH_001",
+  "service": "MFS",
+  "tags": {
+    "type": "happy_path",
+    "priority": "high"
+  },
+  "lookup_key": "mfs_happy_path_001_event",
+  "description": "End-to-end happy_path validation for MFS",
+  "states": [
+    {
+      "name": "EVENT_PROCESSED",
+      "event_payload": null,
+      "look_up_ref": {},
+      "rules": [
+        {
+          "type": "audit_validate",
+          "validations": {
+            "count": 2,
+            "exact_sequence": [
+              {
+                "operation": "CREATE",
+                "exception": null
+              },
+              {
+                "operation": "PUBLISHED",
+                "exception": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

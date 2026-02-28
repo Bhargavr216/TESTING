@@ -1,0 +1,91 @@
+{
+  "FSM": {
+    "fsm_job_queue": [
+      {
+        "event_id": "fsm_001",
+        "fulfilment_id": "ful_001",
+        "json_reponse": {
+          "order": {
+            "item_name": "item1"
+          },
+          "fulfilment_id": "fsm_001"
+        },
+        "exception": "API_EXCEPTION: 500 Internal Server Error",
+        "operation": "API_EXCEPTION",
+        "retry_count": 3
+      }
+    ],
+    "fsm_job_queue_arch": [
+      {
+        "event_id": "fsm_001",
+        "fulfilment_id": "ful_001",
+        "json_reponse": {
+          "order": {
+            "qty": 1,
+            "item_name": "item1"
+          },
+          "fulfilment_id": "fsm_001"
+        },
+        "exception": null,
+        "operation": "PUBLISHED",
+        "retry_count": 0
+      }
+    ],
+    "fsm_event_handled": [
+      {
+        "event_id": "fsm_001",
+        "processed_time": "2026-03-01T00:32:43.209332"
+      }
+    ],
+    "fsm_delivery_event": [
+      {
+        "fulfilment_id": "ful_001",
+        "order_id": "ord_001",
+        "poi_payload": {
+          "data": {
+            "qty": 1,
+            "item_name": "item1"
+          },
+          "fulfilment_id": "fsm_001"
+        },
+        "status": "P"
+      }
+    ]
+  },
+  "MFS": {
+    "mfs_event_handled": [
+      {
+        "event_id": "MFS_HAPPY_PATH_001",
+        "status": "SUCCESS"
+      }
+    ],
+    "mfs_job_queue": [
+      {
+        "event_id": "MFS_RETRY_001",
+        "retry_count": 5,
+        "state": "RETRY_EXHAUSTED"
+      }
+    ],
+    "mfs_job_queue_arch": [],
+    "mfs_audit": [],
+    "mfs_final": []
+  },
+  "FOS": {
+    "fos_event_handled": [
+      {
+        "event_id": "FOS_HAPPY_PATH_001",
+        "status": "SUCCESS"
+      }
+    ],
+    "fos_job_queue": [
+      {
+        "event_id": "FOS_RETRY_001",
+        "retry_count": 5,
+        "state": "RETRY_EXHAUSTED"
+      }
+    ],
+    "fos_job_queue_arch": [],
+    "fos_audit": [],
+    "order_details": []
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "scenario_no": "FOS_RETRY_001",
+  "service": "FOS",
+  "tags": {
+    "type": "retry",
+    "priority": "high"
+  },
+  "lookup_key": "fos_retry_001_event",
+  "description": "End-to-end retry validation for FOS",
+  "states": [
+    {
+      "name": "EVENT_PROCESSED",
+      "event_payload": null,
+      "look_up_ref": {},
+      "rules": [
+        {
+          "type": "audit_validate",
+          "validations": {
+            "retry_attempts": 3,
+            "exact_sequence": [
+              {
+                "operation": "CREATE",
+                "exception": null
+              },
+              {
+                "operation": "VALIDATE",
+                "exception": "!MANDATORY"
+              },
+              {
+                "operation": "VALIDATE",
+                "exception": "!MANDATORY"
+              },
+              {
+                "operation": "VALIDATE",
+                "exception": "!MANDATORY"
+              },
+              {
+                "operation": "VALIDATE",
+                "exception": null
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

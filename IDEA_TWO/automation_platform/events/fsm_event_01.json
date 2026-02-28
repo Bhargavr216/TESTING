@@ -1,0 +1,11 @@
+{
+  "event_id": "FSM_EVT_001",
+  "payload": {
+    "order_id": "ORD12345",
+    "status": "CREATED",
+    "details": {
+      "item": "laptop",
+      "quantity": 1
+    }
+  }
+}

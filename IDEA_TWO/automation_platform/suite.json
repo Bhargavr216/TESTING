@@ -1,0 +1,11 @@
+{
+  "suite_name": "Enterprise Order Suite",
+  "execution": {
+    "services": ["FSM", "MFS", "FOS"],
+    "test_types": ["happy_path", "negative", "retry"]
+  },
+  "scenario_source": {
+    "base_folder": "scenarios",
+    "auto_discover": true
+  }
+}
