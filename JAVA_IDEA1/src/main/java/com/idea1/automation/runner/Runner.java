@@ -22,7 +22,7 @@ public class Runner {
             DbConfig dbConfig = JsonUtils.loadJson("config/db_config.json", DbConfig.class);
 
             try (Connection conn = DbUtils.getConnection(dbConfig)) {
-                int totalCases = 0, totalTables = 0, passedTables = 0, failedTables = 0, skippedTables = 0;
+                int totalCases = 0, passedScenarios = 0, failedScenarios = 0;
                 List<String> failureSummary = new ArrayList<>();
 
                 StringBuilder htmlReport = new StringBuilder(ReportUtils.getHtmlHeader());
@@ -40,8 +40,9 @@ public class Runner {
 
                 for (EventPayload payload : payloads) {
                     totalCases++;
-                    boolean caseFailed = false;
+                    boolean scenarioFailed = false;
                     StringBuilder caseStepsHtml = new StringBuilder();
+                    StringBuilder validationTable = new StringBuilder();
 
                     banner(String.format("TEST CASE : %s\nSCENARIO  : %s\nEVENT     : %s\nORDER ID  : %s",
                             payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("orderId")));
@@ -60,15 +61,15 @@ public class Runner {
                     } catch (Exception e) {
                         System.err.println("   [ERROR] Event trigger failed: " + e.getMessage());
                         caseStepsHtml.append(String.format("<p class=\"fail\">Failed to trigger event: %s</p>", e.getMessage()));
-                        caseFailed = true;
+                        scenarioFailed = true;
                     }
                     caseStepsHtml.append("</div>");
 
                     // 3. VALIDATION
                     section("VALIDATION");
                     caseStepsHtml.append("<div class=\"step\"><div class=\"step-title\">Step 3: Database Validation</div>");
-
-                    int casePassedTables = 0, caseSkippedTables = 0, caseFailedTables = 0;
+                    
+                    validationTable.append("<table class='validation-table'><thead><tr><th>Table</th><th>Column</th><th>Expected</th><th>Actual</th><th>Result</th></tr></thead><tbody>");
                     
                     Map<String, String> tableExpectations = payload.getTable_expectations();
                     if (tableExpectations == null) tableExpectations = new HashMap<>();
@@ -79,14 +80,11 @@ public class Runner {
 
                         if (payload.getExpected_tables() != null && payload.getExpected_tables().contains(table)) continue;
 
-                        totalTables++;
                         TableSchema schema = schemas.get(table);
                         if (schema == null) {
                             failureSummary.add(table + " schema missing");
-                            caseFailed = true;
-                            failedTables++;
-                            caseFailedTables++;
-                            caseStepsHtml.append(String.format("<div class='box'><h3>Table : %s</h3><div class='box-content'><p class='fail'>Schema missing</p></div></div>", table));
+                            scenarioFailed = true;
+                            validationTable.append(String.format("<tr><td>%s</td><td colspan='3'>Schema missing</td><td class='fail'>FAIL</td></tr>", table));
                             continue;
                         }
 
@@ -97,29 +95,24 @@ public class Runner {
                         boolean isValid = ValidationUtils.validateTablePersistence(rows, expectation);
 
                         if (!isValid) {
-                            caseStepsHtml.append(String.format("<div class='box'><h3>Table : %s</h3><div class='box-content'>", table));
-                            caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, "ROW_PERSISTENCE", expectation, String.format("%d rows found", rows.size()), null));
-                            caseStepsHtml.append("</div></div>");
                             failureSummary.add(String.format("%s persistence violation", table));
-                            caseFailed = true;
-                            failedTables++;
-                            caseFailedTables++;
+                            scenarioFailed = true;
+                            validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>%s</td><td>%d rows found</td><td class='fail'>FAIL</td></tr>", 
+                                table, expectation, rows.size()));
                         } else {
-                            skippedTables++;
-                            caseSkippedTables++;
-                            caseStepsHtml.append(String.format("<div class='box'><h3>Table : %s</h3><div class='box-content'><p class='pass'>[SKIPPED] Presence validation only (%s)</p></div></div>", table, expectation));
+                            validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>%s</td><td>Valid</td><td class='skip'>SKIP</td></tr>", 
+                                table, expectation));
                         }
                     }
 
                     if (payload.getExpected_tables() != null) {
                         for (String table : payload.getExpected_tables()) {
-                            totalTables++;
                             boolean tableFailed = false;
-                            caseStepsHtml.append(String.format("<div class='box'><h3>Table : %s</h3><div class='box-content'>", table));
 
                             TableSchema schema = schemas.get(table);
                             if (schema == null) {
-                                caseStepsHtml.append("<p class='fail'>Schema missing</p>");
+                                validationTable.append(String.format("<tr><td>%s</td><td colspan='3'>Schema missing</td><td class='fail'>FAIL</td></tr>", table));
+                                scenarioFailed = true;
                                 tableFailed = true;
                             } else {
                                 String lookup = schema.getPrimary_lookup();
@@ -127,17 +120,19 @@ public class Runner {
                                 List<Map<String, Object>> rows = fetchRows(conn, table, lookup, value);
 
                                 if (rows.isEmpty()) {
-                                    caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, "ROW_PERSISTENCE", "PERSIST", "0 rows found", null));
+                                    validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>PERSIST</td><td>0 rows found</td><td class='fail'>FAIL</td></tr>", table));
                                     failureSummary.add(String.format("%s not persisted", table));
                                     tableFailed = true;
+                                    scenarioFailed = true;
                                 } else {
                                     // Row data validation
                                     List<Map<String, Object>> expectedRows = JsonUtils.loadExpectedRows(table);
                                     for (Map<String, Object> row : rows) {
                                         Map<String, Object> exp = ValidationUtils.matchExpectedRow(row, expectedRows, schema);
                                         if (exp == null) {
-                                            caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, "ROW_MATCH", "Expected row", "Not found", null));
+                                            validationTable.append(String.format("<tr><td>%s</td><td>Row Match</td><td>Expected row</td><td>Not found</td><td class='fail'>FAIL</td></tr>", table));
                                             tableFailed = true;
+                                            scenarioFailed = true;
                                             continue;
                                         }
 
@@ -152,45 +147,79 @@ public class Runner {
                                                     );
                                                     
                                                     if (jsonErrors.isEmpty()) {
-                                                        caseStepsHtml.append(String.format("<p class='pass'>[OK] %s (JSON) : All required fields match</p>", col));
+                                                        validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>Valid JSON</td><td>Valid JSON</td><td class='pass'>PASS</td></tr>", table, col));
                                                     } else {
                                                         for (Map<String, Object> jsonError : jsonErrors) {
                                                             String path = (String) jsonError.get("path");
                                                             Object exp_val = jsonError.get("expected");
                                                             Object act_val = jsonError.get("actual");
-                                                            String msg = (String) jsonError.getOrDefault("error", "");
-                                                            caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, col + "." + path, exp_val, act_val, msg));
+                                                            validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
+                                                                table, col, path, exp_val, act_val));
                                                         }
                                                         tableFailed = true;
+                                                        scenarioFailed = true;
                                                     }
                                                 } else {
                                                     // Regular column validation
-                                                    if (!ValidationUtils.compareValues(exp.get(col), row.get(col))) {
-                                                        caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, col, exp.get(col), row.get(col), null));
+                                                    boolean colMatch = ValidationUtils.compareValues(exp.get(col), row.get(col));
+                                                    String result = colMatch ? "PASS" : "FAIL";
+                                                    String resultClass = colMatch ? "pass" : "fail";
+                                                    if (!colMatch) {
                                                         tableFailed = true;
-                                                    } else {
-                                                        caseStepsHtml.append(String.format("<p class='pass'>[OK] %s : %s</p>", col, row.get(col)));
+                                                        scenarioFailed = true;
                                                     }
+                                                    validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>%s</td></tr>", 
+                                                        table, col, exp.get(col), row.get(col), resultClass, result));
+                                                }
+                                            }
+                                        }
+
+                                        // Null presence checks
+                                        if (schema.getNull_presence_check() != null) {
+                                            Map<String, Object> nullCheckResult = ValidationUtils.validateNullPresence(schema.getNull_presence_check(), row);
+                                            if (!(boolean) nullCheckResult.get("passed")) {
+                                                tableFailed = true;
+                                                scenarioFailed = true;
+                                            }
+                                            @SuppressWarnings("unchecked")
+                                            List<Map<String, Object>> nullErrors = (List<Map<String, Object>>) nullCheckResult.get("errors");
+                                            for (Map<String, Object> error : nullErrors) {
+                                                String col = (String) error.get("column");
+                                                Object exp_val = error.get("expected");
+                                                Object act_val = error.get("actual");
+                                                String resultClass = "fail";
+                                                validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>FAIL</td></tr>", 
+                                                    table, col, exp_val, act_val, resultClass));
+                                            }
+                                            // Add passing null checks to table as well
+                                            for (String col : schema.getNull_presence_check().keySet()) {
+                                                boolean found = false;
+                                                for (Map<String, Object> error : nullErrors) {
+                                                    if (col.equals(error.get("column"))) {
+                                                        found = true;
+                                                        break;
+                                                    }
+                                                }
+                                                if (!found) {
+                                                    Object actualValue = row.get(col);
+                                                    String expectation = schema.getNull_presence_check().get(col);
+                                                    String actualDisplay = actualValue == null ? "null" : actualValue.toString();
+                                                    validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='pass'>PASS</td></tr>", 
+                                                        table, col, expectation, actualDisplay));
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-                            caseStepsHtml.append("</div></div>");
-                            if (tableFailed) {
-                                failedTables++;
-                                caseFailed = true;
-                                caseFailedTables++;
-                            } else {
-                                passedTables++;
-                                casePassedTables++;
-                            }
                         }
                     }
+                    
+                    validationTable.append("</tbody></table>");
+                    caseStepsHtml.append(validationTable);
                     caseStepsHtml.append("</div>");
 
-                    String statusClass = caseFailed ? "fail" : "pass";
+                    String statusClass = scenarioFailed ? "fail" : "pass";
                     htmlReport.append(String.format("<details class=\"case\" id=\"case-%s\" open>\n<summary>\n" +
                                     "  <span class=\"case-id\">%s</span>\n" +
                                     "  <span class=\"case-title\">%s</span>\n" +
@@ -198,15 +227,20 @@ public class Runner {
                                     "</summary>\n<div class=\"case-body\">\n%s\n</div></details>\n",
                             payload.getTest_case_id(), payload.getTest_case_id(), payload.getScenario_name(),
                             statusClass, statusClass.toUpperCase(), caseStepsHtml.toString()));
+                    
+                    if (scenarioFailed) {
+                        failedScenarios++;
+                    } else {
+                        passedScenarios++;
+                    }
                 }
 
                 String summaryCards = String.format(
                     "<div class=\"summary-cards\">\n" +
                     "  <div class=\"card\"><h3>Total Scenarios</h3><div class=\"value\">%d</div></div>\n" +
-                    "  <div class=\"card pass\"><h3>Tables Passed</h3><div class=\"value\">%d</div></div>\n" +
-                    "  <div class=\"card fail\"><h3>Tables Failed</h3><div class=\"value\">%d</div></div>\n" +
-                    "  <div class=\"card\"><h3>Tables Skipped</h3><div class=\"value\">%d</div></div>\n" +
-                    "</div>\n", totalCases, passedTables, failedTables, skippedTables);
+                    "  <div class=\"card pass\"><h3>Scenarios Passed</h3><div class=\"value\">%d</div></div>\n" +
+                    "  <div class=\"card fail\"><h3>Scenarios Failed</h3><div class=\"value\">%d</div></div>\n" +
+                    "</div>\n", totalCases, passedScenarios, failedScenarios);
                 
                 int placeholderIdx = htmlReport.indexOf("<!--SUMMARY_CARDS-->");
                 htmlReport.replace(placeholderIdx, placeholderIdx + 20, summaryCards);
