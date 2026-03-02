@@ -44,24 +44,27 @@ public class Runner {
                     StringBuilder caseStepsHtml = new StringBuilder();
 
                     banner(String.format("TEST CASE : %s\nSCENARIO  : %s\nEVENT     : %s\nORDER ID  : %s",
-                            payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("order_id")));
+                            payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("orderId")));
 
                     // 1. DB CLEANUP
                     section("DATABASE CLEANUP");
                     caseStepsHtml.append("<div class=\"step\"><div class=\"step-title\">Step 1: Database Cleanup</div><ul>");
-                    if (payload.getExpected_tables() != null) {
-                        for (String table : payload.getExpected_tables()) {
-                            TableSchema schema = schemas.get(table);
-                            if (schema != null) {
-                                String lookup = schema.getPrimary_lookup();
-                                Object value = payload.getLookup_ids().get(lookup);
-                                if (value != null) {
-                                    DbUtils.deleteTableData(conn, Collections.singletonList(table), lookup, value);
-                                    caseStepsHtml.append(String.format("<li>Cleaned table <b>%s</b> for %s=%s</li>", table, lookup, value));
-                                }
-                            }
-                        }
-                    }
+//                    if (payload.getExpected_tables() != null) {
+//                        for (String table : payload.getExpected_tables()) {
+//                            TableSchema schema = schemas.get(table);
+//                            if (schema != null) {
+//                                String lookup = schema.getPrimary_lookup();
+//                                Object value = payload.getLookup_ids().get(lookup);
+//                                if (value != null) {
+//                                    DbUtils.deleteTableData(conn, Collections.singletonList(table), lookup, value);
+//                                    caseStepsHtml.append(String.format("<li>Cleaned table <b>%s</b> for %s=%s</li>", table, lookup, value));
+//                                }
+//                            }
+//                        }
+//                    }
+                    
+                    DbUtils.deleteallTableData(conn);
+                    caseStepsHtml.append(String.format("<li>Cleaned tables in the Database </li>"));
                     caseStepsHtml.append("</ul></div>");
 
                     // 2. TRIGGER EVENT
@@ -70,8 +73,8 @@ public class Runner {
                     try {
                         EventHubUtils.triggerEvent(dbConfig, payload.getEvent_payload());
                         caseStepsHtml.append(String.format("<p class=\"pass\">Successfully triggered <b>%s</b> event to Event Hub</p>", payload.getEvent_type()));
-                        System.out.println("   [WAIT] Waiting 5 seconds for processing...");
-                        Thread.sleep(5000);
+                        System.out.println("   [WAIT] Waiting 10 seconds for processing...");
+                        Thread.sleep(10000);
                     } catch (Exception e) {
                         System.err.println("   [ERROR] Event trigger failed: " + e.getMessage());
                         caseStepsHtml.append(String.format("<p class=\"fail\">Failed to trigger event: %s</p>", e.getMessage()));
@@ -240,7 +243,7 @@ public class Runner {
 
     private static List<Map<String, Object>> fetchRows(Connection conn, String table, String lookup, Object value) throws SQLException {
         List<Map<String, Object>> rows = new ArrayList<>();
-        String sql = String.format("SELECT * FROM %s WHERE %s = ?", table, lookup);
+        String sql = String.format("SELECT * FROM dcc.%s WHERE %s = ?", table, lookup);
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, value);
             try (ResultSet rs = stmt.executeQuery()) {
