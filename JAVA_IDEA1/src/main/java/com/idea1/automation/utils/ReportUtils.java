@@ -62,6 +62,11 @@ public class ReportUtils {
                 "  border-radius: 8px;\n" +
                 "  box-shadow: 0 2px 8px rgba(0,0,0,0.05);\n" +
                 "  border-left: 5px solid var(--accent);\n" +
+                    ".step-controls { display:flex; gap:8px; align-items:center; margin-bottom:8px; }\n" +
+                    ".step-toggle { background:transparent; border:1px solid var(--line); padding:6px 10px; border-radius:6px; cursor:pointer; }\n" +
+                    ".step-filters { display:flex; gap:6px; }\n" +
+                    ".step-filter { background:transparent; border:1px solid var(--line); padding:6px 8px; border-radius:6px; cursor:pointer; font-size:12px; }\n" +
+                    ".step-filter.active { background:var(--panel); color:var(--accent); border-color:var(--panel); }\n" +
                 "}\n" +
                 ".card.pass { border-left-color: var(--ok); }\n" +
                 ".card.fail { border-left-color: var(--err); }\n" +
@@ -180,6 +185,39 @@ public class ReportUtils {
                 "    buildSidebar();\n" +
                 "  }\n" +
                 "  document.querySelectorAll('.filter-btn').forEach(function(b){ b.addEventListener('click', function(){ applyFilter(b.getAttribute('data-filter')); }); });\n" +
+                "\n" +
+                "  // Step-level controls: toggle and per-step filters\n" +
+                "  document.addEventListener('click', function(e){\n" +
+                "    try {\n" +
+                "      if(e.target && e.target.classList && e.target.classList.contains('step-toggle')){\n" +
+                "        var target = e.target.getAttribute('data-target');\n" +
+                "        var el = document.getElementById(target);\n" +
+                "        if(el) el.style.display = (el.style.display==='none' || el.style.display==='') ? 'block' : 'none';\n" +
+                "        e.preventDefault();\n" +
+                "      }\n" +
+                "      if(e.target && e.target.classList && e.target.classList.contains('step-filter')){\n" +
+                "        var target = e.target.getAttribute('data-target');\n" +
+                "        var filter = e.target.getAttribute('data-filter');\n" +
+                "        var parent = e.target.parentElement;\n" +
+                "        if(parent){ parent.querySelectorAll('.step-filter').forEach(function(b){ b.classList.toggle('active', b===e.target); }); }\n" +
+                "        applyStepFilter(target, filter);\n" +
+                "        e.preventDefault();\n" +
+                "      }\n" +
+                "    } catch(err) { console.error(err); }\n" +
+                "  });\n" +
+                "\n" +
+                "  function applyStepFilter(containerId, filter){\n" +
+                "    var container = document.getElementById(containerId);\n" +
+                "    if(!container) return;\n" +
+                "    container.querySelectorAll('table.validation-table tbody tr').forEach(function(tr){\n" +
+                "      var lastTd = tr.querySelector('td:last-child');\n" +
+                "      var cls = lastTd ? lastTd.className : '';\n" +
+                "      var status = 'pass';\n" +
+                "      if(cls.indexOf('fail')!==-1) status='fail'; else if(cls.indexOf('skip')!==-1) status='skip';\n" +
+                "      tr.style.display = (filter==='all' || filter===status) ? '' : 'none';\n" +
+                "    });\n" +
+                "  }\n" +
+                "\n" +
                 "  buildSidebar();\n" +
                 "});\n" +
                 "</script>\n";
