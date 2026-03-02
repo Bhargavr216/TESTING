@@ -145,6 +145,14 @@ public class ReportUtils {
                 ".fail-table { width:100%; border-collapse: collapse; margin-top:8px; }\n" +
                 ".fail-table th, .fail-table td { border:1px solid var(--line); padding:8px; text-align:left; font-size:13px; }\n" +
                 ".fail-table th { background: var(--panel-soft); font-weight:600; }\n" +
+                ".validation-table { width:100%; border-collapse: collapse; margin:15px 0; }\n" +
+                ".validation-table th { background:linear-gradient(135deg, var(--accent-soft) 0%, var(--panel-soft) 100%); padding:12px; border:1px solid var(--line); font-weight:600; text-align:left; color:var(--accent); }\n" +
+                ".validation-table td { padding:10px 12px; border:1px solid var(--line); font-size:13px; }\n" +
+                ".validation-table tr:nth-child(even) { background:var(--panel-soft); }\n" +
+                ".validation-table tr:hover { background:var(--accent-soft); }\n" +
+                ".validation-table .pass { color:var(--ok); font-weight:600; }\n" +
+                ".validation-table .fail { color:var(--err); font-weight:600; }\n" +
+                ".validation-table .skip { color:var(--warn); font-weight:600; }\n" +
                 "</style>\n" +
                 "</head>\n" +
                 "<body>\n" +
