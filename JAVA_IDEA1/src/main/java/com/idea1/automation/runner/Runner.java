@@ -45,7 +45,7 @@ public class Runner {
                     StringBuilder validationTable = new StringBuilder();
 
                     banner(String.format("TEST CASE : %s\nSCENARIO  : %s\nEVENT     : %s\nORDER ID  : %s",
-                            payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("orderId")));
+                            payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("order_id")));
 
                     // Note: DB cleanup is performed once before the test run (see report header)
                     caseStepsHtml.append("<div class='step'><div class='step-title'>Pre-test DB Cleanup</div><p>Database was cleared at test start (one-time).</p></div>");
@@ -76,17 +76,16 @@ public class Runner {
                     
                     validationTable.append("<table class='validation-table'><thead><tr><th>Table</th><th>Column</th><th>Expected</th><th>Actual</th><th>Result</th></tr></thead><tbody>");
                     
-                    Map<String, String> tableExpectations = payload.getTable_expectations();
-                    if (tableExpectations == null) tableExpectations = new HashMap<>();
+                    // Combine all tables to validate
+                    Set<String> allTables = new LinkedHashSet<>();
+                    if (payload.getTable_expectations() != null) {
+                        allTables.addAll(payload.getTable_expectations().keySet());
+                    }
+                    if (payload.getExpected_tables() != null) {
+                        allTables.addAll(payload.getExpected_tables());
+                    }
 
-                    for (Map.Entry<String, String> entry : tableExpectations.entrySet()) {
-                        String table = entry.getKey();
-                        String expectation = entry.getValue();
-
-                        // table_expectations should take precedence over expected_tables
-                        // therefore do not skip processing this table even if it's listed
-                        // under payload.expected_tables
-
+                    for (String table : allTables) {
                         TableSchema schema = schemas.get(table);
                         if (schema == null) {
                             failureSummary.add(table + " schema missing");
@@ -95,126 +94,120 @@ public class Runner {
                             continue;
                         }
 
+                        String expectation = payload.getTable_expectations() != null ? payload.getTable_expectations().get(table) : null;
+                        // If not in table_expectations but in expected_tables, default to PERSIST
+                        if (expectation == null && payload.getExpected_tables() != null && payload.getExpected_tables().contains(table)) {
+                            expectation = "PERSIST";
+                        }
+                        if (expectation == null) expectation = "PERSIST"; 
+
                         String lookup = schema.getPrimary_lookup();
                         Object lookupValue = payload.getLookup_ids().get(lookup);
 
                         List<Map<String, Object>> rows = fetchRows(conn, table, lookup, lookupValue);
-                        boolean isValid = ValidationUtils.validateTablePersistence(rows, expectation);
+                        boolean persistenceValid = ValidationUtils.validateTablePersistence(rows, expectation);
+                        String persistenceResult = persistenceValid ? "PASS" : "FAIL";
+                        String persistenceClass = persistenceValid ? "pass" : "fail";
 
-                        if (!isValid) {
+                        if (!persistenceValid) {
                             failureSummary.add(String.format("%s persistence violation", table));
                             scenarioFailed = true;
-                            validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>%s</td><td>%d rows found</td><td class='fail'>FAIL</td></tr>", 
-                                table, expectation, rows.size()));
-                        } else {
-                            validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>%s</td><td>Valid</td><td class='skip'>SKIP</td></tr>", 
-                                table, expectation));
                         }
-                    }
+                        
+                        validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>%s</td><td>%d rows found</td><td class='%s'>%s</td></tr>", 
+                            table, expectation, rows.size(), persistenceClass, persistenceResult));
 
-                    if (payload.getExpected_tables() != null) {
-                        for (String table : payload.getExpected_tables()) {
-                            boolean tableFailed = false;
-
-                            TableSchema schema = schemas.get(table);
-                            if (schema == null) {
-                                validationTable.append(String.format("<tr><td>%s</td><td colspan='3'>Schema missing</td><td class='fail'>FAIL</td></tr>", table));
-                                scenarioFailed = true;
-                                tableFailed = true;
-                            } else {
-                                String lookup = schema.getPrimary_lookup();
-                                Object value = payload.getLookup_ids().get(lookup);
-                                List<Map<String, Object>> rows = fetchRows(conn, table, lookup, value);
-
-                                if (rows.isEmpty()) {
-                                    validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>PERSIST</td><td>0 rows found</td><td class='fail'>FAIL</td></tr>", table));
-                                    failureSummary.add(String.format("%s not persisted", table));
-                                    tableFailed = true;
+                        // If it should persist and it does, perform deeper validation
+                        if ("PERSIST".equals(expectation) && !rows.isEmpty()) {
+                            List<Map<String, Object>> expectedRows = JsonUtils.loadExpectedRows(table);
+                            for (Map<String, Object> row : rows) {
+                                Map<String, Object> exp = ValidationUtils.matchExpectedRow(row, expectedRows, schema);
+                                if (exp == null) {
+                                    validationTable.append(String.format("<tr><td>%s</td><td>Row Match</td><td>Expected row</td><td>Not found</td><td class='fail'>FAIL</td></tr>", table));
                                     scenarioFailed = true;
-                                } else {
-                                    // Row data validation
-                                    List<Map<String, Object>> expectedRows = JsonUtils.loadExpectedRows(table);
-                                    for (Map<String, Object> row : rows) {
-                                        Map<String, Object> exp = ValidationUtils.matchExpectedRow(row, expectedRows, schema);
-                                        if (exp == null) {
-                                            validationTable.append(String.format("<tr><td>%s</td><td>Row Match</td><td>Expected row</td><td>Not found</td><td class='fail'>FAIL</td></tr>", table));
-                                            tableFailed = true;
-                                            scenarioFailed = true;
-                                            continue;
-                                        }
+                                    continue;
+                                }
 
-                                        if (schema.getMandatory_columns() != null) {
-                                            for (String col : schema.getMandatory_columns()) {
-                                                // Check if this is a JSON column with field-level validation
-                                                if (schema.getJson_columns() != null && schema.getJson_columns().containsKey(col)) {
-                                                    TableSchema.JsonColumnConfig jsonConfig = schema.getJson_columns().get(col);
-                                                    List<Map<String, Object>> jsonErrors = ValidationUtils.validateJsonColumn(
-                                                        exp.get(col), row.get(col), 
-                                                        jsonConfig.getRequired(), jsonConfig.getIgnored()
-                                                    );
-                                                    
-                                                    if (jsonErrors.isEmpty()) {
-                                                        validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>Valid JSON</td><td>Valid JSON</td><td class='pass'>PASS</td></tr>", table, col));
-                                                    } else {
-                                                        for (Map<String, Object> jsonError : jsonErrors) {
-                                                            String path = (String) jsonError.get("path");
-                                                            Object exp_val = jsonError.get("expected");
-                                                            Object act_val = jsonError.get("actual");
-                                                            validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
-                                                                table, col, path, exp_val, act_val));
-                                                        }
-                                                        tableFailed = true;
-                                                        scenarioFailed = true;
-                                                    }
-                                                } else {
-                                                    // Regular column validation
-                                                    boolean colMatch = ValidationUtils.compareValues(exp.get(col), row.get(col));
-                                                    String result = colMatch ? "PASS" : "FAIL";
-                                                    String resultClass = colMatch ? "pass" : "fail";
-                                                    if (!colMatch) {
-                                                        tableFailed = true;
-                                                        scenarioFailed = true;
-                                                    }
-                                                    validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>%s</td></tr>", 
-                                                        table, col, exp.get(col), row.get(col), resultClass, result));
+                                if (schema.getMandatory_columns() != null) {
+                                    for (String col : schema.getMandatory_columns()) {
+                                        // Check if this is a JSON column with field-level validation defined in schema
+                                        if (schema.getJson_columns() != null && schema.getJson_columns().containsKey(col)) {
+                                            TableSchema.JsonColumnConfig jsonConfig = schema.getJson_columns().get(col);
+                                            List<Map<String, Object>> jsonErrors = ValidationUtils.validateJsonColumn(
+                                                exp.get(col), row.get(col), 
+                                                jsonConfig.getRequired(), jsonConfig.getIgnored()
+                                            );
+                                            
+                                            if (jsonErrors.isEmpty()) {
+                                                validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>Valid JSON</td><td>Valid JSON</td><td class='pass'>PASS</td></tr>", table, col));
+                                            } else {
+                                                for (Map<String, Object> jsonError : jsonErrors) {
+                                                    String path = (String) jsonError.get("path");
+                                                    Object exp_val = jsonError.get("expected");
+                                                    Object act_val = jsonError.get("actual");
+                                                    validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
+                                                        table, col, path, exp_val, act_val));
                                                 }
-                                            }
-                                        }
-
-                                        // Null presence checks
-                                        if (schema.getNull_presence_check() != null) {
-                                            Map<String, Object> nullCheckResult = ValidationUtils.validateNullPresence(schema.getNull_presence_check(), row);
-                                            if (!(boolean) nullCheckResult.get("passed")) {
-                                                tableFailed = true;
                                                 scenarioFailed = true;
                                             }
-                                            @SuppressWarnings("unchecked")
-                                            List<Map<String, Object>> nullErrors = (List<Map<String, Object>>) nullCheckResult.get("errors");
-                                            for (Map<String, Object> error : nullErrors) {
-                                                String col = (String) error.get("column");
-                                                Object exp_val = error.get("expected");
-                                                Object act_val = error.get("actual");
-                                                String resultClass = "fail";
-                                                validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>FAIL</td></tr>", 
-                                                    table, col, exp_val, act_val, resultClass));
-                                            }
-                                            // Add passing null checks to table as well
-                                            for (String col : schema.getNull_presence_check().keySet()) {
-                                                boolean found = false;
-                                                for (Map<String, Object> error : nullErrors) {
-                                                    if (col.equals(error.get("column"))) {
-                                                        found = true;
-                                                        break;
-                                                    }
+                                        } else {
+                                            // Handle nested path if col contains dots or is just a regular column
+                                            Object expectedValue;
+                                            Object actualValue;
+
+                                            if (col.contains(".")) {
+                                                String[] parts = col.split("\\.", 2);
+                                                String baseCol = parts[0];
+                                                String path = parts[1];
+                                                
+                                                if (row.containsKey(baseCol)) {
+                                                    expectedValue = ValidationUtils.getNestedValue(exp.get(baseCol), path);
+                                                    actualValue = ValidationUtils.getNestedValue(row.get(baseCol), path);
+                                                } else {
+                                                    expectedValue = exp.get(col);
+                                                    actualValue = row.get(col);
                                                 }
-                                                if (!found) {
-                                                    Object actualValue = row.get(col);
-                                                    String expectation = schema.getNull_presence_check().get(col);
-                                                    String actualDisplay = actualValue == null ? "null" : actualValue.toString();
-                                                    validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='pass'>PASS</td></tr>", 
-                                                        table, col, expectation, actualDisplay));
-                                                }
+                                            } else {
+                                                expectedValue = exp.get(col);
+                                                actualValue = row.get(col);
                                             }
+
+                                            boolean colMatch = ValidationUtils.compareValues(expectedValue, actualValue);
+                                            String result = colMatch ? "PASS" : "FAIL";
+                                            String resultClass = colMatch ? "pass" : "fail";
+                                            if (!colMatch) {
+                                                scenarioFailed = true;
+                                            }
+                                            validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>%s</td></tr>", 
+                                                table, col, expectedValue, actualValue, resultClass, result));
+                                        }
+                                    }
+                                }
+
+                                // Null presence checks
+                                if (schema.getNull_presence_check() != null) {
+                                    Map<String, Object> nullCheckResult = ValidationUtils.validateNullPresence(schema.getNull_presence_check(), row);
+                                    if (!(boolean) nullCheckResult.get("passed")) {
+                                        scenarioFailed = true;
+                                    }
+                                    @SuppressWarnings("unchecked")
+                                    List<Map<String, Object>> nullErrors = (List<Map<String, Object>>) nullCheckResult.get("errors");
+                                    for (Map<String, Object> error : nullErrors) {
+                                        String col = (String) error.get("column");
+                                        Object exp_val = error.get("expected");
+                                        Object act_val = error.get("actual");
+                                        validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
+                                            table, col, exp_val, act_val));
+                                    }
+                                    // Add passing null checks
+                                    for (String col : schema.getNull_presence_check().keySet()) {
+                                        boolean isError = false;
+                                        for (Map<String, Object> e : nullErrors) { if (col.equals(e.get("column"))) { isError = true; break; } }
+                                        if (!isError) {
+                                            Object actualValue = row.get(col);
+                                            String expectationVal = schema.getNull_presence_check().get(col);
+                                            validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='pass'>PASS</td></tr>", 
+                                                table, col, expectationVal, actualValue == null ? "null" : actualValue));
                                         }
                                     }
                                 }
