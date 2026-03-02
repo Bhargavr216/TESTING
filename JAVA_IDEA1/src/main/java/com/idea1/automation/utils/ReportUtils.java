@@ -48,8 +48,9 @@ public class ReportUtils {
                 "}\n" +
                 ".header h1 { margin: 0; font-size: 24px; }\n" +
                 ".filters { display:flex; gap:8px; align-items:center; }\n" +
-                ".filter-btn { background:transparent; border:1px solid var(--line); padding:6px 10px; border-radius:6px; cursor:pointer; color:white; opacity:0.9; transition:all 0.2s; }\n" +
-                ".filter-btn.active { background:var(--panel); color:var(--accent); border-color:var(--panel); }\n" +
+                ".filter-btn { background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); padding:8px 16px; border-radius:8px; cursor:pointer; color:white; font-weight:600; transition:all 0.2s; }\n" +
+                ".filter-btn:hover { background:rgba(255,255,255,0.25); }\n" +
+                ".filter-btn.active { background:white; color:var(--accent); border-color:white; box-shadow:0 2px 8px rgba(0,0,0,0.2); }\n" +
                 ".summary-cards {\n" +
                 "  display: grid;\n" +
                 "  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));\n" +
@@ -62,12 +63,14 @@ public class ReportUtils {
                 "  border-radius: 8px;\n" +
                 "  box-shadow: 0 2px 8px rgba(0,0,0,0.05);\n" +
                 "  border-left: 5px solid var(--accent);\n" +
-                    ".step-controls { display:flex; gap:8px; align-items:center; margin-bottom:8px; }\n" +
-                    ".step-toggle { background:transparent; border:1px solid var(--line); padding:6px 10px; border-radius:6px; cursor:pointer; }\n" +
-                    ".step-filters { display:flex; gap:6px; }\n" +
-                    ".step-filter { background:transparent; border:1px solid var(--line); padding:6px 8px; border-radius:6px; cursor:pointer; font-size:12px; }\n" +
-                    ".step-filter.active { background:var(--panel); color:var(--accent); border-color:var(--panel); }\n" +
                 "}\n" +
+                ".step-controls { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; background:var(--panel-soft); padding:10px; border-radius:10px; border:1px solid var(--line); }\n" +
+                ".step-toggle { background:var(--accent); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:600; transition:all 0.2s; }\n" +
+                ".step-toggle:hover { background:var(--accent); opacity:0.9; transform:translateY(-1px); }\n" +
+                ".step-filters { display:flex; gap:6px; background:white; padding:4px; border-radius:8px; border:1px solid var(--line); }\n" +
+                ".step-filter { background:transparent; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; color:var(--muted); transition:all 0.2s; }\n" +
+                ".step-filter:hover { background:var(--accent-soft); color:var(--accent); }\n" +
+                ".step-filter.active { background:var(--accent); color:white; }\n" +
                 ".card.pass { border-left-color: var(--ok); }\n" +
                 ".card.fail { border-left-color: var(--err); }\n" +
                 ".card h3 { margin: 0 0 10px 0; color: var(--muted); font-size: 14px; text-transform: uppercase; }\n" +
