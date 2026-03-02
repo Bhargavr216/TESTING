@@ -18,6 +18,7 @@ public class ReportUtils {
                 "  --panel-soft: #f8fbff;\n" +
                 "  --line: #d9e4f1;\n" +
                 "  --text: #1f2a37;\n" +
+                "  --warn: #797670;\n" +
                 "  --muted: #5b6b80;\n" +
                 "  --accent: #0078d4;\n" +
                 "  --accent-soft: #eef7ff;\n" +
