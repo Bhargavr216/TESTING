@@ -67,7 +67,12 @@ public class Runner {
 
                     // 3. VALIDATION
                     section("VALIDATION");
-                    caseStepsHtml.append("<div class=\"step\"><div class=\"step-title\">Step 3: Database Validation</div>");
+                        caseStepsHtml.append("<div class=\"step\"><div class=\"step-title\">Step 3: Database Validation</div>");
+                        caseStepsHtml.append("<div class='step-controls'><button class='step-toggle' data-target='val-" + payload.getTest_case_id() + "'>Show Validation</button>" +
+                            "<div class='step-filters'><button class='step-filter active' data-target='val-" + payload.getTest_case_id() + "' data-filter='all'>All</button>" +
+                            "<button class='step-filter' data-target='val-" + payload.getTest_case_id() + "' data-filter='pass'>Passed</button>" +
+                            "<button class='step-filter' data-target='val-" + payload.getTest_case_id() + "' data-filter='fail'>Failed</button>" +
+                            "<button class='step-filter' data-target='val-" + payload.getTest_case_id() + "' data-filter='skip'>Skipped</button></div></div>");
                     
                     validationTable.append("<table class='validation-table'><thead><tr><th>Table</th><th>Column</th><th>Expected</th><th>Actual</th><th>Result</th></tr></thead><tbody>");
                     
@@ -78,7 +83,9 @@ public class Runner {
                         String table = entry.getKey();
                         String expectation = entry.getValue();
 
-                        if (payload.getExpected_tables() != null && payload.getExpected_tables().contains(table)) continue;
+                        // table_expectations should take precedence over expected_tables
+                        // therefore do not skip processing this table even if it's listed
+                        // under payload.expected_tables
 
                         TableSchema schema = schemas.get(table);
                         if (schema == null) {
@@ -216,7 +223,9 @@ public class Runner {
                     }
                     
                     validationTable.append("</tbody></table>");
+                    caseStepsHtml.append("<div id='val-" + payload.getTest_case_id() + "' class='validation-container' style='display:none;'>");
                     caseStepsHtml.append(validationTable);
+                    caseStepsHtml.append("</div>");
                     caseStepsHtml.append("</div>");
 
                     String statusClass = scenarioFailed ? "fail" : "pass";
