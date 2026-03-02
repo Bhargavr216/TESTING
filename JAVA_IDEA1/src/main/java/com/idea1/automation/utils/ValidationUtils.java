@@ -194,6 +194,62 @@ public class ValidationUtils {
         return Objects.equals(expected, actual);
     }
 
+    /**
+     * Validates a JSON column by checking only required paths and ignoring specified paths.
+     * @return List of errors (empty = valid, non-empty = invalid)
+     */
+    public static List<Map<String, Object>> validateJsonColumn(Object expectedObj, Object actualObj, 
+                                                                  List<String> requiredPaths, 
+                                                                  List<String> ignoredPaths) {
+        List<Map<String, Object>> errors = new ArrayList<>();
+        
+        if (expectedObj == null && actualObj == null) return errors;
+        if (expectedObj == null || actualObj == null) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("path", "root");
+            error.put("expected", expectedObj);
+            error.put("actual", actualObj);
+            errors.add(error);
+            return errors;
+        }
+
+        try {
+            JsonNode expectedJson = mapper.valueToTree(expectedObj);
+            JsonNode actualJson = mapper.valueToTree(actualObj);
+
+            // Remove ignored paths from both
+            if (ignoredPaths != null && !ignoredPaths.isEmpty()) {
+                removeIgnoredPaths(expectedJson, ignoredPaths);
+                removeIgnoredPaths(actualJson, ignoredPaths);
+            }
+
+            // Check if required paths exist
+            if (requiredPaths != null && !requiredPaths.isEmpty()) {
+                List<String> missing = checkRequiredJsonPaths(actualJson, requiredPaths);
+                if (!missing.isEmpty()) {
+                    for (String missingPath : missing) {
+                        Map<String, Object> error = new HashMap<>();
+                        error.put("path", missingPath);
+                        error.put("expected", "required field");
+                        error.put("actual", "missing");
+                        errors.add(error);
+                    }
+                }
+            }
+
+            // Deep compare
+            errors.addAll(deepCompare(expectedJson, actualJson, ""));
+            
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("path", "root");
+            error.put("error", e.getMessage());
+            errors.add(error);
+        }
+
+        return errors;
+    }
+
     private static boolean isNumeric(Object obj) {
         return obj instanceof Number;
     }
