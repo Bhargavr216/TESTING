@@ -250,6 +250,51 @@ public class ValidationUtils {
         return errors;
     }
 
+    public static Map<String, Object> validateNullPresence(Map<String, String> nullCheckConfig, Map<String, Object> actualRow) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("passed", true);
+        
+        if (nullCheckConfig == null || nullCheckConfig.isEmpty()) {
+            return result;
+        }
+        
+        List<Map<String, Object>> errors = new ArrayList<>();
+        
+        for (Map.Entry<String, String> entry : nullCheckConfig.entrySet()) {
+            String column = entry.getKey();
+            String expectation = entry.getValue(); // "null" or "not_null"
+            
+            Object actualValue = actualRow.get(column);
+            boolean isNull = actualValue == null;
+            
+            boolean matches = false;
+            String actualDisplay;
+            
+            if ("null".equalsIgnoreCase(expectation)) {
+                matches = isNull;
+                actualDisplay = isNull ? "null" : actualValue.toString();
+            } else if ("not_null".equalsIgnoreCase(expectation)) {
+                matches = !isNull;
+                actualDisplay = isNull ? "null" : actualValue.toString();
+            } else {
+                matches = true;
+                actualDisplay = actualValue.toString();
+            }
+            
+            if (!matches) {
+                result.put("passed", false);
+                Map<String, Object> error = new HashMap<>();
+                error.put("column", column);
+                error.put("expected", expectation);
+                error.put("actual", actualDisplay);
+                errors.add(error);
+            }
+        }
+        
+        result.put("errors", errors);
+        return result;
+    }
+
     private static boolean isNumeric(Object obj) {
         return obj instanceof Number;
     }
