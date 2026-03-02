@@ -223,22 +223,54 @@ public class ValidationUtils {
                 removeIgnoredPaths(actualJson, ignoredPaths);
             }
 
-            // Check if required paths exist
+            // If requiredPaths are provided, validate only those paths (presence and value)
             if (requiredPaths != null && !requiredPaths.isEmpty()) {
-                List<String> missing = checkRequiredJsonPaths(actualJson, requiredPaths);
-                if (!missing.isEmpty()) {
-                    for (String missingPath : missing) {
+                for (String path : requiredPaths) {
+                    String[] keys = path.split("\\.");
+                    JsonNode expNode = expectedJson;
+                    JsonNode actNode = actualJson;
+
+                    // traverse expected
+                    for (String k : keys) {
+                        if (expNode != null && expNode.has(k)) {
+                            expNode = expNode.get(k);
+                        } else {
+                            expNode = null;
+                            break;
+                        }
+                    }
+
+                    // traverse actual
+                    for (String k : keys) {
+                        if (actNode != null && actNode.has(k)) {
+                            actNode = actNode.get(k);
+                        } else {
+                            actNode = null;
+                            break;
+                        }
+                    }
+
+                    if (actNode == null) {
                         Map<String, Object> error = new HashMap<>();
-                        error.put("path", missingPath);
-                        error.put("expected", "required field");
+                        error.put("path", path);
+                        error.put("expected", expNode != null ? expNode : "required field");
                         error.put("actual", "missing");
                         errors.add(error);
+                    } else if (expNode != null) {
+                        if (!expNode.equals(actNode)) {
+                            Map<String, Object> error = new HashMap<>();
+                            error.put("path", path);
+                            error.put("expected", expNode);
+                            error.put("actual", actNode);
+                            errors.add(error);
+                        }
                     }
+                    // if expNode is null but actNode present, we only required presence so it's fine
                 }
+            } else {
+                // No specific required paths: perform full deep compare
+                errors.addAll(deepCompare(expectedJson, actualJson, ""));
             }
-
-            // Deep compare
-            errors.addAll(deepCompare(expectedJson, actualJson, ""));
             
         } catch (Exception e) {
             Map<String, Object> error = new HashMap<>();
@@ -298,7 +330,6 @@ public class ValidationUtils {
     private static boolean isNumeric(Object obj) {
         return obj instanceof Number;
     }
-
     private static java.math.BigDecimal toBigDecimal(Object obj) {
         if (obj instanceof java.math.BigDecimal) return (java.math.BigDecimal) obj;
         return new java.math.BigDecimal(obj.toString());
