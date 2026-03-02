@@ -176,6 +176,7 @@ public class ValidationUtils {
 
     /**
      * Extracts a nested value from a JSON object (can be Map or JsonNode).
+     * Handles string-encoded JSON and traversal through objects and arrays.
      */
     public static Object getNestedValue(Object obj, String path) {
         if (obj == null || path == null || path.isEmpty()) return obj;
@@ -184,11 +185,8 @@ public class ValidationUtils {
             JsonNode node = mapper.valueToTree(obj);
             String[] keys = path.split("\\.");
             for (String key : keys) {
-                if (node != null && node.has(key)) {
-                    node = node.get(key);
-                } else {
-                    return null;
-                }
+                node = traverse(node, key);
+                if (node == null) return null;
             }
             if (node == null || node.isNull()) return null;
             if (node.isTextual()) return node.asText();
@@ -198,6 +196,56 @@ public class ValidationUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Helper to traverse a single level. 
+     * Handles:
+     * 1. Parsing string-encoded JSON
+     * 2. Object property access
+     * 3. Array index access (if key is numeric)
+     * 4. Implicit first element access (if node is array but key is not numeric)
+     */
+    private static JsonNode traverse(JsonNode node, String key) {
+        if (node == null) return null;
+
+        // 1. If it's a string that might be JSON, try to parse it
+        if (node.isTextual()) {
+            String text = node.asText().trim();
+            if ((text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"))) {
+                try {
+                    node = mapper.readTree(text);
+                } catch (Exception ignored) {
+                    // Not valid JSON, continue as TextNode
+                }
+            }
+        }
+
+        // 2. Handle Object access
+        if (node.isObject()) {
+            return node.has(key) ? node.get(key) : null;
+        }
+
+        // 3. Handle Array access
+        if (node.isArray()) {
+            // Try numeric index first
+            try {
+                int index = Integer.parseInt(key);
+                if (index >= 0 && index < node.size()) {
+                    return node.get(index);
+                }
+            } catch (NumberFormatException e) {
+                // Not a numeric index, try accessing the first element implicitly
+                if (node.size() > 0) {
+                    JsonNode first = node.get(0);
+                    if (first.isObject() && first.has(key)) {
+                        return first.get(key);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     public static boolean compareValues(Object expected, Object actual) {
@@ -258,22 +306,14 @@ public class ValidationUtils {
 
                     // traverse expected
                     for (String k : keys) {
-                        if (expNode != null && expNode.has(k)) {
-                            expNode = expNode.get(k);
-                        } else {
-                            expNode = null;
-                            break;
-                        }
+                        expNode = traverse(expNode, k);
+                        if (expNode == null) break;
                     }
 
                     // traverse actual
                     for (String k : keys) {
-                        if (actNode != null && actNode.has(k)) {
-                            actNode = actNode.get(k);
-                        } else {
-                            actNode = null;
-                            break;
-                        }
+                        actNode = traverse(actNode, k);
+                        if (actNode == null) break;
                     }
 
                     if (actNode == null) {
