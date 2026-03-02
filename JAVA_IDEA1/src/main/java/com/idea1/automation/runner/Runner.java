@@ -26,17 +26,17 @@ public class Runner {
                 List<String> failureSummary = new ArrayList<>();
 
                 StringBuilder htmlReport = new StringBuilder(ReportUtils.getHtmlHeader());
-                
+
                 // Placeholder for summary cards
                 int summaryPos = htmlReport.length();
                 htmlReport.append("<!--SUMMARY_CARDS-->");
 
-                htmlReport.append("<div class=\"layout\">\n<aside class=\"sidebar\">\n<h3>Test Scenarios</h3>\n");
-                for (EventPayload payload : payloads) {
-                    htmlReport.append(String.format("<a class=\"case-link link-%s\" id=\"link-%s\" href=\"#case-%s\">%s</a>\n", 
-                        payload.getTest_case_id(), payload.getTest_case_id(), payload.getTest_case_id(), payload.getScenario_name()));
-                }
-                htmlReport.append("</aside>\n<main class=\"content\">\n");
+                // Layout with an empty sidebar; sidebar will be populated by report JS so we can attach filters and scrolling
+                htmlReport.append("<div class=\"layout\">\n<aside class=\"sidebar\">\n<h3>Test Scenarios</h3>\n</aside>\n<main class=\"content\">\n");
+
+                // Perform one-time DB cleanup before running test cases
+                DbUtils.deleteallTableData(conn);
+                htmlReport.append("<div class='step'><div class='step-title'>Pre-test DB Cleanup</div><p>All tables were cleared once before tests started.</p></div>");
 
                 for (EventPayload payload : payloads) {
                     totalCases++;
@@ -46,26 +46,8 @@ public class Runner {
                     banner(String.format("TEST CASE : %s\nSCENARIO  : %s\nEVENT     : %s\nORDER ID  : %s",
                             payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("orderId")));
 
-                    // 1. DB CLEANUP
-                    section("DATABASE CLEANUP");
-                    caseStepsHtml.append("<div class=\"step\"><div class=\"step-title\">Step 1: Database Cleanup</div><ul>");
-//                    if (payload.getExpected_tables() != null) {
-//                        for (String table : payload.getExpected_tables()) {
-//                            TableSchema schema = schemas.get(table);
-//                            if (schema != null) {
-//                                String lookup = schema.getPrimary_lookup();
-//                                Object value = payload.getLookup_ids().get(lookup);
-//                                if (value != null) {
-//                                    DbUtils.deleteTableData(conn, Collections.singletonList(table), lookup, value);
-//                                    caseStepsHtml.append(String.format("<li>Cleaned table <b>%s</b> for %s=%s</li>", table, lookup, value));
-//                                }
-//                            }
-//                        }
-//                    }
-                    
-                    DbUtils.deleteallTableData(conn);
-                    caseStepsHtml.append(String.format("<li>Cleaned tables in the Database </li>"));
-                    caseStepsHtml.append("</ul></div>");
+                    // Note: DB cleanup is performed once before the test run (see report header)
+                    caseStepsHtml.append("<div class='step'><div class='step-title'>Pre-test DB Cleanup</div><p>Database was cleared at test start (one-time).</p></div>");
 
                     // 2. TRIGGER EVENT
                     section("TRIGGER EVENT");
@@ -161,11 +143,34 @@ public class Runner {
 
                                         if (schema.getMandatory_columns() != null) {
                                             for (String col : schema.getMandatory_columns()) {
-                                                if (!ValidationUtils.compareValues(exp.get(col), row.get(col))) {
-                                                    caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, col, exp.get(col), row.get(col), null));
-                                                    tableFailed = true;
+                                                // Check if this is a JSON column with field-level validation
+                                                if (schema.getJson_columns() != null && schema.getJson_columns().containsKey(col)) {
+                                                    TableSchema.JsonColumnConfig jsonConfig = schema.getJson_columns().get(col);
+                                                    List<Map<String, Object>> jsonErrors = ValidationUtils.validateJsonColumn(
+                                                        exp.get(col), row.get(col), 
+                                                        jsonConfig.getRequired(), jsonConfig.getIgnored()
+                                                    );
+                                                    
+                                                    if (jsonErrors.isEmpty()) {
+                                                        caseStepsHtml.append(String.format("<p class='pass'>[OK] %s (JSON) : All required fields match</p>", col));
+                                                    } else {
+                                                        for (Map<String, Object> jsonError : jsonErrors) {
+                                                            String path = (String) jsonError.get("path");
+                                                            Object exp_val = jsonError.get("expected");
+                                                            Object act_val = jsonError.get("actual");
+                                                            String msg = (String) jsonError.getOrDefault("error", "");
+                                                            caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, col + "." + path, exp_val, act_val, msg));
+                                                        }
+                                                        tableFailed = true;
+                                                    }
                                                 } else {
-                                                    caseStepsHtml.append(String.format("<p class='pass'>[OK] %s : %s</p>", col, row.get(col)));
+                                                    // Regular column validation
+                                                    if (!ValidationUtils.compareValues(exp.get(col), row.get(col))) {
+                                                        caseStepsHtml.append(ReportUtils.getHtmlFailureBlock(table, col, exp.get(col), row.get(col), null));
+                                                        tableFailed = true;
+                                                    } else {
+                                                        caseStepsHtml.append(String.format("<p class='pass'>[OK] %s : %s</p>", col, row.get(col)));
+                                                    }
                                                 }
                                             }
                                         }
