@@ -174,6 +174,32 @@ public class ValidationUtils {
         return value;
     }
 
+    /**
+     * Extracts a nested value from a JSON object (can be Map or JsonNode).
+     */
+    public static Object getNestedValue(Object obj, String path) {
+        if (obj == null || path == null || path.isEmpty()) return obj;
+        
+        try {
+            JsonNode node = mapper.valueToTree(obj);
+            String[] keys = path.split("\\.");
+            for (String key : keys) {
+                if (node != null && node.has(key)) {
+                    node = node.get(key);
+                } else {
+                    return null;
+                }
+            }
+            if (node == null || node.isNull()) return null;
+            if (node.isTextual()) return node.asText();
+            if (node.isNumber()) return node.numberValue();
+            if (node.isBoolean()) return node.asBoolean();
+            return node;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static boolean compareValues(Object expected, Object actual) {
         if (expected == null && actual == null) return true;
         if (expected == null || actual == null) return false;
