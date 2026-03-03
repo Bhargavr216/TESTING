@@ -34,9 +34,13 @@ public class Runner {
                 // Layout with an empty sidebar; sidebar will be populated by report JS so we can attach filters and scrolling
                 htmlReport.append("<div class=\"layout\">\n<aside class=\"sidebar\">\n<h3>Test Scenarios</h3>\n</aside>\n<main class=\"content\">\n");
 
-                // Perform one-time DB cleanup before running test cases
-                DbUtils.deleteallTableData(conn);
-                htmlReport.append("<div class='step'><div class='step-title'>Pre-test DB Cleanup</div><p>All tables were cleared once before tests started.</p></div>");
+                // Perform one-time DB cleanup before running test cases if enabled
+                if (dbConfig.isEnableCleanup()) {
+                    DbUtils.deleteallTableData(conn);
+                    htmlReport.append("<div class='step'><div class='step-title'>Pre-test DB Cleanup</div><p>All tables were cleared once before tests started.</p></div>");
+                } else {
+                    htmlReport.append("<div class='step'><div class='step-title'>Pre-test DB Cleanup</div><p>Cleanup was disabled via config.</p></div>");
+                }
 
                 for (EventPayload payload : payloads) {
                     totalCases++;
@@ -54,10 +58,15 @@ public class Runner {
                     section("TRIGGER EVENT");
                     caseStepsHtml.append("<div class=\"step\"><div class=\"step-title\">Step 2: Event Trigger</div>");
                     try {
-                        EventHubUtils.triggerEvent(dbConfig, payload.getEvent_payload());
-                        caseStepsHtml.append(String.format("<p class=\"pass\">Successfully triggered <b>%s</b> event to Event Hub</p>", payload.getEvent_type()));
-                        System.out.println("   [WAIT] Waiting 10 seconds for processing...");
-                        Thread.sleep(10000);
+                        if (dbConfig.isEnableEventTrigger()) {
+                            EventHubUtils.triggerEvent(dbConfig, payload.getEvent_payload());
+                            caseStepsHtml.append(String.format("<p class=\"pass\">Successfully triggered <b>%s</b> event to Event Hub</p>", payload.getEvent_type()));
+                            System.out.println("   [WAIT] Waiting 10 seconds for processing...");
+                            Thread.sleep(10000);
+                        } else {
+                            caseStepsHtml.append("<p class=\"pass\">Event trigger was <b>SKIPPED</b> via config</p>");
+                            System.out.println("   [SKIP] Event trigger disabled.");
+                        }
                     } catch (Exception e) {
                         System.err.println("   [ERROR] Event trigger failed: " + e.getMessage());
                         caseStepsHtml.append(String.format("<p class=\"fail\">Failed to trigger event: %s</p>", e.getMessage()));
@@ -138,7 +147,27 @@ public class Runner {
                                                 jsonConfig.getRequired(), jsonConfig.getIgnored()
                                             );
                                             
-                                            if (jsonErrors.isEmpty()) {
+                                            // Show individual required attribute results if defined
+                                            if (jsonConfig.getRequired() != null && !jsonConfig.getRequired().isEmpty()) {
+                                                for (String path : jsonConfig.getRequired()) {
+                                                    boolean foundError = false;
+                                                    for (Map<String, Object> error : jsonErrors) {
+                                                        if (path.equals(error.get("path"))) {
+                                                            foundError = true;
+                                                            Object exp_val = error.get("expected");
+                                                            Object act_val = error.get("actual");
+                                                            validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
+                                                                table, col, path, exp_val, act_val));
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (!foundError) {
+                                                        Object val = ValidationUtils.getNestedValue(row.get(col), path);
+                                                        validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>Match</td><td>%s</td><td class='pass'>PASS</td></tr>", 
+                                                            table, col, path, val != null ? val : "null"));
+                                                    }
+                                                }
+                                            } else if (jsonErrors.isEmpty()) {
                                                 validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>Valid JSON</td><td>Valid JSON</td><td class='pass'>PASS</td></tr>", table, col));
                                             } else {
                                                 for (Map<String, Object> jsonError : jsonErrors) {
@@ -148,6 +177,9 @@ public class Runner {
                                                     validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
                                                         table, col, path, exp_val, act_val));
                                                 }
+                                            }
+                                            
+                                            if (!jsonErrors.isEmpty()) {
                                                 scenarioFailed = true;
                                             }
                                         } else {
@@ -172,14 +204,27 @@ public class Runner {
                                                 actualValue = row.get(col);
                                             }
 
-                                            boolean colMatch = ValidationUtils.compareValues(expectedValue, actualValue);
+                                            // Check if this colum n has a "nullable_presence" semantic rule
+                                            boolean presenceOnly = false;
+                                            if (schema.getSemantic_rules() != null && schema.getSemantic_rules().containsKey(col)) {
+                                                TableSchema.SemanticRule rule = schema.getSemantic_rules().get(col);
+                                                if ("nullable_presence".equalsIgnoreCase(rule.getType())) {
+                                                    presenceOnly = true;
+                                                }
+                                            }
+
+                                            boolean colMatch = ValidationUtils.compareValues(expectedValue, actualValue, presenceOnly);
                                             String result = colMatch ? "PASS" : "FAIL";
                                             String resultClass = colMatch ? "pass" : "fail";
                                             if (!colMatch) {
                                                 scenarioFailed = true;
                                             }
+                                            
+                                            String expectedDisplay = presenceOnly ? (expectedValue == null ? "null" : "not null") : String.valueOf(expectedValue);
+                                            String actualDisplay = presenceOnly ? (actualValue == null ? "null" : "not null") : String.valueOf(actualValue);
+
                                             validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>%s</td></tr>", 
-                                                table, col, expectedValue, actualValue, resultClass, result));
+                                                table, col, expectedDisplay, actualDisplay, resultClass, result));
                                         }
                                     }
                                 }
@@ -284,7 +329,8 @@ public class Runner {
 
     private static List<Map<String, Object>> fetchRows(Connection conn, String table, String lookup, Object value) throws SQLException {
         List<Map<String, Object>> rows = new ArrayList<>();
-        String sql = String.format("SELECT * FROM dcc.%s WHERE %s = ?", table, lookup);
+        // Use double quotes around table and column names for robustness
+        String sql = String.format("SELECT * FROM \"%s\" WHERE \"%s\" = ?", table, lookup);
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setObject(1, value);
             try (ResultSet rs = stmt.executeQuery()) {
