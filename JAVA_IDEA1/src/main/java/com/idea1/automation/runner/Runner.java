@@ -25,7 +25,7 @@ public class Runner {
                 int totalCases = 0, passedScenarios = 0, failedScenarios = 0;
                 List<String> failureSummary = new ArrayList<>();
 
-                StringBuilder htmlReport = new StringBuilder(ReportUtils.getHtmlHeader());
+                StringBuilder htmlReport = new StringBuilder(ReportUtils.getHtmlHeader(dbConfig.getJiraBaseUrl(), dbConfig.getJiraProjectKey()));
 
                 // Placeholder for summary cards
                 int summaryPos = htmlReport.length();
@@ -47,6 +47,7 @@ public class Runner {
                     boolean scenarioFailed = false;
                     StringBuilder caseStepsHtml = new StringBuilder();
                     StringBuilder validationTable = new StringBuilder();
+                    StringBuilder jiraDetails = new StringBuilder();
 
                     banner(String.format("TEST CASE : %s\nSCENARIO  : %s\nEVENT     : %s\nORDER ID  : %s",
                             payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("order_id")));
@@ -71,6 +72,7 @@ public class Runner {
                         System.err.println("   [ERROR] Event trigger failed: " + e.getMessage());
                         caseStepsHtml.append(String.format("<p class=\"fail\">Failed to trigger event: %s</p>", e.getMessage()));
                         scenarioFailed = true;
+                        jiraDetails.append("Event Trigger Failed: ").append(e.getMessage()).append("\\n");
                     }
                     caseStepsHtml.append("</div>");
 
@@ -100,6 +102,7 @@ public class Runner {
                             failureSummary.add(table + " schema missing");
                             scenarioFailed = true;
                             validationTable.append(String.format("<tr><td>%s</td><td colspan='3'>Schema missing</td><td class='fail'>FAIL</td></tr>", table));
+                            jiraDetails.append("Table ").append(table).append(": Schema missing\\n");
                             continue;
                         }
 
@@ -121,6 +124,7 @@ public class Runner {
                         if (!persistenceValid) {
                             failureSummary.add(String.format("%s persistence violation", table));
                             scenarioFailed = true;
+                            jiraDetails.append("Table ").append(table).append(": Persistence violation (Expected: ").append(expectation).append(", Found: ").append(rows.size()).append(" rows)\\n");
                         }
                         
                         validationTable.append(String.format("<tr><td>%s</td><td>Persistence</td><td>%s</td><td>%d rows found</td><td class='%s'>%s</td></tr>", 
@@ -129,13 +133,20 @@ public class Runner {
                         // If it should persist and it does, perform deeper validation
                         if ("PERSIST".equals(expectation) && !rows.isEmpty()) {
                             List<Map<String, Object>> expectedRows = JsonUtils.loadExpectedRows(table);
-                            for (Map<String, Object> row : rows) {
-                                Map<String, Object> exp = ValidationUtils.matchExpectedRow(row, expectedRows, schema);
-                                if (exp == null) {
-                                    validationTable.append(String.format("<tr><td>%s</td><td>Row Match</td><td>Expected row</td><td>Not found</td><td class='fail'>FAIL</td></tr>", table));
+                            Set<Integer> matchedDbIndices = new HashSet<>();
+
+                            for (Map<String, Object> exp : expectedRows) {
+                                int matchIdx = ValidationUtils.findMatch(exp, rows, matchedDbIndices, schema);
+                                if (matchIdx == -1) {
+                                    validationTable.append(String.format("<tr><td>%s</td><td>Row Match</td><td>%s</td><td>Not found in DB</td><td class='fail'>FAIL</td></tr>", 
+                                        table, exp.get(schema.getPrimary_lookup())));
                                     scenarioFailed = true;
+                                    jiraDetails.append("Table ").append(table).append(": Row with ").append(schema.getPrimary_lookup()).append("=").append(exp.get(schema.getPrimary_lookup())).append(" not found in DB\\n");
                                     continue;
                                 }
+
+                                matchedDbIndices.add(matchIdx);
+                                Map<String, Object> row = rows.get(matchIdx);
 
                                 if (schema.getMandatory_columns() != null) {
                                     for (String col : schema.getMandatory_columns()) {
@@ -158,6 +169,7 @@ public class Runner {
                                                             Object act_val = error.get("actual");
                                                             validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
                                                                 table, col, path, exp_val, act_val));
+                                                            jiraDetails.append("Table ").append(table).append(", Column ").append(col).append(".").append(path).append(": Expected ").append(exp_val).append(", Actual ").append(act_val).append("\\n");
                                                             break;
                                                         }
                                                     }
@@ -176,6 +188,7 @@ public class Runner {
                                                     Object act_val = jsonError.get("actual");
                                                     validationTable.append(String.format("<tr><td>%s</td><td>%s.%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
                                                         table, col, path, exp_val, act_val));
+                                                    jiraDetails.append("Table ").append(table).append(", Column ").append(col).append(".").append(path).append(": Expected ").append(exp_val).append(", Actual ").append(act_val).append("\\n");
                                                 }
                                             }
                                             
@@ -204,7 +217,7 @@ public class Runner {
                                                 actualValue = row.get(col);
                                             }
 
-                                            // Check if this colum n has a "nullable_presence" semantic rule
+                                            // Check if this column has a "nullable_presence" semantic rule
                                             boolean presenceOnly = false;
                                             if (schema.getSemantic_rules() != null && schema.getSemantic_rules().containsKey(col)) {
                                                 TableSchema.SemanticRule rule = schema.getSemantic_rules().get(col);
@@ -218,6 +231,7 @@ public class Runner {
                                             String resultClass = colMatch ? "pass" : "fail";
                                             if (!colMatch) {
                                                 scenarioFailed = true;
+                                                jiraDetails.append("Table ").append(table).append(", Column ").append(col).append(": Expected ").append(expectedValue).append(", Actual ").append(actualValue).append("\\n");
                                             }
                                             
                                             String expectedDisplay = presenceOnly ? (expectedValue == null ? "null" : "not null") : String.valueOf(expectedValue);
@@ -229,9 +243,17 @@ public class Runner {
                                     }
                                 }
 
-                                // Null presence checks
+                                // Null presence checks (Merge schema-level and scenario-level checks)
+                                Map<String, String> mergedNullChecks = new HashMap<>();
                                 if (schema.getNull_presence_check() != null) {
-                                    Map<String, Object> nullCheckResult = ValidationUtils.validateNullPresence(schema.getNull_presence_check(), row);
+                                    mergedNullChecks.putAll(schema.getNull_presence_check());
+                                }
+                                if (payload.getNull_checks() != null && payload.getNull_checks().containsKey(table)) {
+                                    mergedNullChecks.putAll(payload.getNull_checks().get(table));
+                                }
+
+                                if (!mergedNullChecks.isEmpty()) {
+                                    Map<String, Object> nullCheckResult = ValidationUtils.validateNullPresence(mergedNullChecks, row);
                                     if (!(boolean) nullCheckResult.get("passed")) {
                                         scenarioFailed = true;
                                     }
@@ -243,14 +265,15 @@ public class Runner {
                                         Object act_val = error.get("actual");
                                         validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='fail'>FAIL</td></tr>", 
                                             table, col, exp_val, act_val));
+                                        jiraDetails.append("Table ").append(table).append(", Column ").append(col).append(" (Null Check): Expected ").append(exp_val).append(", Actual ").append(act_val).append("\\n");
                                     }
                                     // Add passing null checks
-                                    for (String col : schema.getNull_presence_check().keySet()) {
+                                    for (String col : mergedNullChecks.keySet()) {
                                         boolean isError = false;
                                         for (Map<String, Object> e : nullErrors) { if (col.equals(e.get("column"))) { isError = true; break; } }
                                         if (!isError) {
                                             Object actualValue = row.get(col);
-                                            String expectationVal = schema.getNull_presence_check().get(col);
+                                            String expectationVal = mergedNullChecks.get(col);
                                             validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='pass'>PASS</td></tr>", 
                                                 table, col, expectationVal, actualValue == null ? "null" : actualValue));
                                         }
@@ -264,6 +287,12 @@ public class Runner {
                     caseStepsHtml.append("<div id='val-" + payload.getTest_case_id() + "' class='validation-container' style='display:none;'>");
                     caseStepsHtml.append(validationTable);
                     caseStepsHtml.append("</div>");
+
+                    if (scenarioFailed) {
+                        String payloadJson = mapper.writeValueAsString(payload.getEvent_payload()).replace("\"", "\\\"");
+                        caseStepsHtml.append(String.format("<button class='btn-jira' onclick=\"raiseJiraDefect('%s', '%s', '%s')\">Raise a Defect</button>",
+                            payload.getTest_case_id(), payload.getScenario_name(), jiraDetails.toString().replace("'", "\\'").replace("\"", "\\\"")));
+                    }
                     caseStepsHtml.append("</div>");
 
                     String statusClass = scenarioFailed ? "fail" : "pass";
