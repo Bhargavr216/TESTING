@@ -40,6 +40,30 @@ public class ValidationUtils {
         return null;
     }
 
+    public static int findMatch(Map<String, Object> expected, List<Map<String, Object>> actualRows, Set<Integer> usedIndices, TableSchema schema) {
+        String pk = schema.getPrimary_lookup();
+        String sk = schema.getSecondary_lookup();
+
+        for (int i = 0; i < actualRows.size(); i++) {
+            if (usedIndices.contains(i)) continue;
+            Map<String, Object> actual = actualRows.get(i);
+            
+            Object expPk = normalizeNullable(expected.get(pk));
+            Object actPk = normalizeNullable(actual.get(pk));
+            
+            if (Objects.equals(expPk, actPk)) {
+                if (sk == null) return i;
+                
+                Object expSk = normalizeNullable(expected.get(sk));
+                Object actSk = normalizeNullable(actual.get(sk));
+                if (Objects.equals(expSk, actSk)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
     public static List<Map<String, Object>> deepCompare(JsonNode expected, JsonNode actual, String path) {
         List<Map<String, Object>> errors = new ArrayList<>();
         if (expected.isObject()) {
@@ -249,14 +273,21 @@ public class ValidationUtils {
     }
 
     public static boolean compareValues(Object expected, Object actual) {
-        if (expected == null && actual == null) return true;
-        if (expected == null || actual == null) return false;
+        return compareValues(expected, actual, false);
+    }
 
-        // Semantic normalization
+    public static boolean compareValues(Object expected, Object actual, boolean presenceOnly) {
+        // Semantic normalization first
         expected = normalizeNullable(expected);
         actual = normalizeNullable(actual);
 
         if (expected == null && actual == null) return true;
+        
+        if (presenceOnly) {
+            // Just check if both are null or both are not null
+            return (expected == null && actual == null) || (expected != null && actual != null);
+        }
+
         if (expected == null || actual == null) return false;
 
         if (isNumeric(expected) && isNumeric(actual)) {
