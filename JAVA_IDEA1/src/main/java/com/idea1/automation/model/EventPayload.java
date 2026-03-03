@@ -11,6 +11,7 @@ public class EventPayload {
     private Map<String, Object> event_payload;
     private List<String> expected_tables;
     private Map<String, String> table_expectations;
+    private Map<String, Map<String, String>> null_checks;
     private Map<String, List<RetryExpectation>> retry_expectations;
 
     public String getTest_case_id() { return test_case_id; }
@@ -27,6 +28,8 @@ public class EventPayload {
     public void setExpected_tables(List<String> expected_tables) { this.expected_tables = expected_tables; }
     public Map<String, String> getTable_expectations() { return table_expectations; }
     public void setTable_expectations(Map<String, String> table_expectations) { this.table_expectations = table_expectations; }
+    public Map<String, Map<String, String>> getNull_checks() { return null_checks; }
+    public void setNull_checks(Map<String, Map<String, String>> null_checks) { this.null_checks = null_checks; }
     public Map<String, List<RetryExpectation>> getRetry_expectations() { return retry_expectations; }
     public void setRetry_expectations(Map<String, List<RetryExpectation>> retry_expectations) { this.retry_expectations = retry_expectations; }
 
