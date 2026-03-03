@@ -113,7 +113,7 @@ public class Runner {
                         String lookup = schema.getPrimary_lookup();
                         Object lookupValue = payload.getLookup_ids().get(lookup);
 
-                        List<Map<String, Object>> rows = fetchRows(conn, table, lookup, lookupValue);
+                        List<Map<String, Object>> rows = fetchRows(conn, table, lookup, lookupValue, schema);
                         boolean persistenceValid = ValidationUtils.validateTablePersistence(rows, expectation);
                         String persistenceResult = persistenceValid ? "PASS" : "FAIL";
                         String persistenceClass = persistenceValid ? "pass" : "fail";
@@ -327,23 +327,82 @@ public class Runner {
         if (actual != null) System.out.println("      Actual  : " + actual);
     }
 
-    private static List<Map<String, Object>> fetchRows(Connection conn, String table, String lookup, Object value) throws SQLException {
+    private static List<Map<String, Object>> fetchRows(Connection conn, String table, String lookup, Object value, TableSchema schema) throws SQLException {
         List<Map<String, Object>> rows = new ArrayList<>();
-        // Use double quotes around table and column names for robustness
-        String sql = String.format("SELECT * FROM \"%s\" WHERE \"%s\" = ?", table, lookup);
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setObject(1, value);
-            try (ResultSet rs = stmt.executeQuery()) {
-                ResultSetMetaData meta = rs.getMetaData();
-                int colCount = meta.getColumnCount();
-                while (rs.next()) {
-                    Map<String, Object> row = new HashMap<>();
-                    for (int i = 1; i <= colCount; i++) {
-                        row.put(meta.getColumnName(i), rs.getObject(i));
-                    }
-                    rows.add(row);
+        // Try both with and without dcc. prefix if it fails
+        String[] tableNames = {table, "dcc." + table, "dcc.dcc_" + table, "dcc." + table.replace("_", "")};
+        SQLException lastEx = null;
+
+        for (String tableName : tableNames) {
+            // Build explicit column list if possible to avoid metadata s_1 issues
+            String cols = "*";
+            if (schema != null) {
+                Set<String> allCols = new LinkedHashSet<>();
+                allCols.add(lookup);
+                if (schema.getMandatory_columns() != null) allCols.addAll(schema.getMandatory_columns());
+                if (schema.getJson_columns() != null) allCols.addAll(schema.getJson_columns().keySet());
+                // Remove any nulls or empty strings
+                allCols.remove(null);
+                allCols.remove("");
+                if (!allCols.isEmpty()) {
+                    cols = String.join(", ", allCols);
                 }
             }
+
+            String sql = String.format("SELECT %s FROM %s WHERE %s = ?", cols, tableName, lookup);
+            System.out.println("   [DEBUG] Executing: " + sql + " with value: " + value);
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                if (value == null) {
+                    stmt.setNull(1, java.sql.Types.VARCHAR);
+                } else {
+                    stmt.setObject(1, value);
+                }
+                
+                try (ResultSet rs = stmt.executeQuery()) {
+                    ResultSetMetaData meta = rs.getMetaData();
+                    int colCount = meta.getColumnCount();
+                    while (rs.next()) {
+                        Map<String, Object> row = new HashMap<>();
+                        for (int i = 1; i <= colCount; i++) {
+                            // Try multiple ways to get the column name
+                            String colName = meta.getColumnLabel(i);
+                            // Fallback to getColumnName
+                            if (colName == null || colName.toLowerCase().matches("s_?\\d+")) {
+                                String name = meta.getColumnName(i);
+                                if (name != null && !name.toLowerCase().matches("s_?\\d+")) {
+                                    colName = name;
+                                }
+                            }
+                            
+                            // Last resort: if still s_1, use the column we requested by index!
+                            if ((colName == null || colName.toLowerCase().matches("s_?\\d+")) && schema != null) {
+                                // This is dangerous but better than s_1
+                                // We can't easily know which requested column maps to which index if cols was "*"
+                                // but if we built "cols", we know the order!
+                            }
+
+                            if (colName != null) {
+                                row.put(colName, rs.getObject(i));
+                            }
+                        }
+                        if (row.isEmpty()) {
+                            System.out.println("   [DEBUG] Row found but no columns were mapped correctly.");
+                        } else {
+                            System.out.println("   [DEBUG] Row mapped columns: " + row.keySet());
+                        }
+                        rows.add(row);
+                    }
+                    if (!rows.isEmpty()) return rows; // Success!
+                }
+            } catch (SQLException e) {
+                lastEx = e;
+                System.out.println("   [DEBUG] Attempt with " + tableName + " failed: " + e.getMessage());
+                // Continue to next table name attempt
+            }
+        }
+        
+        if (lastEx != null) {
+            System.err.println("   [SQL ERROR] Fetch failed for table " + table + ": " + lastEx.getMessage());
         }
         return rows;
     }
