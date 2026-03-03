@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ReportUtils {
 
-    public static String getHtmlHeader() {
+    public static String getHtmlHeader(String jiraBaseUrl, String jiraProjectKey) {
         return "<html>\n" +
                 "<head>\n" +
                 "<meta charset=\"UTF-8\">\n" +
@@ -161,6 +161,8 @@ public class ReportUtils {
                 ".validation-table .pass { color:var(--ok); font-weight:600; }\n" +
                 ".validation-table .fail { color:var(--err); font-weight:600; }\n" +
                 ".validation-table .skip { color:var(--warn); font-weight:600; }\n" +
+                ".btn-jira { background: #b12235; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 700; margin-top: 10px; transition: all 0.2s; }\n" +
+                ".btn-jira:hover { background: #8e1b2a; transform: translateY(-1px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }\n" +
                 "</style>\n" +
                 "</head>\n" +
                 "<body>\n" +
@@ -174,13 +176,34 @@ public class ReportUtils {
                 "  </div>\n" +
                 "  <div id=\"timestamp\"></div>\n" +
                 "</div>\n" +
+                "<script>\n" +
+                "const JIRA_CONFIG = {\n" +
+                "  baseUrl: \"" + (jiraBaseUrl != null ? jiraBaseUrl : "") + "\",\n" +
+                "  projectKey: \"" + (jiraProjectKey != null ? jiraProjectKey : "") + "\"\n" +
+                "};\n" +
+                "\n" +
+                "function raiseJiraDefect(caseId, scenarioName, details) {\n" +
+                "  if (!JIRA_CONFIG.baseUrl || !JIRA_CONFIG.projectKey) {\n" +
+                "    alert('Jira configuration is missing. Please check db_config.json.');\n" +
+                "    return;\n" +
+                "  }\n" +
+                "  \n" +
+                "  const summary = `Defect: ${caseId} - ${scenarioName}`;\n" +
+                "  const description = `Test Case ID: ${caseId}\\nScenario: ${scenarioName}\\n\\nFailure Details:\\n${details}`;\n" +
+                "  \n" +
+                "  const url = `${JIRA_CONFIG.baseUrl}/secure/CreateIssueDetails!init.jspa?` + \n" +
+                "    `pid=${JIRA_CONFIG.projectKey}&issuetype=1&summary=${encodeURIComponent(summary)}&description=${encodeURIComponent(description)}`;\n" +
+                "  \n" +
+                "  window.open(url, '_blank');\n" +
+                "}\n" +
+                "</script>\n" +
                 "<script>document.addEventListener('DOMContentLoaded', function(){ document.getElementById('timestamp').innerText = new Date().toLocaleString(); });</script>\n" +
                 "<script>\n" +
                 "document.addEventListener('DOMContentLoaded', function(){\n" +
                 "  function buildSidebar(){\n" +
                 "    var sidebar = document.querySelector('.sidebar'); if(!sidebar) return; sidebar.innerHTML = '<h3>Test Scenarios</h3>';\n" +
                 "    var cases = document.querySelectorAll('.case');\n" +
-                "    cases.forEach(function(c){ if(c.style.display==='none') return; var id = c.id.replace('case-',''); var titleEl = c.querySelector('.case-title'); var title = titleEl ? titleEl.innerText : id; var statusEl = c.querySelector('.status'); var status = 'pass'; if(statusEl){ if(statusEl.classList.contains('fail')) status='fail'; else if(statusEl.classList.contains('pass')) status='pass'; else status='skip'; } var a = document.createElement('a'); a.className = 'case-link ' + status; a.id = 'link-' + id; a.href = '#case-' + id; a.innerText = title + ' ('+id+')'; a.addEventListener('click', function(e){ e.preventDefault(); var d = document.getElementById('case-' + id); if(d) d.open = true; d.scrollIntoView({behavior:'smooth', block:'start'}); }); sidebar.appendChild(a); });\n" +
+                "    cases.forEach(function(c){ if(c.style.display==='none') return; var id = c.id.replace('case-',''); var titleEl = c.querySelector('.case-title'); var title = titleEl ? titleEl.innerText : id; var statusEl = c.querySelector('.status'); var status = 'pass'; if(statusEl){ if(statusEl.classList.contains('fail')) status='fail'; else if(statusEl.classList.contains('pass')) status='pass'; else status='skip'; } var link = document.createElement('a'); link.className = 'case-link ' + status; link.href = '#' + c.id; link.innerText = id; sidebar.appendChild(link); });\n" +
                 "  }\n" +
                 "  function applyFilter(filter){\n" +
                 "    document.querySelectorAll('.case').forEach(function(c){ var statusEl = c.querySelector('.status'); var status = 'pass'; if(statusEl){ if(statusEl.classList.contains('fail')) status='fail'; else if(statusEl.classList.contains('pass')) status='pass'; else status='skip'; } c.style.display = (filter==='all' || filter===status) ? '' : 'none'; });\n" +
