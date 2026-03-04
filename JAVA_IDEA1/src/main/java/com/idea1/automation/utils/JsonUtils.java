@@ -33,7 +33,7 @@ public class JsonUtils {
     }
 
     public static List<Map<String, Object>> loadExpectedRows(String table) throws IOException {
-        String path = "expected/tables/" + table + ".json";
+        String path = "expected/tables/" + table + "_expected_data.json";
         return mapper.readValue(new File(path), new TypeReference<List<Map<String, Object>>>() {});
     }
 }

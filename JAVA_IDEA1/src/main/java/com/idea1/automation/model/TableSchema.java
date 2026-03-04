@@ -12,6 +12,7 @@ public class TableSchema {
     private List<String> generated_columns;
     private Map<String, SemanticRule> semantic_rules;
     private String table_expectation;
+    private Map<String, String> null_presence_check;
 
     public String getPrimary_lookup() { return primary_lookup; }
     public void setPrimary_lookup(String primary_lookup) { this.primary_lookup = primary_lookup; }
@@ -29,6 +30,8 @@ public class TableSchema {
     public void setSemantic_rules(Map<String, SemanticRule> semantic_rules) { this.semantic_rules = semantic_rules; }
     public String getTable_expectation() { return table_expectation; }
     public void setTable_expectation(String table_expectation) { this.table_expectation = table_expectation; }
+    public Map<String, String> getNull_presence_check() { return null_presence_check; }
+    public void setNull_presence_check(Map<String, String> null_presence_check) { this.null_presence_check = null_presence_check; }
 
     public static class JsonColumnConfig {
         private List<String> required;

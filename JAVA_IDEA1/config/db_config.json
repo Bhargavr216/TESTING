@@ -6,5 +6,9 @@
   "password": "your_password",
   "dbConnectionString": "jdbc:sqlserver://yourserver.database.windows.net:1433;database=yourdb;user=youruser;password=yourpassword;encrypt=true;trustServerCertificate=false;hostNameInCertificate=*.database.windows.net;loginTimeout=30;",
   "eventHubConnectionString": "Endpoint=sb://yournamespace.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=yourkey",
-  "eventHubName": "your_event_hub_name"
+  "eventHubName": "your_event_hub_name",
+  "enableCleanup": true,
+  "enableEventTrigger": true,
+  "jiraBaseUrl": "https://your-domain.atlassian.net",
+  "jiraProjectKey": "PROJ"
 }

@@ -8,8 +8,9 @@ public class EventPayload {
     private String scenario_name;
     private String event_type;
     private Map<String, Object> lookup_ids;
-    private Map<String, Object> event_payload;
+    private Object event_payload;
     private List<String> expected_tables;
+    private List<String> check_exception_persistence;
     private Map<String, String> table_expectations;
     private Map<String, List<RetryExpectation>> retry_expectations;
 
@@ -21,10 +22,12 @@ public class EventPayload {
     public void setEvent_type(String event_type) { this.event_type = event_type; }
     public Map<String, Object> getLookup_ids() { return lookup_ids; }
     public void setLookup_ids(Map<String, Object> lookup_ids) { this.lookup_ids = lookup_ids; }
-    public Map<String, Object> getEvent_payload() { return event_payload; }
-    public void setEvent_payload(Map<String, Object> event_payload) { this.event_payload = event_payload; }
+    public Object getEvent_payload() { return event_payload; }
+    public void setEvent_payload(Object event_payload) { this.event_payload = event_payload; }
     public List<String> getExpected_tables() { return expected_tables; }
     public void setExpected_tables(List<String> expected_tables) { this.expected_tables = expected_tables; }
+    public List<String> getCheck_exception_persistence() { return check_exception_persistence; }
+    public void setCheck_exception_persistence(List<String> check_exception_persistence) { this.check_exception_persistence = check_exception_persistence; }
     public Map<String, String> getTable_expectations() { return table_expectations; }
     public void setTable_expectations(Map<String, String> table_expectations) { this.table_expectations = table_expectations; }
     public Map<String, List<RetryExpectation>> getRetry_expectations() { return retry_expectations; }

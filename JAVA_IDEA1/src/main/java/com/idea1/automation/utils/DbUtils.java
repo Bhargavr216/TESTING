@@ -36,4 +36,23 @@ public class DbUtils {
             }
         }
     }
+    
+    public static void deleteallTableData(Connection conn) throws SQLException {
+        
+            String sql = "delete from dcc.dcc_job_queue;\r\n"
+            		+ "delete from dcc.dcc_job_queue_arch;\r\n"
+            		+ "delete from dcc.dcc_active_queue;\r\n"
+            		+ "delete from dcc.dcc_audit;\r\n"
+            		+ "delete from dcc.dcc_event_consumption_stats;\r\n"
+            		+ "delete from dcc.dcc_event_handled;\r\n"
+            		+ "delete from dcc.dcc_ord_rist_items;\r\n"
+            		+ "insert into  dcc.dcc_customer_details values ('59001008',true,'col-dcc1008','7674','2025-10-31 16:57:52.196353')";
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {                
+                int rowsDeleted = pstmt.executeUpdate();
+                System.out.printf("   [CLEANUP] Deleted %d rows from database got deleted", rowsDeleted);
+            } catch (SQLException e) {
+                System.err.printf("   [CLEANUP ERROR] Failed to delete ");
+                // Don't throw exception, just log and continue for other tables
+            }
+    }
 }

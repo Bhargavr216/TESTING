@@ -174,15 +174,95 @@ public class ValidationUtils {
         return value;
     }
 
-    public static boolean compareValues(Object expected, Object actual) {
-        if (expected == null && actual == null) return true;
-        if (expected == null || actual == null) return false;
+    /**
+     * Extracts a nested value from a JSON object (can be Map or JsonNode).
+     * Handles string-encoded JSON and traversal through objects and arrays.
+     */
+    public static Object getNestedValue(Object obj, String path) {
+        if (obj == null || path == null || path.isEmpty()) return obj;
+        
+        try {
+            JsonNode node = mapper.valueToTree(obj);
+            String[] keys = path.split("\\.");
+            for (String key : keys) {
+                node = traverse(node, key);
+                if (node == null) return null;
+            }
+            if (node == null || node.isNull()) return null;
+            if (node.isTextual()) return node.asText();
+            if (node.isNumber()) return node.numberValue();
+            if (node.isBoolean()) return node.asBoolean();
+            return node;
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
-        // Semantic normalization
+    /**
+     * Helper to traverse a single level. 
+     * Handles:
+     * 1. Parsing string-encoded JSON
+     * 2. Object property access
+     * 3. Array index access (if key is numeric)
+     * 4. Implicit first element access (if node is array but key is not numeric)
+     */
+    private static JsonNode traverse(JsonNode node, String key) {
+        if (node == null) return null;
+
+        // 1. If it's a string that might be JSON, try to parse it
+        if (node.isTextual()) {
+            String text = node.asText().trim();
+            if ((text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"))) {
+                try {
+                    node = mapper.readTree(text);
+                } catch (Exception ignored) {
+                    // Not valid JSON, continue as TextNode
+                }
+            }
+        }
+
+        // 2. Handle Object access
+        if (node.isObject()) {
+            return node.has(key) ? node.get(key) : null;
+        }
+
+        // 3. Handle Array access
+        if (node.isArray()) {
+            // Try numeric index first
+            try {
+                int index = Integer.parseInt(key);
+                if (index >= 0 && index < node.size()) {
+                    return node.get(index);
+                }
+            } catch (NumberFormatException e) {
+                // Not a numeric index, try accessing the first element implicitly
+                if (node.size() > 0) {
+                    JsonNode first = node.get(0);
+                    if (first.isObject() && first.has(key)) {
+                        return first.get(key);
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static boolean compareValues(Object expected, Object actual) {
+//        if (expected == null && actual == null) return true;
+//        if (expected == null || actual == null) return false;
+    	return compareValues(expected,actual,false);
+    }
+    
+    public static boolean compareValues(Object expected, Object actual,boolean presenceOnly) {
+//      
+
+        // Semantic normalization first
         expected = normalizeNullable(expected);
         actual = normalizeNullable(actual);
 
         if (expected == null && actual == null) return true;
+        if (presenceOnly) { return (expected == null && actual==null) || (expected != null && actual!=null);}
         if (expected == null || actual == null) return false;
 
         if (isNumeric(expected) && isNumeric(actual)) {
@@ -194,10 +274,134 @@ public class ValidationUtils {
         return Objects.equals(expected, actual);
     }
 
+    /**
+     * Validates a JSON column by checking only required paths and ignoring specified paths.
+     * @return List of errors (empty = valid, non-empty = invalid)
+     */
+    public static List<Map<String, Object>> validateJsonColumn(Object expectedObj, Object actualObj, 
+                                                                  List<String> requiredPaths, 
+                                                                  List<String> ignoredPaths) {
+        List<Map<String, Object>> errors = new ArrayList<>();
+        
+        if (expectedObj == null && actualObj == null) return errors;
+        if (expectedObj == null || actualObj == null) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("path", "root");
+            error.put("expected", expectedObj);
+            error.put("actual", actualObj);
+            errors.add(error);
+            return errors;
+        }
+
+        try {
+            JsonNode expectedJson = mapper.valueToTree(expectedObj);
+            JsonNode actualJson = mapper.valueToTree(actualObj);
+
+            // Remove ignored paths from both
+            if (ignoredPaths != null && !ignoredPaths.isEmpty()) {
+                removeIgnoredPaths(expectedJson, ignoredPaths);
+                removeIgnoredPaths(actualJson, ignoredPaths);
+            }
+
+            // If requiredPaths are provided, validate only those paths (presence and value)
+            if (requiredPaths != null && !requiredPaths.isEmpty()) {
+                for (String path : requiredPaths) {
+                    String[] keys = path.split("\\.");
+                    JsonNode expNode = expectedJson;
+                    JsonNode actNode = actualJson;
+
+                    // traverse expected
+                    for (String k : keys) {
+                        expNode = traverse(expNode, k);
+                        if (expNode == null) break;
+                    }
+
+                    // traverse actual
+                    for (String k : keys) {
+                        actNode = traverse(actNode, k);
+                        if (actNode == null) break;
+                    }
+
+                    if (actNode == null) {
+                        Map<String, Object> error = new HashMap<>();
+                        error.put("path", path);
+                        error.put("expected", expNode != null ? expNode : "required field");
+                        error.put("actual", "missing");
+                        errors.add(error);
+                    } else if (expNode != null) {
+                        if (!expNode.equals(actNode)) {
+                            Map<String, Object> error = new HashMap<>();
+                            error.put("path", path);
+                            error.put("expected", expNode);
+                            error.put("actual", actNode);
+                            errors.add(error);
+                        }
+                    }
+                    // if expNode is null but actNode present, we only required presence so it's fine
+                }
+            } else {
+                // No specific required paths: perform full deep compare
+                errors.addAll(deepCompare(expectedJson, actualJson, ""));
+            }
+            
+        } catch (Exception e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("path", "root");
+            error.put("error", e.getMessage());
+            errors.add(error);
+        }
+
+        return errors;
+    }
+
+    public static Map<String, Object> validateNullPresence(Map<String, String> nullCheckConfig, Map<String, Object> actualRow) {
+        Map<String, Object> result = new HashMap<>();
+        result.put("passed", true);
+        
+        if (nullCheckConfig == null || nullCheckConfig.isEmpty()) {
+            return result;
+        }
+        
+        List<Map<String, Object>> errors = new ArrayList<>();
+        
+        for (Map.Entry<String, String> entry : nullCheckConfig.entrySet()) {
+            String column = entry.getKey();
+            String expectation = entry.getValue(); // "null" or "not_null"
+            
+            Object actualValue = actualRow.get(column);
+            boolean isNull = actualValue == null;
+            
+            boolean matches = false;
+            String actualDisplay;
+            
+            if ("null".equalsIgnoreCase(expectation)) {
+                matches = isNull;
+                actualDisplay = isNull ? "null" : actualValue.toString();
+            } else if ("not_null".equalsIgnoreCase(expectation)) {
+                matches = !isNull;
+                actualDisplay = isNull ? "null" : actualValue.toString();
+            } else {
+                matches = true;
+                actualDisplay = actualValue.toString();
+            }
+            
+            if (!matches) {
+                result.put("passed", false);
+                Map<String, Object> error = new HashMap<>();
+                error.put("column", column);
+                error.put("expected", expectation);
+                error.put("actual", actualDisplay);
+                errors.add(error);
+            }
+        }
+        
+        result.put("errors", errors);
+        return result;
+    }
+
     private static boolean isNumeric(Object obj) {
         return obj instanceof Number;
     }
-
     private static java.math.BigDecimal toBigDecimal(Object obj) {
         if (obj instanceof java.math.BigDecimal) return (java.math.BigDecimal) obj;
         return new java.math.BigDecimal(obj.toString());

@@ -1,5 +1,17 @@
 [
   {
+    "order_id": "col-dcc1007",
+    "audit_id": "AUDIT_005",
+    "operation": "ORDER_CREATED",
+    "exception": null
+  },
+  {
+    "order_id": "col-dcc1007",
+    "audit_id": "AUDIT_005",
+    "operation": "ORDER_CREATED",
+    "exception": "ERROR"
+  },
+  {
     "order_id": "ORD123",
     "audit_id": "AUDIT_005",
     "operation": "ORDER_CREATED",
