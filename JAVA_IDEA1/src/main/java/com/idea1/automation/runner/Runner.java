@@ -25,7 +25,7 @@ public class Runner {
                 int totalCases = 0, passedScenarios = 0, failedScenarios = 0;
                 List<String> failureSummary = new ArrayList<>();
 
-                StringBuilder htmlReport = new StringBuilder(ReportUtils.getHtmlHeader());
+                StringBuilder htmlReport = new StringBuilder(ReportUtils.getHtmlHeader(dbConfig.getJiraBaseUrl(), dbConfig.getJiraProjectKey()));
 
                 // Placeholder for summary cards
                 int summaryPos = htmlReport.length();
@@ -47,6 +47,7 @@ public class Runner {
                     boolean scenarioFailed = false;
                     StringBuilder caseStepsHtml = new StringBuilder();
                     StringBuilder validationTable = new StringBuilder();
+                    StringBuilder jiraDetails = new StringBuilder();
 
                     banner(String.format("TEST CASE : %s\nSCENARIO  : %s\nEVENT     : %s\nORDER ID  : %s",
                             payload.getTest_case_id(), payload.getScenario_name(), payload.getEvent_type(), payload.getLookup_ids().get("order_id")));
@@ -121,6 +122,7 @@ public class Runner {
 
                         if (!persistenceValid) {
                             failureSummary.add(String.format("%s persistence violation", table));
+                            jiraDetails.append(String.format("- %s: Persistence expected %s but found %d rows\\n", table, expectation, rows.size()));
                             scenarioFailed = true;
                         }
                         
@@ -218,6 +220,7 @@ public class Runner {
                                             String result = colMatch ? "PASS" : "FAIL";
                                             String resultClass = colMatch ? "pass" : "fail";
                                             if (!colMatch) {
+                                                jiraDetails.append(String.format("- %s.%s: Expected %s but got %s\\n", table, col, expectedDisplay, actualDisplay));
                                                 scenarioFailed = true;
                                             }
                                             
@@ -293,7 +296,10 @@ public class Runner {
                             validationTable.append(String.format("<tr><td>%s</td><td>Exception Persistence</td><td>Expected NOT NULL</td><td>Found %d exceptions (%s)</td><td class='%s'>%s</td></tr>", 
                                 table, count, resultStr, statusClass, status));
                             
-                            if (count == 0) scenarioFailed = true;
+                            if (count == 0) {
+                                jiraDetails.append(String.format("- %s: Exception persistence check failed (expected not-null)\\n", table));
+                                scenarioFailed = true;
+                            }
                         }
                     }
                     
@@ -301,6 +307,11 @@ public class Runner {
                     caseStepsHtml.append("<div id='val-" + payload.getTest_case_id() + "' class='validation-container' style='display:none;'>");
                     caseStepsHtml.append(validationTable);
                     caseStepsHtml.append("</div>");
+
+                    if (scenarioFailed) {
+                        caseStepsHtml.append(String.format("<button class='btn-jira' onclick=\"raiseJiraDefect('%s', '%s', '%s')\">Raise a Defect</button>",
+                            payload.getTest_case_id(), payload.getScenario_name(), jiraDetails.toString().replace("'", "\\'")));
+                    }
                     caseStepsHtml.append("</div>");
 
                     String statusClass = scenarioFailed ? "fail" : "pass";
