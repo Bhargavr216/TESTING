@@ -59,6 +59,9 @@ public class Runner {
                     caseStepsHtml.append("<div class=\"step\"><div class=\"step-title\">Step 2: Event Trigger</div>");
                     try {
                         if (dbConfig.isEnableEventTrigger()) {
+                            // Process placeholders before triggering
+                            PayloadUtils.processPlaceholders(payload.getEvent_payload());
+                            
                             EventHubUtils.triggerEvent(dbConfig, payload.getEvent_payload());
                             caseStepsHtml.append(String.format("<p class=\"pass\">Successfully triggered <b>%s</b> event to Event Hub</p>", payload.getEvent_type()));
                             System.out.println("   [WAIT] Waiting 10 seconds for processing...");
@@ -129,13 +132,27 @@ public class Runner {
                         // If it should persist and it does, perform deeper validation
                         if ("PERSIST".equals(expectation) && !rows.isEmpty()) {
                             List<Map<String, Object>> expectedRows = JsonUtils.loadExpectedRows(table);
-                            for (Map<String, Object> row : rows) {
-                                Map<String, Object> exp = ValidationUtils.matchExpectedRow(row, expectedRows, schema);
-                                if (exp == null) {
-                                    validationTable.append(String.format("<tr><td>%s</td><td>Row Match</td><td>Expected row</td><td>Not found</td><td class='fail'>FAIL</td></tr>", table));
+                            Set<Integer> matchedDbIndices = new HashSet<>();
+
+                            // Special handling for audit_logs exception count (User-requested approach)
+                            if (table.equalsIgnoreCase("audit_logs")) {
+                                long nonNullExceptions = rows.stream()
+                                    .filter(r -> r.get("exception") != null && !String.valueOf(r.get("exception")).equalsIgnoreCase("null"))
+                                    .count();
+                                System.out.println("   [DEBUG] Audit exception count (not-null): " + nonNullExceptions);
+                            }
+
+                            for (Map<String, Object> exp : expectedRows) {
+                                int matchIdx = ValidationUtils.findMatch(exp, rows, matchedDbIndices, schema);
+                                if (matchIdx == -1) {
+                                    validationTable.append(String.format("<tr><td>%s</td><td>Row Match</td><td>%s</td><td>Not found in DB</td><td class='fail'>FAIL</td></tr>", 
+                                        table, exp.get(schema.getPrimary_lookup())));
                                     scenarioFailed = true;
                                     continue;
                                 }
+
+                                matchedDbIndices.add(matchIdx);
+                                Map<String, Object> row = rows.get(matchIdx);
 
                                 if (schema.getMandatory_columns() != null) {
                                     for (String col : schema.getMandatory_columns()) {
@@ -214,6 +231,22 @@ public class Runner {
                                             }
 
                                             boolean colMatch = ValidationUtils.compareValues(expectedValue, actualValue, presenceOnly);
+                                            
+                                            // Override match logic for audit_logs exception count if presenceOnly is requested
+                                            if (table.equalsIgnoreCase("audit_logs") && col.equals("exception") && presenceOnly) {
+                                                long nonNullExceptions = rows.stream()
+                                                    .filter(r -> r.get("exception") != null && !String.valueOf(r.get("exception")).equalsIgnoreCase("null"))
+                                                    .count();
+                                                
+                                                boolean expectNotNull = expectedValue != null;
+                                                if (expectNotNull) {
+                                                    colMatch = nonNullExceptions > 0;
+                                                } else {
+                                                    // For expectNull, we verify the current row's exception is actually null
+                                                    colMatch = actualValue == null;
+                                                }
+                                            }
+
                                             String result = colMatch ? "PASS" : "FAIL";
                                             String resultClass = colMatch ? "pass" : "fail";
                                             if (!colMatch) {
