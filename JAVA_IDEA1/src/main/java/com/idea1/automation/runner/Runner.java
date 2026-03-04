@@ -228,7 +228,6 @@ public class Runner {
                                                 jiraDetails.append(String.format("- %s.%s: Expected %s but got %s\\n", table, col, expectedDisplay, actualDisplay));
                                                 scenarioFailed = true;
                                             }
-
                                             validationTable.append(String.format("<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td><td class='%s'>%s</td></tr>", 
                                                 table, col, expectedDisplay, actualDisplay, resultClass, result));
                                         }

@@ -213,7 +213,7 @@ public class ReportUtils {
                 "                                       'Severity: ' + severity + '\\n\\n' + \n" +
                 "                                       'Failure Details:\\n' + currentDefect.details);\n" +
                 "    \n" +
-                "    var url = JIRA_BASE_URL + '/secure/CreateIssueDetails!init.jspa?project=' + JIRA_PROJECT + \n" +
+                "    var url = JIRA_BASE_URL + '/secure/CreateIssueDetails!init.jspa?pid=' + JIRA_PROJECT + \n" +
                 "              '&issuetype=1&summary=' + summary + '&description=' + description + '&priority=' + severity;\n" +
                 "    \n" +
                 "    window.open(url, '_blank');\n" +

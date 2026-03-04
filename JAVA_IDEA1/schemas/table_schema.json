@@ -1,5 +1,111 @@
 {
-  "orders": {
+  "dcc_event_handled": {
+    "primary_lookup": "event_id",
+
+    "unique_constraints": [
+      ["event_id"]
+    ],
+
+    "mandatory_columns": [
+      "event_id"
+    ]
+  },
+
+  "dcc_job_queue": {
+    "primary_lookup": "event_id",
+
+    "unique_constraints": [
+      ["event_id"]
+    ],
+
+    "mandatory_columns": [
+      "event_id",
+      "event_type",
+      "event_operation",
+      "event_payload",
+      "retry_attempts"
+    ],
+    "json_columns": {   
+      "event_payload": {
+        "required": [
+          "id",
+          "data.orderId",
+          "type"
+        ],
+        "ignored": []
+      }
+    }
+  },
+  "dcc_job_queue_arch": {
+    "primary_lookup": "event_id",
+
+    "unique_constraints": [
+      ["event_id"]
+    ],
+
+    "mandatory_columns": [
+      "event_id",
+      "event_type",
+      "event_payload",
+      "poi_event_payload",
+      "event_operation",
+      "retry_attempts"
+    ],
+
+    "json_columns": {
+      "poi_event_payload": {
+        "required": [
+          "type",
+          "data.orderId",
+          "data.complianceRequired",
+          "data.sameDay",
+          "data.vicFirstTimeLiq",
+          "data.liq"
+        ],
+        "ignored": []
+      },
+      "event_payload": {
+        "required": [
+          "id",
+          "data.orderId",
+          "type"
+        ],
+        "ignored": []
+      }
+    },
+    "semantic_rules": {
+    "exception": {
+    "type": "nullable_presence"
+	}
+  }
+  },
+"dcc_audit": {
+  "primary_lookup": "event_id",
+  "secondary_lookup": "event_operation",
+
+  "mandatory_columns": [
+   "event_id",
+      "event_operation",
+      "exception"
+  ],
+   "generated_columns": [
+    "audit_id"
+  ],
+
+  "semantic_rules": {
+    "retry_count": {
+      "type": "min_value",
+      "min": 0
+    },
+    "exception": {
+    "type": "nullable_presence"
+	}
+  },
+
+  "table_expectation": "ABSENT_ON_SUCCESS"
+}
+,
+  "dcc_ord_rist_items": {
     "primary_lookup": "order_id",
 
     "unique_constraints": [
@@ -8,116 +114,36 @@
 
     "mandatory_columns": [
       "order_id",
-      "status",
-      "total_amount",
-      "order_metadata"
+      "is_liq",
+      "store_id"
     ],
-
-    "json_columns": {
-      "order_metadata": {
-        "required": [
-          "customer.name",
-          "customer.city",
-          "payment.method"
-        ],
-        "ignored": []
-      }
-    }
-  },
-
-  "fulfilment": {
-    "primary_lookup": "order_id",
-
-    "unique_constraints": [
-      ["fulfilment_id"]
-    ],
-
-    "mandatory_columns": [
-      "fulfilment_id",
-      "order_id",
-      "status",
-      "fulfilment_details"
-    ],
-
-    "json_columns": {
-      "fulfilment_details": {
-        "required": [
-          "deliverySlot.startTime",
-          "deliverySlot.endTime"
-        ],
-        "ignored": []
-      }
-    }
-  },
-
-  "operations": {
-    "primary_lookup": "order_id",
-    "secondary_lookup": "operation_type",
-
-    "unique_constraints": [
-      ["order_id", "operation_type"]
-    ],
-
-    "mandatory_columns": [
-      "order_id",
-      "operation_type",
-      "status"
-    ]
-  },
-
-  "audit_logs": {
-  "primary_lookup": "order_id",
-  "secondary_lookup": "operation",
-
-  "mandatory_columns": [
-    "order_id",
-    "audit_id",
-    "operation",
-    "status",
-    "exception"
-  ],
-
-  "generated_columns": [
-    "audit_id"
-  ],
-
-  "semantic_rules": {
-    "exception": {
-      "type": "nullable_presence"
-    }
+     "generated_columns": [
+    "item_id","fulfilment_id","customer_id"
+  ]
   }
-},
+  ,
+  "dcc_event_consumption_stats": {
+    "primary_lookup": "event_id",
 
-"job_queue": {
-  "primary_lookup": "order_id",
+    "unique_constraints": [
+      ["event_id"]
+    ],
 
-  "mandatory_columns": [
-    "order_id",
-    "operation",
-    "exception",
-    "ordermetadata",
-    "retry_count"
-  ],
+    "mandatory_columns": [
+      "event_id",
+      "event_type"
+    ]
+  }
+  ,
+  "dcc_active_queue": {
+    "primary_lookup": "event_id",
 
-  "json_columns": {
-    "ordermetadata": {
-      "required": [
-        "customer.name"
-      ],
-      "ignored": []
-    }
-  },
+    "unique_constraints": [
+      ["event_id"]
+    ],
 
-  "semantic_rules": {
-    "exception": {
-      "type": "nullable_presence"
-    },
-    "retry_count": {
-      "type": "min_value",
-      "min": 0
-    }
-  },
-
-  "table_expectation": "ABSENT_ON_SUCCESS"
-}
+    "mandatory_columns": [
+      "event_id"
+    ]
+  }
 }

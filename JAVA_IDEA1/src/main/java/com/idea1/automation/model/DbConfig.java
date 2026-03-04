@@ -32,7 +32,6 @@ public class DbConfig {
     public void setEventHubName(String eventHubName) { this.eventHubName = eventHubName; }
     public boolean isEnableCleanup() { return enableCleanup; }
     public void setEnableCleanup(boolean enableCleanup) { this.enableCleanup = enableCleanup; }
- 
     public boolean isEnableEventTrigger() { return enableEventTrigger; }
     public void setEnableEventTrigger(boolean enableEventTrigger) { this.enableEventTrigger = enableEventTrigger; }
     public String getJiraBaseUrl() { return jiraBaseUrl; }
