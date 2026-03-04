@@ -40,6 +40,55 @@ public class ValidationUtils {
         return null;
     }
 
+    public static int findMatch(Map<String, Object> expected, List<Map<String, Object>> actualRows, Set<Integer> usedIndices, TableSchema schema) {
+        String pk = schema.getPrimary_lookup();
+        String sk = schema.getSecondary_lookup();
+        int bestMatchIndex = -1;
+        int bestMatchScore = -1;
+
+        for (int i = 0; i < actualRows.size(); i++) {
+            if (usedIndices.contains(i)) continue;
+            Map<String, Object> actual = actualRows.get(i);
+            int currentScore = 0;
+
+            // Primary and secondary lookups must match
+            Object expPk = normalizeNullable(expected.get(pk));
+            Object actPk = normalizeNullable(actual.get(pk));
+            if (!Objects.equals(expPk, actPk)) continue;
+
+            if (sk != null) {
+                Object expSk = normalizeNullable(expected.get(sk));
+                Object actSk = normalizeNullable(actual.get(sk));
+                if (!Objects.equals(expSk, actSk)) continue;
+            }
+
+            // Score based on all other matching fields in the expected map
+            for (Map.Entry<String, Object> expEntry : expected.entrySet()) {
+                String key = expEntry.getKey();
+                if (key.equals(pk) || (sk != null && key.equals(sk))) continue; // Already checked
+
+                if (actual.containsKey(key)) {
+                    boolean presenceOnly = false;
+                    if (schema.getSemantic_rules() != null && schema.getSemantic_rules().containsKey(key)) {
+                        if ("nullable_presence".equalsIgnoreCase(schema.getSemantic_rules().get(key).getType())) {
+                            presenceOnly = true;
+                        }
+                    }
+                    if (compareValues(expEntry.getValue(), actual.get(key), presenceOnly)) {
+                        currentScore++;
+                    }
+                }
+            }
+
+            if (currentScore > bestMatchScore) {
+                bestMatchScore = currentScore;
+                bestMatchIndex = i;
+            }
+        }
+
+        return bestMatchIndex;
+    }
+
     public static List<Map<String, Object>> deepCompare(JsonNode expected, JsonNode actual, String path) {
         List<Map<String, Object>> errors = new ArrayList<>();
         if (expected.isObject()) {
