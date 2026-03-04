@@ -260,6 +260,42 @@ public class Runner {
                             }
                         }
                     }
+
+                    // 4. SCENARIO-SPECIFIC EXCEPTION PERSISTENCE CHECK
+                    if (payload.getCheck_exception_persistence() != null) {
+                        for (String table : payload.getCheck_exception_persistence()) {
+                            Object lookupValue = payload.getLookup_ids().get("order_id");
+                            // Try multiple schema prefixes like fetchRows does
+                            String[] tableNames = {table, "dcc." + table, "dcc.dcc_" + table, "dcc." + table.replace("_", "")};
+                            boolean checkPassed = false;
+                            long count = 0;
+
+                            for (String tableName : tableNames) {
+                                String sql = String.format("SELECT COUNT(*) FROM %s WHERE order_id = ? AND exception IS NOT NULL", tableName);
+                                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                                    stmt.setObject(1, lookupValue);
+                                    try (ResultSet rs = stmt.executeQuery()) {
+                                        if (rs.next()) {
+                                            count = rs.getLong(1);
+                                            checkPassed = true;
+                                            break; 
+                                        }
+                                    }
+                                } catch (SQLException e) {
+                                    // Table might not exist with this prefix, continue
+                                }
+                            }
+
+                            String resultStr = (count > 0) ? "NOT NULL" : "NULL";
+                            String status = (count > 0) ? "PASS" : "FAIL";
+                            String statusClass = (count > 0) ? "pass" : "fail";
+                            
+                            validationTable.append(String.format("<tr><td>%s</td><td>Exception Persistence</td><td>Expected NOT NULL</td><td>Found %d exceptions (%s)</td><td class='%s'>%s</td></tr>", 
+                                table, count, resultStr, statusClass, status));
+                            
+                            if (count == 0) scenarioFailed = true;
+                        }
+                    }
                     
                     validationTable.append("</tbody></table>");
                     caseStepsHtml.append("<div id='val-" + payload.getTest_case_id() + "' class='validation-container' style='display:none;'>");
