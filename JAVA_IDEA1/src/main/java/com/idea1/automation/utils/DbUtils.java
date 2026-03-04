@@ -45,7 +45,8 @@ public class DbUtils {
             		+ "delete from dcc.dcc_audit;\r\n"
             		+ "delete from dcc.dcc_event_consumption_stats;\r\n"
             		+ "delete from dcc.dcc_event_handled;\r\n"
-            		+ "delete from dcc.dcc_ord_rist_items;";
+            		+ "delete from dcc.dcc_ord_rist_items;\r\n"
+            		+ "insert into  dcc.dcc_customer_details values ('59001008',true,'col-dcc1008','7674','2025-10-31 16:57:52.196353')";
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {                
                 int rowsDeleted = pstmt.executeUpdate();
                 System.out.printf("   [CLEANUP] Deleted %d rows from database got deleted", rowsDeleted);
