@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ReportUtils {
 
-    public static String getHtmlHeader() {
+    public static String getHtmlHeader(String jiraBaseUrl, String jiraProjectKey) {
         return "<html>\n" +
                 "<head>\n" +
                 "<meta charset=\"UTF-8\">\n" +
@@ -24,8 +24,6 @@ public class ReportUtils {
                 "  --accent-soft: #eef7ff;\n" +
                 "  --ok: #107c10;\n" +
                 "  --ok-soft: #dff6dd;\n" +
-                "  --warn: #797670;\n" +
-                "  --warn-soft: #f3f2f1;\n" +
                 "  --err: #a4262c;\n" +
                 "  --err-soft: #fed9cc;\n" +
                 "}\n" +
@@ -161,9 +159,31 @@ public class ReportUtils {
                 ".validation-table .pass { color:var(--ok); font-weight:600; }\n" +
                 ".validation-table .fail { color:var(--err); font-weight:600; }\n" +
                 ".validation-table .skip { color:var(--warn); font-weight:600; }\n" +
+                ".btn-jira { background: var(--err); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 10px; transition: all 0.2s; }\n" +
+                ".btn-jira:hover { opacity: 0.9; transform: translateY(-1px); }\n" +
+                ".modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }\n" +
+                ".modal-content { background: white; margin: 15% auto; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); }\n" +
+                ".modal-header { font-size: 18px; font-weight: bold; margin-bottom: 20px; color: var(--text); }\n" +
+                ".severity-opts { display: flex; flex-direction: column; gap: 10px; }\n" +
+                ".sev-btn { padding: 12px; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-align: left; background: white; transition: all 0.2s; font-weight: 500; }\n" +
+                ".sev-btn:hover { background: var(--accent-soft); border-color: var(--accent); }\n" +
+                ".sev-extreme { border-left: 5px solid var(--err); }\n" +
+                ".sev-high { border-left: 5px solid #e67e22; }\n" +
+                ".sev-medium { border-left: 5px solid #f1c40f; }\n" +
                 "</style>\n" +
                 "</head>\n" +
                 "<body>\n" +
+                "<div id=\"jiraModal\" class=\"modal\">\n" +
+                "  <div class=\"modal-content\">\n" +
+                "    <div class=\"modal-header\">Select Severity for Defect</div>\n" +
+                "    <div class=\"severity-opts\">\n" +
+                "      <button class=\"sev-btn sev-extreme\" onclick=\"submitJira('Extreme')\">Extreme (Blocker)</button>\n" +
+                "      <button class=\"sev-btn sev-high\" onclick=\"submitJira('High')\">High (Critical)</button>\n" +
+                "      <button class=\"sev-btn sev-medium\" onclick=\"submitJira('Medium')\">Medium (Major)</button>\n" +
+                "      <button class=\"sev-btn\" style=\"margin-top:10px; text-align:center; background:#eee;\" onclick=\"closeModal()\">Cancel</button>\n" +
+                "    </div>\n" +
+                "  </div>\n" +
+                "</div>\n" +
                 "<div class=\"header\">\n" +
                 "  <h1>Azure Automation Test Report</h1>\n" +
                 "  <div class=\"filters\">\n" +
@@ -174,7 +194,36 @@ public class ReportUtils {
                 "  </div>\n" +
                 "  <div id=\"timestamp\"></div>\n" +
                 "</div>\n" +
-                "<script>document.addEventListener('DOMContentLoaded', function(){ document.getElementById('timestamp').innerText = new Date().toLocaleString(); });</script>\n" +
+                "<script>\n" +
+                "  var currentDefect = {};\n" +
+                "  var JIRA_BASE_URL = '" + jiraBaseUrl + "';\n" +
+                "  var JIRA_PROJECT = '" + jiraProjectKey + "';\n" +
+                "  \n" +
+                "  function raiseJiraDefect(caseId, title, details){\n" +
+                "    currentDefect = { id: caseId, title: title, details: details };\n" +
+                "    document.getElementById('jiraModal').style.display = 'block';\n" +
+                "  }\n" +
+                "  \n" +
+                "  function closeModal(){ document.getElementById('jiraModal').style.display = 'none'; }\n" +
+                "  \n" +
+                "  function submitJira(severity){\n" +
+                "    var summary = encodeURIComponent('[Automation] ' + currentDefect.title + ' (' + currentDefect.id + ')');\n" +
+                "    var description = encodeURIComponent('Scenario: ' + currentDefect.title + '\\n' + \n" +
+                "                                       'Case ID: ' + currentDefect.id + '\\n' + \n" +
+                "                                       'Severity: ' + severity + '\\n\\n' + \n" +
+                "                                       'Failure Details:\\n' + currentDefect.details);\n" +
+                "    \n" +
+                "    var url = JIRA_BASE_URL + '/secure/CreateIssueDetails!init.jspa?pid=' + JIRA_PROJECT + \n" +
+                "              '&issuetype=1&summary=' + summary + '&description=' + description + '&priority=' + severity;\n" +
+                "    \n" +
+                "    window.open(url, '_blank');\n" +
+                "    closeModal();\n" +
+                "  }\n" +
+                "  \n" +
+                "  document.addEventListener('DOMContentLoaded', function(){ \n" +
+                "    document.getElementById('timestamp').innerText = new Date().toLocaleString(); \n" +
+                "  });\n" +
+                "</script>\n" +
                 "<script>\n" +
                 "document.addEventListener('DOMContentLoaded', function(){\n" +
                 "  function buildSidebar(){\n" +
