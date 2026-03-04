@@ -1,77 +1,46 @@
-[
-  {
+[{
     "test_case_id": "TC_001",
-    "scenario_name": "Order Created – Happy Path",
-    "event_type": "ORDER_CREATED",
-
+    "scenario_name": "Create_fulfilment_Scenario: Verify the Restricted liour flow",
+    "event_type": "eos.orders.allocated",
     "lookup_ids": {
-      "order_id": "ORD123"
+      "event_id": "event-dcc-07",
+      "order_id": "col-dcc1007"
     },
-
-    "event_payload": {
-      "order_id": "ORD123",
-      "customer_id": "CUST1",
-      "amount": 500
-    },
-
+    "event_payload": 
+    [
+    {
+      "id": "event-dcc-07",
+      "source": "EOS",
+      "type": "eos.orders.allocated",
+      "data": {
+        "orderId": "col-dcc1007",
+        "status": "Allocated"
+      },
+      "time": "2025-10-30T10:28:21.7223026+00:00",
+      "specversion": "1.0",
+      "dataschema": "#",
+      "datacontenttype": "application/json",
+      "xrequestid": "6f3483b16b13d94d8df7f7443f1d717a",
+      "traceparent": "00-6f3483b16b13d94d8df7f7443f1d717a-5f3771e6a0385f95-00"
+    }
+  ],
     "expected_tables": [
-      "orders",
-      "fulfilment",
-      "operations",
-      "audit_logs"
+      "dcc_event_handled",
+      "dcc_job_queue",
+      "dcc_job_queue_arch",
+      "dcc_event_consumption_stats",
+      "dcc_audit",
+      "dcc_ord_rist_items",
+      "dcc_active_queue"
     ],
     "table_expectations": {
-        "job_queue": "NOT_PERSIST"
+      "dcc_event_handled": "PERSIST",
+      "dcc_job_queue": "NOT_PERSIST",
+      "dcc_job_queue_arch": "PERSIST",
+      "dcc_event_consumption_stats": "PERSIST",
+      "dcc_audit": "PERSIST",
+      "dcc_ord_rist_items": "PERSIST",
+      "dcc_active_queue": "NOT_PERSIST"
     }
-  },
-  {
-  "test_case_id": "TC_NEG_001",
-  "scenario_name": "Order Validation Failed – Routed to Job Queue",
-  "event_type": "ORDER_EVENT",
-  "lookup_ids": {
-    "order_id": "ORD124"
-  },
-
-  "expected_tables": [
-    "audit_logs",
-    "job_queue"
-  ],
-
-  "table_expectations": {
-    "orders": "NOT_PERSIST",
-    "fulfilment": "NOT_PERSIST",
-    "operations": "NOT_PERSIST",
-    "audit_logs": "PERSIST",
-    "job_queue": "PERSIST"
   }
-},
-{
-  "test_case_id": "TC_RETRY_001",
-  "scenario_name": "Order Validation Retry Failed 3 Times",
-  "event_type": "ORDER_EVENT",
-  "lookup_ids": {
-    "order_id": "ORD500"
-  },
-
-  "expected_tables": [
-    "audit_logs",
-    "job_queue"
-  ],
-
-  "table_expectations": {
-    "orders": "NOT_PERSIST",
-    "fulfilment": "NOT_PERSIST",
-    "operations": "NOT_PERSIST",
-    "audit_logs": "PERSIST",
-    "job_queue": "PERSIST"
-  },
-  "retry_expectations": {
-    "audit_logs": [
-      {
-        "operation": "VALIDATE",
-        "count": 2
-      }
-    ]
-  }
-}
 ]
