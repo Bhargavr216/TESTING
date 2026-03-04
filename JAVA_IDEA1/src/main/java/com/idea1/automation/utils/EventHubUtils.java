@@ -1,5 +1,6 @@
 package com.idea1.automation.utils;
 
+import com.azure.core.amqp.AmqpTransportType;
 import com.azure.messaging.eventhubs.EventData;
 import com.azure.messaging.eventhubs.EventDataBatch;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
@@ -23,6 +24,7 @@ public class EventHubUtils {
 
         try (EventHubProducerClient producer = new EventHubClientBuilder()
                 .connectionString(connectionString, eventHubName)
+                .transportType(AmqpTransportType.AMQP_WEB_SOCKETS)
                 .buildProducerClient()) {
 
             String jsonPayload = mapper.writeValueAsString(payload);
