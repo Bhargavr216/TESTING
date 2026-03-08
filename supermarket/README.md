@@ -1,89 +1,47 @@
 Supermarket Website (PHP + MySQL)
 
-Overview
-- Frontend: HTML, CSS, JS
-- Backend: PHP (PDO)
-- Database: MySQL (phpMyAdmin)
-- Local server: XAMPP
+## End-to-End Explanation
+This PHP/MySQL project delivers a complete e-commerce experience: users register/login (`auth/`), browse products (`products/`), manage carts (`cart/`), place orders (`orders/`), and administrators perform product CRUD (`admin/`). The frontend (`index.php`, `partials/` for header/footer) talks to the backend via secure PHP controllers that rely on prepared statements (`config/config.php`) to talk to MySQL. The site is deployed locally through XAMPP, and sample data seeds product catalogs plus an admin email (`admin@supermarket.local`).
 
-Setup Guide (Beginner-Friendly)
-1) Install XAMPP
-- Download: https://www.apachefriends.org/index.html
-- Install using defaults; start the XAMPP Control Panel.
+## Key Components & Coverage
+- **`index.php`**: hero, feature callouts, product highlights, cart triggers, and responsive layout.
+- **`auth/`**: registration, login, logout flows that set PHP sessions.
+- **`products/`, `cart/`, `orders/`**: controllers for browsing, adding/removing items, updating cart totals, and checkout.
+- **`admin/`**: product CRUD screens accessible via the `admin@supermarket.local` account.
+- **`partials/`**: reusable header/footer/nav components.
+- **`config/config.php`**: centralizes database credentials and PDO connection logic.
+- **`schema.sql`**: defines `supermarket_db` tables plus sample products.
 
-2) Start Services
-- In XAMPP Control Panel, click Start for `Apache` and `MySQL`.
-- If Apache fails due to port 80/443, change ports in Config or stop other apps using those ports.
+## Setup & Execution
+1. Install **XAMPP** and start `Apache` + `MySQL` from the control panel.
+2. Open `http://localhost/phpmyadmin/`, create a new database (e.g., `supermarket_db`), and import `schema.sql`.
+3. Copy the project folder into `C:\\xampp\\htdocs\\supermarket\\`.
+4. Update `config/config.php` if you changed MySQL credentials (default is `root` with no password).
+5. Visit `http://localhost/supermarket/` and test the features (sign-up, login, carts, checkout). Use `admin@supermarket.local` for admin access.
 
-3) Open phpMyAdmin
-- Visit `http://localhost/phpmyadmin/` in your browser.
+## Reporting & Observability
+- Standard PHP logging and exception handling (if enabled) track issues under `logs/` (if configured).
+- Browser dev tools help verify responsive layouts and network requests during cart/checkout.
+- Manual walkthroughs (sign up, add to cart, place order) provide quick regression feedback.
 
-4) Create Database and Tables
-- In phpMyAdmin, click `Import`.
-- Choose the `schema.sql` file from this project.
-- Import to create `supermarket_db` and sample data.
+## Important Interview Questions & Answers
+1. **Q:** How do you protect against SQL injection in this project?  
+   **A:** All database interactions go through PDO prepared statements in `config/config.php`, eliminating manual concatenation of user input into queries.
+2. **Q:** How does the cart persist data between requests?  
+   **A:** Cart details are stored in PHP sessions and/or database tables, ensuring items remain when navigating between product and cart pages.
+3. **Q:** How does admin functionality differ from user functionality?  
+   **A:** Admins register with `admin@supermarket.local`, which triggers admin-specific checks (`is_admin` flag) to render the `admin/` UI for product creation and editing.
 
-5) Place Project in htdocs
-- Copy the entire project folder contents into `C:\xampp\htdocs\supermarket` (create the `supermarket` folder if needed).
+## Theory Knowledge for Interviews
+- **MVC-ish PHP Structure:** While not a full framework, separation between controllers (`products/`, `cart/`), views (`partials/`), and configuration makes the design maintainable.
+- **Session Management:** PHP sessions track logged-in users and carts; logouts clear the session to prevent reused credentials.
+- **Prepared Statements:** They sanitize inputs at the driver level, so even strings from forms (`$_POST`) remain safe.
 
-6) Configure Database Credentials (optional)
-- Default credentials assume MySQL user `root` with empty password.
-- If you use a password, open `config/config.php` and set `DB_PASS`.
+## Troubleshooting & Tips
+- If `Apache` won’t start, free up ports 80/443 (stop Skype or another service) or change XAMPP’s listening ports.
+- If database queries fail, re-import `schema.sql` and verify the `supermarket_db` tables exist with sample data.
+- Use `php.ini` to enable error display during development for faster debugging.
 
-7) Run the Site
-- Open `http://localhost/supermarket/` in your browser.
-
-Login and Admin
-- Create an account via Sign Up.
-- To access Admin panel, register using email `admin@supermarket.local` (this email gets admin access).
-
-Test the Full Flow
-1) Sign Up and Login
-2) Browse Products
-3) Add items to Cart from product cards
-4) Open Cart, update quantities, remove items
-5) Proceed to Checkout and Place Order
-6) View Order History under Orders
-7) If using `admin@supermarket.local`, open Admin to Add/Edit/Delete products
-
-Project Structure
-- `index.php` — Homepage with hero, offers, featured products
-- `products/` — Product listing with search and category filters
-- `auth/` — Register, Login, Logout
-- `cart/` — Add/Update/Remove, Checkout, Place Order
-- `orders/` — Order history
-- `admin/` — Product CRUD (admin only)
-- `partials/` — Shared header, navbar, footer
-- `config/` — Database config and connection
-- `public/assets/css/style.css` — Styles
-- `public/assets/js/app.js` — JS
-- `schema.sql` — Database schema + sample products
-
-Notes
-- Passwords are hashed using PHP `password_hash`.
-- All SQL queries use prepared statements.
-- Cart and orders enforce stock checks during checkout.
-- UI is responsive and uses a modern dark theme.
-
-Screenshots
-- The following screenshots illustrate key pages and flows. Place images under `public/assets/screenshots/` using the suggested filenames.
-
-1) Authentication
-- Login: ![Login](public/assets/screenshots/login.png)
-- Register: ![Register](public/assets/screenshots/register.png)
-
-2) Shopping Flow
-- Homepage: ![Homepage](public/assets/screenshots/home.png)
-- Products listing: ![Products](public/assets/screenshots/products.png)
-- Cart: ![Cart](public/assets/screenshots/cart.png)
-- Checkout: ![Checkout](public/assets/screenshots/checkout.png)
-- Order history: ![Orders](public/assets/screenshots/order_history.png)
-
-3) Admin Panel
-- Products management: ![Admin Products](public/assets/screenshots/admin_products.png)
-- Add product: ![Admin Add Product](public/assets/screenshots/admin_add_product.png)
-
-How to Capture Screenshots
-- Run the site locally: `http://localhost/supermarket/`
-- Use your browser’s screenshot tool to capture the full page for each view.
-- Save PNG files to `public/assets/screenshots/` with the exact names above so the README displays them automatically.
+## Next Steps
+- Add PHPUnit or Behat automated tests to validate carts and checkout flows.
+- Introduce API endpoints for headless frontends or mobile apps, then pair with Postman/Newman tests.

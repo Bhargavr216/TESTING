@@ -1,50 +1,47 @@
-# Idea 1 - Azure Database & Event Hub Validation Automation
+# Idea 1 — Azure Event Hub to Database Validation Automation (Java)
 
-This Java-based automation framework validates end-to-end data flows triggered by Azure Event Hubs into an Azure SQL Database (or PostgreSQL).
+## End-to-End Explanation
+The framework orchestrates Azure Event Hub payloads, waits for downstream processing, and validates persistence inside an SQL database. It reads dynamic payloads (`payloads/event_payloads.json`), publishes them to Event Hub (via `EventHubPublisher` helpers), waits for the service to process them, and then queries tables defined in `schemas/table_schema.json`. The sequence is: clear database state → publish payload → wait for Azure processing → validate `orders`, `audit_logs`, and related tables → report results via HTML/CSV artifacts.
 
-## Features
+## Key Components & Coverage
+- **`config/db_config.json`**: connection strings for Azure SQL or PostgreSQL plus Event Hub details (`eventHubConnectionString`, `eventHubName`).
+- **`payloads/event_payloads.json`**: supports single objects and arrays to validate both scalar and bulk event flows.
+- **`schemas/` & `expected/`**: define lookup strategies, mandatory columns, JSON rules, and expected rows for each table.
+- **`src/`**: Java logic that triggers Event Hub messages, polls the database, and formats results (reports live in `reports/idea1_report.html`).
+- **`reports/`**: interactive HTML with summary cards plus deep-dives for each test case.
+- **`create_pdf.py`** (optional): converts HTML reports into portable PDFs for stakeholder sharing.
 
-- **Sequential Execution**: Cleans database -> Triggers Event Hub -> Waits for processing -> Validates persistence.
-- **Dynamic Payloads**: Supports both single object and array of payloads in `event_payloads.json`.
-- **Azure Integration**: Built-in support for Azure Event Hubs and SQL Database connection strings.
-- **Rich Reporting**: Azure-themed interactive HTML report with summary cards and step-by-step logs.
+## Setup & Execution
+1. Install **Java 17+**, **Maven**, and ensure network access to Azure Event Hub/SQL.
+2. Populate `config/db_config.json` with your Azure credentials (copy from `config/db_config.example.json`).
+3. Build the project: `mvn clean package`.
+4. Run the runner via Maven: `mvn exec:java -Dexec.mainClass="com.idea1.automation.runner.Runner"`.
+5. Alternatively run the shaded JAR: `java -jar target/automation-1.0-SNAPSHOT.jar`.
+6. After execution, open `reports/idea1_report.html` for scenario statuses and failure tables.
 
-## Prerequisites
+## Reporting & Observability
+- HTML report includes collapsible cards, pass/fail chips, and expandable sections for each table comparison.
+- Detailed logs capture Event Hub interactions, SQL queries executed, and JSON diffs.
+- Optionally, `create_pdf.py` generates a PDF summary from the HTML report for offline sharing.
 
-- **Java 17+**
-- **Maven**
-- **Azure SQL Database** (or PostgreSQL)
-- **Azure Event Hub**
+## Important Interview Questions & Answers
+1. **Q:** How do you simulate Azure Event Hub workloads in a validation suite?  
+   **A:** Payloads in `payloads/event_payloads.json` are published to Event Hub, and the runner polls Azure SQL to confirm the messages processed correctly before asserting expectations.
+2. **Q:** How is the suite resilient to both single and batch payloads?  
+   **A:** The `payloads` JSON supports arrays/hooks for sequential payloads, so the same validation logic handles single-object events and multi-item sequences.
+3. **Q:** What ensures the HTML report stays actionable?  
+   **A:** It reports per-table pass/fail counts, attaches SQL query context, and logs the difference between expected vs actual rows so you know exactly what broke.
 
-## Configuration
+## Theory Knowledge for Interviews
+- **Event-Driven Architecture:** Understand how Event Hubs forward messages to downstream processors and how to correlate `order_id` or `audit_id` from the payload to persisted rows.
+- **Idempotent Validation:** Running the pipeline with `clean → send → validate` ensures repeatability and demonstrates how side effects are managed.
+- **Data-Driven Testing:** The tests rely on JSON payloads + expected row definitions so the same code can validate different business rules without code changes.
 
-Update `config/db_config.json` with your Azure credentials:
+## Troubleshooting & Tips
+- Keep Azure connection strings current; rotating secrets requires updating `config/db_config.json`.
+- If the report shows missing rows, query Azure SQL manually (`SELECT * FROM orders WHERE order_id = 'ORD123';`) to verify ingestion.
+- Use logs to confirm that an event payload reached Event Hub; failed sends usually show HTTP errors.
 
-```json
-{
-  "dbConnectionString": "jdbc:sqlserver://yourserver.database.windows.net:1433;database=yourdb;user=youruser;password=yourpassword;...",
-  "eventHubConnectionString": "Endpoint=sb://yournamespace.servicebus.windows.net/;SharedAccessKeyName=...;SharedAccessKey=...",
-  "eventHubName": "your_event_hub_name"
-}
-```
-
-## How to Run
-
-### 1. Build the project
-```bash
-mvn clean package
-```
-
-### 2. Run the automation
-You can run it directly using Maven:
-```bash
-mvn exec:java -Dexec.mainClass="com.idea1.automation.runner.Runner"
-```
-Or run the generated fat-jar:
-```bash
-java -jar target/automation-1.0-SNAPSHOT.jar
-```
-
-## Reports
-After execution, a detailed report is generated at:
-`reports/idea1_report.html`
+## Next Steps
+- Extend the runner to publish results directly to Azure DevOps artifacts or send summary emails via `EmailUtils`.
+- Add retries and timeout policies around Event Hub publishing to harden flaky cloud operations.

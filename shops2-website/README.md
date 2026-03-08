@@ -1,343 +1,45 @@
-# 🛍️ Shops2-Website - Modern E-commerce Landing Page with Selenium Testing
+# Shops2-Website — Modern Landing Page + Selenium Validation
 
-## 📋 Project Overview
+## End-to-End Explanation
+The project presents a responsive e-commerce landing page (`index.html`, `style.css`, `assets/` for imagery) alongside a Selenium-based regression suite (`HomePageTests.java`). The frontend showcases hero, about, features, pricing, and footer sections, while the automation validates navigation, link behavior, and filter interactions through Maven/Selenium/TestNG. The complete experience demonstrates how a static marketing site can be paired with structured automation to keep UI journeys stable.
 
-Shops2-Website is a modern, responsive e-commerce landing page built with HTML5, CSS3, and JavaScript, featuring a sleek design with animated elements and comprehensive Selenium WebDriver test automation. The project demonstrates both frontend development skills and test automation expertise.
+## Key Components & Coverage
+- **`index.html` & `style.css`**: modern HTML5 structure with CSS Grid/Flexbox, gradients, and responsive breakpoints.
+- **`assets/`**: optimized PNG/SVG assets and iconography for the hero, pricing, and social sections.
+- **`HomePageTests.java`**: Selenium TestNG class that covers navigation, About section scroll detection, Discord link validation, and pricing filters.
+- **`pom.xml`**: Maven driver for dependencies (Selenium, TestNG, WebDriverManager).
+- **`README.md`, `PROJECT_DOCS.md`**: documentation of design/test decisions.
 
-## 🎯 Key Features
+## Setup & Execution
+1. Install **Java 17+**, **Maven 3.6+**, **Node.js** (optional for static server), and **Chrome** for tests.
+2. Clone the repo and run `mvn clean install`.
+3. Serve the frontend locally (`python -m http.server 8000` or `npx serve .`) to view `index.html`.
+4. Run Selenium tests with `mvn test`.
+5. Filter tests using `-Dtest=HomePageTests` or adjust browser via `-Dbrowser=chrome`.
 
-### 🌐 Frontend Features
-- **Responsive Design**: Mobile-first approach with CSS Grid and Flexbox
-- **Modern UI/UX**: Clean, professional design with smooth animations
-- **Interactive Elements**: Dynamic navigation, pricing filters, and hover effects
-- **Asset Management**: Optimized images, SVGs, and icons
-- **Cross-browser Compatibility**: Works on all modern browsers
+## Reporting & Observability
+- TestNG reports appear under `target/test-output/index.html` with method/class outcomes and failure details.
+- Screenshots (if enabled) highlight failed UI interactions.
+- Frontend assets can be inspected directly for responsive behavior and animations (see CSS `@keyframes`).
 
-### 🧪 Testing Features
-- **Comprehensive Test Suite**: Automated testing with Selenium WebDriver
-- **Page Object Model**: Maintainable test structure
-- **TestNG Integration**: Advanced test framework features
-- **Cross-browser Testing**: Chrome WebDriver support
-- **Screenshot Capabilities**: Visual regression testing
+## Important Interview Questions & Answers
+1. **Q:** How do you validate responsive navigation in Selenium?  
+   **A:** The automation resizes the viewport via `driver.manage().window().setSize(...)` (if implemented) and checks that elements such as the mobile menu toggle display/hide as expected.
+2. **Q:** Why separate frontend assets from automation logic?  
+   **A:** Keeping `index.html`/`style.css` separate from `HomePageTests.java` ensures designers can iterate on UI without changing test structure; tests rely on stable selectors executed from Maven.
+3. **Q:** How do you keep filters stable when product cards change?  
+   **A:** The tests target high-level assertions (e.g., filter toggles update counts) rather than brittle XPaths so the automation survives minor DOM reshuffles.
 
-## 🏗️ Project Structure
+## Theory Knowledge for Interviews
+- **Responsive Design Principles:** Mobile-first breakpoints, CSS Grid/Flexbox, and AOS-based scroll animations form the UI foundation.
+- **Test Automation Flow:** Launch browser → use POM to interact → assert content → close (mirroring the end-to-end user path).
+- **Data-driven Landing Pages:** The pricing grid uses semantic markup to keep content accessible and testable.
 
-```
-shops2-website/
-├── assets/                    # Static assets
-│   ├── *.png                  # Product images
-│   ├── *.svg                  # Icons and logos
-│   └── *.jpg                  # Background images
-├── src/test/java/            # Test automation
-│   └── HomePageTests.java     # Main test class
-├── index.html                 # Main HTML page
-├── style.css                 # CSS styles
-├── pom.xml                   # Maven configuration
-└── README.md                 # Project documentation
-```
+## Troubleshooting & Tips
+- If `mvn test` fails because the site isn’t served, start a simple HTTP server (`python -m http.server`) and point Selenium to `http://localhost:8000/index.html`.
+- Keep asset paths relative (no CDN) to avoid cross-origin issues during local testing.
+- Use browser dev tools to verify CSS Grid/Flexbox behavior across breakpoints when tests flag layout regressions.
 
-## 🛠️ Technologies Used
-
-### Frontend
-- **HTML5**: Semantic markup and modern features
-- **CSS3**: Advanced styling with animations and transitions
-- **JavaScript**: Interactive functionality and DOM manipulation
-- **AOS (Animate On Scroll)**: Scroll-triggered animations
-- **jQuery**: DOM manipulation and event handling
-- **Boxicons**: Icon library for UI elements
-
-### Testing
-- **Selenium WebDriver**: Web automation framework
-- **TestNG**: Testing framework with reporting
-- **Maven**: Build automation and dependency management
-- **WebDriverManager**: Automatic driver management
-
-## 🎨 Design Features
-
-### 🎯 Landing Page Sections
-1. **Hero Section**: Eye-catching header with call-to-action
-2. **About Section**: Company information and branding
-3. **Features Section**: Key product features with icons
-4. **Pricing Section**: Dynamic pricing with filter functionality
-5. **Footer**: Contact information and links
-
-### 🎨 Visual Elements
-- **Gradient Backgrounds**: Modern gradient color schemes
-- **Smooth Animations**: CSS transitions and AOS animations
-- **Responsive Grid**: CSS Grid and Flexbox layouts
-- **Interactive Buttons**: Hover effects and state changes
-- **Professional Typography**: Clean, readable fonts
-
-## 🧪 Test Automation
-
-### Test Coverage
-```java
-@Test(priority = 1)
-public void testNavigateToAboutSection() {
-    // Navigate to About section and verify header
-}
-
-@Test(priority = 2)
-public void testDiscordButtonOpensCorrectUrl() {
-    // Verify Discord button opens correct external link
-}
-
-@Test(priority = 3)
-public void testPricingFilterGroup1ShowsCorrect() {
-    // Test pricing filter functionality
-}
-```
-
-### Test Scenarios
-1. **Navigation Testing**: Verify all navigation links work correctly
-2. **External Link Testing**: Ensure Discord button opens correct URL
-3. **Filter Functionality**: Test pricing filter interactions
-4. **Responsive Testing**: Verify mobile and desktop layouts
-5. **Cross-browser Testing**: Ensure compatibility across browsers
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Java 17 or higher
-- Maven 3.6+
-- Chrome browser
-- Node.js (for development server)
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd shops2-website
-   ```
-
-2. **Install dependencies**
-   ```bash
-   mvn clean install
-   ```
-
-3. **Run the website locally**
-   ```bash
-   # Using Python (if available)
-   python -m http.server 8000
-   
-   # Using Node.js
-   npx serve .
-   ```
-
-4. **Run tests**
-   ```bash
-   mvn test
-   ```
-
-## 🎯 Key Components
-
-### HTML Structure
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sowwyz</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <header>
-        <nav class="navbar">
-            <!-- Navigation menu -->
-        </nav>
-    </header>
-    
-    <section class="home" id="home">
-        <!-- Hero section -->
-    </section>
-    
-    <section class="about" id="about">
-        <!-- About section -->
-    </section>
-    
-    <section class="features" id="features">
-        <!-- Features section -->
-    </section>
-    
-    <section class="pricing" id="pricing">
-        <!-- Pricing section -->
-    </section>
-</body>
-</html>
-```
-
-### CSS Features
-```css
-/* Responsive design */
-@media (max-width: 768px) {
-    .navbar {
-        flex-direction: column;
-    }
-}
-
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-/* Grid layouts */
-.features-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-}
-```
-
-### JavaScript Functionality
-```javascript
-// Mobile menu toggle
-const burger = document.getElementById('burger');
-const links = document.getElementById('links');
-
-burger.addEventListener('click', () => {
-    links.classList.toggle('active');
-});
-
-// Scroll effects
-$(window).scroll(function () {
-    if ($(window).scrollTop()) {
-        $("header").addClass("black");
-    } else {
-        $("header").removeClass("black");
-    }
-});
-```
-
-## 🧪 Test Implementation
-
-### Page Object Model
-```java
-public class HomePage {
-    private WebDriver driver;
-    
-    public HomePage(WebDriver driver) {
-        this.driver = driver;
-    }
-    
-    public void clickAboutNavLink() {
-        driver.findElement(By.linkText("About")).click();
-    }
-    
-    public String getAboutHeaderText() {
-        return driver.findElement(By.tagName("h1")).getText();
-    }
-}
-```
-
-### Test Configuration
-```java
-@BeforeMethod
-public void setupTest() {
-    driver = new ChromeDriver();
-    driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-    driver.manage().window().maximize();
-    driver.get("/index.html");
-    homePage = new HomePage(driver);
-}
-```
-
-## 📊 Performance Features
-
-### 🚀 Optimization
-- **Minified Assets**: Compressed CSS and JavaScript
-- **Image Optimization**: WebP format support
-- **Lazy Loading**: Images load as needed
-- **CDN Integration**: External library loading
-
-### 📱 Responsive Design
-- **Mobile-first**: Optimized for mobile devices
-- **Breakpoints**: Tablet and desktop layouts
-- **Touch-friendly**: Mobile navigation and interactions
-- **Cross-device**: Consistent experience across devices
-
-## 🎨 Design System
-
-### Colors
-- **Primary**: Modern gradient schemes
-- **Secondary**: Complementary colors
-- **Accent**: Highlight colors for CTAs
-- **Neutral**: Text and background colors
-
-### Typography
-- **Headings**: Bold, impactful fonts
-- **Body**: Readable, clean fonts
-- **Links**: Interactive, hover states
-- **Buttons**: Clear, actionable text
-
-## 🚀 Deployment
-
-### Static Hosting
-```bash
-# Build for production
-npm run build
-
-# Deploy to GitHub Pages
-git push origin gh-pages
-
-# Deploy to Netlify
-netlify deploy --prod
-```
-
-### Testing in CI/CD
-```yaml
-# GitHub Actions example
-- name: Run Selenium Tests
-  run: mvn test
-```
-
-## 🔧 Configuration
-
-### Maven Configuration
-```xml
-<dependencies>
-    <dependency>
-        <groupId>org.seleniumhq.selenium</groupId>
-        <artifactId>selenium-java</artifactId>
-        <version>4.13.0</version>
-    </dependency>
-    <dependency>
-        <groupId>org.testng</groupId>
-        <artifactId>testng</artifactId>
-        <version>7.4.0</version>
-    </dependency>
-</dependencies>
-```
-
-## 📈 Future Enhancements
-
-- [ ] **E2E Testing**: Complete user journey testing
-- [ ] **Performance Testing**: Load time optimization
-- [ ] **Accessibility Testing**: WCAG compliance
-- [ ] **Visual Regression**: Screenshot comparison
-- [ ] **API Testing**: Backend integration testing
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Add your improvements
-4. Submit a pull request
-
-## 📄 License
-
-This project is for educational purposes and demonstrates modern web development and test automation practices.
-
-## 👨‍💻 Author
-
-**Bhargav Reddy** - Full Stack Developer & Test Automation Engineer
-- Modern web development with HTML5, CSS3, JavaScript
-- Comprehensive Selenium WebDriver testing
-- Responsive design and user experience
-- Created and developed this complete web application and testing framework
-
----
-
-*This project showcases both frontend development skills and test automation expertise, providing a complete solution for modern web applications.*
+## Next Steps
+- Add visual regression tests (Percy or Applitools) to ensure the hero/pricing sections remain pixel-perfect.
+- Expand automation to include cross-browser runs by parameterizing `-Dbrowser` values in `HomePageTests.java`.

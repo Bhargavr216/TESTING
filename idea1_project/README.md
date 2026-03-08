@@ -1,199 +1,47 @@
-﻿# Idea 1 - Database Validation Automation
+# Idea 1 — Event-Driven Database Validation (Python)
 
-This project validates whether event processing persisted the correct records in PostgreSQL, table by table, column by column, with both positive and negative test scenarios.
+## End-to-End Explanation
+The Python runner (`runner.py`) reads JSON scenarios (`payloads/event_payloads.json`), triggers the associated event IDs, resolves lookup keys, and validates the persisted rows table by table. Each scenario carries metadata (`expected_tables`, `table_expectations`, `retry_expectations`) that the runner enforces by comparing actual PostgreSQL rows (`psycopg2` queries) against `expected/tables/*.json` plus JSON schema rules before emitting console logs and an interactive HTML report (`reports/idea1_report.html`).
 
-It compares:
-- **Actual DB rows** fetched by lookup keys (for example `order_id`)
-- **Expected rows** stored in JSON files
-- **Rules** defined per table in a schema JSON
+## Key Components & Coverage
+- **`config/db_config.json`**: database credentials configured from the sample file; the runner is designed to keep secrets out of source control.
+- **`payloads/event_payloads.json`**: test cases describing order IDs, services (PERSIST vs NOT_PERSIST), and the tables to check.
+- **`schemas/table_schema.json`**: rules for lookup columns, mandatory fields, semantic rules such as `nullable_presence`, and JSON column requirements.
+- **`expected/tables/*.json`**: expected rows for `orders`, `fulfilment`, `operations`, `audit_logs`, and `job_queue`.
+- **`logs/` & `reports/`**: capture detailed verification traces plus the collapsible HTML dashboard.
+- **`db/setup_database.sql`**: seeds `idea1_testing` with sample data (e.g., `ORD123`, `ORD124`, `ORD500`) for repeatable testing.
 
-It produces:
-- Rich terminal output (pass/fail/skip)
-- An interactive HTML report with test-case collapsible sections, sidebar navigation, and expand/collapse controls
+## Setup & Execution
+1. Install **Python 3.10+** and ensure PostgreSQL is reachable.
+2. Create a virtual environment: `python -m venv venv` and activate it (`.\venv\Scripts\Activate.ps1` on Windows or `source venv/bin/activate` on Unix).
+3. Install dependencies: `pip install -r requirements.txt` (contains `psycopg2-binary` and `jsonschema`).
+4. Copy `config/db_config.example.json` to `config/db_config.json` and fill in the database connection string.
+5. Run the DB bootstrap: `psql -h localhost -U postgres -d postgres -f db/setup_database.sql`.
+6. Execute the validation: `python runner.py`. Review `reports/idea1_report.html` for collapsible test-case summaries, failure tables, and the sidebar navigation.
 
-## What This Framework Covers
+## Reporting & Observability
+- Writes structured logs for each scenario (pass/fail/skip counts, actual vs expected differences).
+- Outputs a navigable HTML report with expandable/collapsible cards per test case plus aggregated pass/fail badges.
+- Supports rerun failure focus via `reports/idea1_report.html` and raw logs stored under `logs/`.
 
-- Table persistence checks (`PERSIST`, `NOT_PERSIST`)
-- Mandatory-table enforcement for `expected_tables`
-- Row matching using `primary_lookup` and optional `secondary_lookup`
-- Generated column presence checks (for example `audit_id` must not be `NULL`)
-- Unique constraint validation at runtime
-- JSON column validation:
-  - required nested paths
-  - ignored paths
-  - deep value comparison
-- Semantic rule validation:
-  - `nullable_presence`
-- Retry expectation validation (operation count per lookup, e.g., `VALIDATE` must appear 3 times)
+## Important Interview Questions & Answers
+1. **Q:** How do you check data persistence across tables from a single event?  
+   **A:** `payloads/event_payloads.json` defines the `expected_tables` for each event; the runner matches rows via `primary_lookup`/`secondary_lookup`, applies table-specific schemas, and compares each column to the JSON-defined expectations (`expected/tables/*.json`).
+2. **Q:** Why is schema-driven validation useful in this project?  
+   **A:** Schema rules (mandatory columns, JSON path checks, semantic rules such as `nullable_presence`) keep validation logic declarative, so adding new tables only requires updating `schemas/table_schema.json` and not the runner logic.
+3. **Q:** How do you handle retries and audit validation?  
+   **A:** The scenario payloads include `retry_expectations` that assert how many times operations like `VALIDATE` appear per lookup; the runner tallies actual rows and compares counts before reporting success/failure.
 
-## Project Structure
+## Theory Knowledge for Interviews
+- **Schema-Driven Testing:** Designing verification rules in JSON ensures the code stays generic while the configuration covers table/column-specific nuances.
+- **Positive vs Negative Scenario Coverage:** The dataset contains both `PERSIST` (expected rows) and `NOT_PERSIST` entries, teaching how to assert absence just as strongly as presence.
+- **Data Comparisons & JSON Diffing:** Leveraging `jsonschema` and custom comparators helps detect nested path mismatches, ignored paths, and generated-column violations (e.g., ensuring `audit_id` isn’t `NULL`).
 
-```text
-AUTOMATION_IDEA_01/
-├─ README.md
-├─ .gitignore
-└─ idea1_project/
-   ├─ runner.py
-   ├─ config/
-   │  └─ db_config.example.json
-   ├─ payloads/
-   │  └─ event_payloads.json
-   ├─ schemas/
-   │  └─ table_schema.json
-   ├─ expected/
-   │  └─ tables/
-   │     ├─ orders.json
-   │     ├─ fulfilment.json
-   │     ├─ operations.json
-   │     ├─ audit_logs.json
-   │     └─ job_queue.json
-   ├─ logs/
-   └─ reports/
-```
+## Troubleshooting & Tips
+- If you see credential errors, re-check `config/db_config.json` for host, port, and SSL settings.
+- Running `psql` queries (`SELECT * FROM audit_logs WHERE order_id = 'ORD124';`) helps debug mismatch reports.
+- Keep expected JSON aligned to the schema version to avoid schema validation errors; `logs/*.log` will show schema rule IDs for failing rows.
 
-## Prerequisites
-
-- Python 3.10+
-- PostgreSQL accessible from your machine
-- Python packages:
-  - `psycopg2`
-  - `jsonschema`
-
-Install dependencies:
-
-```powershell
-cd idea1_project
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-pip install psycopg2-binary jsonschema
-```
-
-## Configuration
-
-Create local DB config from sample:
-
-```powershell
-copy .\config\db_config.example.json .\config\db_config.json
-```
-
-Edit `idea1_project/config/db_config.json` with your actual DB credentials.
-
-> Note: `db_config.json` is git-ignored to avoid committing secrets.
-
-## How to Run
-
-```powershell
-cd idea1_project
-.\venv\Scripts\Activate.ps1
-python runner.py
-```
-
-Outputs:
-- Console execution summary
-- HTML report at `idea1_project/reports/idea1_report.html`
-
-## Database Bootstrap Script
-
-A full DB setup script is included:
-
-- `idea1_project/db/setup_database.sql`
-
-It will:
-- create database `idea1_testing` if missing
-- create all required tables
-- seed sample rows for `ORD123`, `ORD124`, and `ORD500`
-
-Run from PowerShell:
-
-```powershell
-$env:PGPASSWORD="<your_password>"
-psql -h localhost -p 5432 -U postgres -d postgres -f idea1_project/db/setup_database.sql
-```
-
-## Scenarios in Payloads
-
-`payloads/event_payloads.json` defines test cases.
-
-Each case typically contains:
-- `test_case_id`
-- `scenario_name`
-- `event_type`
-- `lookup_ids` (for example `order_id`)
-- `expected_tables`
-- `table_expectations`
-- optional `retry_expectations`
-
-### Retry Example
-
-```json
-"retry_expectations": {
-  "audit_logs": [
-    { "operation": "VALIDATE", "count": 3 }
-  ]
-}
-```
-
-This means for the same lookup id, `audit_logs` must contain operation `VALIDATE` exactly 3 times.
-
-## Schema Rules
-
-`schemas/table_schema.json` controls validation behavior per table:
-
-- `primary_lookup`: required
-- `secondary_lookup`: optional
-- `mandatory_columns`: required columns to verify
-- `json_columns`: JSON field rules (`required`, `ignored`)
-- `semantic_rules`: semantic checks (`nullable_presence`)
-- `generated_columns`: columns expected to be auto-populated
-- `unique_constraints`: runtime duplicate detection
-
-## Expected Data Files
-
-Expected rows live in:
-
-- `expected/tables/orders.json`
-- `expected/tables/fulfilment.json`
-- `expected/tables/operations.json`
-- `expected/tables/audit_logs.json`
-- `expected/tables/job_queue.json`
-
-Best practices:
-- Keep expected rows aligned with table schema
-- Ensure lookup keys exist in expected rows
-- Include JSON structure required by schema rules
-
-## HTML Report Features
-
-- Sticky top bar
-- `Expand All` / `Collapse All`
-- Left sidebar with testcase links
-- Collapsible testcase cards
-- Per-case result chips (pass/fail/skip counts)
-- Table-level failure blocks showing expected vs actual details
-
-## Common Failure Causes
-
-1. Missing mandatory rows for `expected_tables`
-2. Mismatch in operation/lookup key used for matching
-3. Missing generated values (e.g., `audit_id` is NULL)
-4. JSON required paths absent in actual or expected
-5. Retry operation count mismatch
-
-## Typical DB Debug Queries
-
-```sql
-SELECT * FROM audit_logs WHERE order_id IN ('ORD124','ORD500');
-SELECT * FROM job_queue  WHERE order_id IN ('ORD124','ORD500');
-```
-
-## Notes
-
-- This framework is schema-driven and easy to extend by editing payloads + expected files + schema rules.
-- If you add new semantic rule types in schema, update `runner.py` to enforce them.
-
-## Future Enhancements
-
-- Distinct failure categories in summary (actual vs expected)
-- Deduplicated failure summary
-- Optional strict mode (row-for-row exact matching)
-- CI pipeline integration and artifact upload for HTML reports
+## Next Steps
+- Introduce CI gating to publish the HTML report as an artifact and fail builds on regression.
+- Extend the runner to support SQL Server/PostgreSQL parity by isolating connector logic behind an adapter layer.

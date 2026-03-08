@@ -1,65 +1,52 @@
-# 🚀 Enterprise Rule-Driven Automation Framework
+# Enterprise Rule-Driven Automation Framework (automation_platform)
 
-A powerful, service-agnostic automation platform designed for end-to-end validation of complex distributed systems (FSM, MFS, FOS). This framework uses a **Rule-Driven Approach**, meaning you define *what* to validate in JSON scenarios, and the engine handles *how* to validate it across multiple databases.
+## End-to-End Explanation
+The rule-driven engine reads JSON scenarios (`scenarios/*.json`), looks up the service (FSM, MFS, FOS) in `config/`, excavates the lookup IDs from the payloads (`events/`), triggers state transitions via the `engine`, and validates the downstream persistence by comparing actual database rows against the JSON-defined rules and expected tables. Every execution streams data through `state_executor.py`, logs verdicts, and outputs a rich HTML dashboard under `reports/`. The scaffolding is intentionally service-agnostic so you can plug in new services with only configuration changes.
 
----
+## Key Components and Coverage
+- **`config/`**: database connection settings for FSM, MFS, and FOS plus service-specific parameters.
+- **`engine/`**: core logic (`runner.py`, `state_executor.py`, `report_builder.py`) and `validators/` that enforce audit, JSON, and semantic rules.
+- **`events/`**: curated payloads representing happy paths, negative cases, and retry scenarios.
+- **`scenarios/`**: JSON files describing what tables/columns to assert, what race conditions to simulate, and how to correlate lookups across services.
+- **`reports/`**: the collapsible HTML dashboards that explain passes/fails per scenario.
+- **`setup_db.py` & `db_dump.json`**: bootstrap and seed the PostgreSQL databases so the validator can compare known data sets.
 
-## 🌟 Key Features
+## Setup & Execution
+1. Install **Python 3.8+** and **PostgreSQL** locally.
+2. Install dependencies: `pip install -r requirements.txt`.
+3. Run `python setup_db.py` to create the FSM/MFS/FOS databases and seed the sample data.
+4. Execute the suite: `python -m engine.runner --suite suite.json`.
+5. Browse `reports/report.html` for the HTML dashboard with sidebar navigation, expand/collapse controls, and per-table failure deltas.
 
-*   **Rule-Driven Engine**: Decouples validation logic from test data.
-*   **Multi-Service Support**: Validates FSM (Field Service), MFS (Mobile Financial), and FOS (Fulfillment) services.
-*   **Dynamic Lookup Resolution**: Automatically extracts IDs from event payloads to find related database records.
-*   **Advanced Audit Validation**: Supports strict sequence checks, retry attempt counting, and exception message validation.
-*   **Enterprise Reporting**: A modern, collapsible HTML dashboard with structured validation tables.
-*   **Smart Multi-Table Checks**: Validate multiple tables, columns, and JSON attributes in a single concise rule.
+## Reporting & Observability
+- The engine produces a modern HTML report with summary cards, expandable scenario details, and error tables.
+- Logs include SQL queries executed, lookup values processed, and semantic rule IDs for failures.
+- The `reports/` directory can be published as a CI artifact to keep historical runs.
 
----
+## Important Interview Questions & Answers
+1. **Q:** What is a rule-driven automation engine and why is it better than hard-coded assertions?  
+   **A:** It decouples validation logic from code by storing expected tables/columns/JSON paths in JSON files. Changing validation for a new table only requires updating `scenarios/*.json` or `schemas`, not the Python engine.
+2. **Q:** How do you validate cross-service persistence?  
+   **A:** Scenarios describe multiple services (FSM, MFS, FOS) and the engine resolves lookups across them, ensuring related tables all see the expected state within a single run.
+3. **Q:** How do you handle audit/log validation with retries?  
+   **A:** `INTERVIEW_PREP.md` and the engine both highlight `retry_expectations` (e.g., `audit_logs` must record `VALIDATE` exactly three times) plus strict sequence checks.
 
-## 📂 Project Structure
+## Theory Knowledge for Interviews
+- **Rule-Driven Architectures:** Systems where configuration drives behavior are easier to maintain; the engine simply interprets the rules and applies the validators.
+- **Service-Agnostic Validation:** Keep the same core logic while swapping out service-specific configs to support FSM, MFS, FOS without duplicating code.
+- **Observability in Testing:** The HTML dashboard, logs, and reports expose which tables/columns failed and why, making debugging repeatable and transparent.
 
-```text
-automation_platform/
-├── config/               # Database connection settings (FSM, MFS, FOS)
-├── engine/               # Core Framework Logic
-│   ├── validators/       # Specialized validation rules (Audit, Smart, JSON, etc.)
-│   ├── runner.py         # Entry point for suite execution
-│   ├── state_executor.py # Handles event triggering and rule sequencing
-│   └── report_builder.py # Generates the HTML dashboard
-├── reports/              # Output directory for execution results
-├── scenarios/            # JSON-based test cases (Happy Path, Negative, Retry)
-├── setup_db.py           # Database initialization and data seeding script
-└── suite.json            # Global execution configuration
-```
+## Supporting Documents
+- `TECHNICAL_FLOW.md` explains how data flows from `suite.json` → `engine` → report builder.
+- `TEST_DOCUMENTATION.md` lists scenario narratives, success criteria, and failure symptoms.
+- `INTERVIEW_PREP.md` contains curated Q&A around the rule-driven approach and enterprise practices.
+- `FUTURE_ROADMAP.md` outlines enhancements such as GenAI-driven scenario generation.
 
----
+## Troubleshooting & Tips
+- If the report shows missing data for a lookup, verify the payload in `events/` and the seeded data in `db_dump.json`.
+- Use `python setup_db.py --fresh` (if available) to reset the databases before running new scenarios.
+- Keep the scenario JSON files formatted (linted) so the runner can parse them without errors.
 
-## 🛠️ Getting Started
-
-### 1. Prerequisites
-*   Python 3.8+
-*   PostgreSQL installed locally
-*   `psycopg2-binary` installed (`pip install psycopg2-binary`)
-
-### 2. Database Initialization
-This script creates all 3 databases, sets up the tables, and seeds them with realistic test data.
-```bash
-python setup_db.py
-```
-
-### 3. Running the Suite
-Execute all discovered scenarios across all services.
-```bash
-python -m engine.runner --suite suite.json
-```
-
-### 4. Viewing Results
-After execution, open the generated report in your browser:
-`reports/report.html`
-
----
-
-## 📖 Documentation Links
-*   [Technical Flow & File Explanation](TECHNICAL_FLOW.md)
-*   [Interview Preparation Q&A](INTERVIEW_PREP.md)
-*   [Future Roadmap (GenAI)](FUTURE_ROADMAP.md)
-*   [Test Scenario Documentation](TEST_DOCUMENTATION.md)
+## Next Steps
+- Integrate the HTML report into the CI pipeline and publish the artifact for each run.
+- Extend the engine for API validation or visual regression by plugging new validator modules into `engine/validators`.
