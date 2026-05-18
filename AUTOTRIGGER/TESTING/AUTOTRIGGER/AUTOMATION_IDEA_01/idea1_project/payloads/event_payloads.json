@@ -1,0 +1,77 @@
+[
+  {
+    "test_case_id": "TC_001",
+    "scenario_name": "Order Created – Happy Path",
+    "event_type": "ORDER_CREATED",
+
+    "lookup_ids": {
+      "order_id": "ORD123"
+    },
+
+    "event_payload": {
+      "order_id": "ORD123",
+      "customer_id": "CUST1",
+      "amount": 500
+    },
+
+    "expected_tables": [
+      "orders",
+      "fulfilment",
+      "operations",
+      "audit_logs"
+    ],
+    "table_expectations": {
+        "job_queue": "NOT_PERSIST"
+    }
+  },
+  {
+  "test_case_id": "TC_NEG_001",
+  "scenario_name": "Order Validation Failed – Routed to Job Queue",
+  "event_type": "ORDER_EVENT",
+  "lookup_ids": {
+    "order_id": "ORD124"
+  },
+
+  "expected_tables": [
+    "audit_logs",
+    "job_queue"
+  ],
+
+  "table_expectations": {
+    "orders": "NOT_PERSIST",
+    "fulfilment": "NOT_PERSIST",
+    "operations": "NOT_PERSIST",
+    "audit_logs": "PERSIST",
+    "job_queue": "PERSIST"
+  }
+},
+{
+  "test_case_id": "TC_RETRY_001",
+  "scenario_name": "Order Validation Retry Failed 3 Times",
+  "event_type": "ORDER_EVENT",
+  "lookup_ids": {
+    "order_id": "ORD500"
+  },
+
+  "expected_tables": [
+    "audit_logs",
+    "job_queue"
+  ],
+
+  "table_expectations": {
+    "orders": "NOT_PERSIST",
+    "fulfilment": "NOT_PERSIST",
+    "operations": "NOT_PERSIST",
+    "audit_logs": "PERSIST",
+    "job_queue": "PERSIST"
+  },
+  "retry_expectations": {
+    "audit_logs": [
+      {
+        "operation": "VALIDATE",
+        "count": 3
+      }
+    ]
+  }
+}
+]

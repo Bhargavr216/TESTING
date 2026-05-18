@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aviator X</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at top, #0f172a, #020617);
+  color: white;
+  text-align: center;
+}
+
+/* HEADER */
+.header {
+  padding: 10px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #38bdf8;
+}
+
+/* BALANCE */
+#balance {
+  margin: 5px;
+  font-size: 16px;
+}
+
+/* MULTIPLIER */
+#multiplier {
+  font-size: 40px;
+  color: #22c55e;
+  margin: 10px 0;
+}
+
+/* CANVAS */
+canvas {
+  background: linear-gradient(#020617, #000);
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(34,197,94,0.3);
+}
+
+/* CONTROLS */
+.controls {
+  margin: 10px;
+}
+
+select, button, input {
+  border-radius: 8px;
+  border: none;
+  padding: 6px;
+  margin: 4px;
+}
+
+button {
+  background: linear-gradient(45deg, #22c55e, #16a34a);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:hover {
+  transform: scale(1.05);
+}
+
+/* PLAYER CARDS */
+.players {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.player {
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 10px;
+  margin: 6px;
+  width: 150px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.player b {
+  color: #38bdf8;
+}
+
+.status {
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+/* ROCKET */
+.rocket {
+  position: absolute;
+  font-size: 28px;
+  transition: transform 0.1s linear;
+}
+
+/* EXPLOSION */
+.explosion {
+  position: absolute;
+  font-size: 30px;
+  animation: explode 0.5s ease-out;
+}
+
+@keyframes explode {
+  0% { transform: scale(0.5); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@media(max-width:600px){
+  .player { width: 45%; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">🚀 Aviator X</div>
+<div id="balance">Balance: ₹1000</div>
+
+<div class="controls">
+  Players:
+  <select id="playerCount" onchange="setupPlayers()">
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+  </select>
+
+  <button onclick="startGame()">Start</button>
+</div>
+
+<canvas id="graph" width="350" height="200"></canvas>
+<div id="multiplier">1.00x</div>
+
+<div class="players" id="players"></div>
+
+<div id="rocket" class="rocket">🚀</div>
+
+<audio id="tick" src="https://assets.mixkit.co/sfx/preview/mixkit-fast-small-sweep-transition-166.wav"></audio>
+<audio id="crashSound" src="https://assets.mixkit.co/sfx/preview/mixkit-explosion-impact-1684.wav"></audio>
+
+<script>
+let balance = 1000;
+let players = [];
+let multiplier = 1;
+let crashPoint;
+let running = false;
+
+const canvas = document.getElementById("graph");
+const ctx = canvas.getContext("2d");
+const rocket = document.getElementById("rocket");
+
+function setupPlayers(){
+  const count = document.getElementById("playerCount").value;
+  const container = document.getElementById("players");
+  container.innerHTML = "";
+  players = [];
+
+  for(let i=0;i<count;i++){
+    players.push({bet:10, auto:2, active:true, cashed:false});
+
+    container.innerHTML += `
+      <div class="player">
+        <b>P${i+1}</b><br>
+        Bet ₹<input id="bet${i}" value="10"><br>
+        Auto x<input id="auto${i}" value="2"><br>
+        <button onclick="cashOut(${i})">Cash</button>
+        <div class="status" id="status${i}">Ready</div>
+      </div>
+    `;
+  }
+}
+
+setupPlayers();
+
+function startGame(){
+  if(running) return;
+
+  multiplier = 1;
+  crashPoint = Math.random()*3+1;
+  running = true;
+
+  players.forEach((p,i)=>{
+    p.bet = +document.getElementById("bet"+i).value;
+    p.auto = +document.getElementById("auto"+i).value;
+    p.active = true;
+    p.cashed = false;
+
+    if(balance >= p.bet){
+      balance -= p.bet;
+    } else {
+      p.active = false;
+    }
+
+    document.getElementById("status"+i).innerText = "Flying...";
+  });
+
+  updateBalance();
+  animate();
+}
+
+function animate(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  let interval = setInterval(()=>{
+    multiplier += 0.02;
+    document.getElementById("multiplier").innerText = multiplier.toFixed(2)+"x";
+    document.getElementById("tick").play();
+
+    drawGraph(multiplier);
+    moveRocket(multiplier);
+
+    players.forEach((p,i)=>{
+      if(p.active && !p.cashed && multiplier >= p.auto){
+        cashOut(i,true);
+      }
+    });
+
+    if(multiplier >= crashPoint){
+      clearInterval(interval);
+      running = false;
+      explodeRocket();
+      document.getElementById("crashSound").play();
+
+      players.forEach((p,i)=>{
+        if(!p.cashed){
+          document.getElementById("status"+i).innerText = "Lost";
+        }
+      });
+    }
+
+  },100);
+}
+
+function drawGraph(mult){
+  ctx.beginPath();
+  ctx.moveTo(0,200);
+
+  for(let i=0;i<mult*20;i++){
+    let y = 200 - Math.pow(i/20,1.5)*20;
+    ctx.lineTo(i,y);
+  }
+
+  ctx.strokeStyle="#22c55e";
+  ctx.lineWidth=2;
+  ctx.stroke();
+}
+
+function moveRocket(mult){
+  let x = mult * 40;
+  let y = 200 - Math.pow(mult,1.5)*20;
+
+  rocket.style.left = (canvas.offsetLeft + x) + "px";
+  rocket.style.top = (canvas.offsetTop + y) + "px";
+}
+
+function explodeRocket(){
+  rocket.style.display="none";
+
+  let boom = document.createElement("div");
+  boom.className = "explosion";
+  boom.innerText = "💥";
+  boom.style.left = rocket.style.left;
+  boom.style.top = rocket.style.top;
+
+  document.body.appendChild(boom);
+
+  setTimeout(()=>boom.remove(),500);
+}
+
+function cashOut(i,auto=false){
+  let p = players[i];
+  if(!running || p.cashed || !p.active) return;
+
+  p.cashed = true;
+  let win = p.bet * multiplier;
+  balance += win;
+
+  document.getElementById("status"+i).innerText =
+    (auto?"Auto ":"")+"Win ₹"+win.toFixed(0);
+
+  updateBalance();
+}
+
+function updateBalance(){
+  document.getElementById("balance").innerText =
+    "Balance: ₹"+balance.toFixed(0);
+}
+</script>
+
+</body>
+</html>

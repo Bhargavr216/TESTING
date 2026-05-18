@@ -1,0 +1,12 @@
+.env
+.env.local
+node_modules/
+package-lock.json
+npm-debug.log
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+dist/
+build/

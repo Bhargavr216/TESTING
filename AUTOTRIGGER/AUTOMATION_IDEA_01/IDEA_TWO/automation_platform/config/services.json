@@ -1,0 +1,16 @@
+{
+  "services": {
+    "FSM": {
+      "db_config": "config/fsm_db.json",
+      "scenario_path": "scenarios/fsm"
+    },
+    "MFS": {
+      "db_config": "config/mfs_db.json",
+      "scenario_path": "scenarios/mfs"
+    },
+    "FOS": {
+      "db_config": "config/fos_db.json",
+      "scenario_path": "scenarios/fos"
+    }
+  }
+}

@@ -1,0 +1,420 @@
+{
+  "services": [
+    {
+      "id": "service1",
+      "name": "Order Processing Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "order-events",
+      "eventPayload": {
+        "eventType": "OrderCreated",
+        "id": "12345",
+        "data": {
+          "orderId": "ORD001",
+          "customerId": "CUST001",
+          "amount": "100.00"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.orderId",
+          "type": "TEXT",
+          "label": "Order ID",
+          "placeholder": "Enter Order ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.customerId",
+          "type": "TEXT",
+          "label": "Customer ID",
+          "placeholder": "Enter Customer ID",
+          "randomValue": false
+        },
+        {
+          "key": "data.amount",
+          "type": "NUMBER",
+          "label": "Amount",
+          "placeholder": "Enter Amount",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service2",
+      "name": "Payment Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "payment-events",
+      "eventPayload": {
+        "eventType": "PaymentProcessed",
+        "id": "12345",
+        "data": {
+          "transactionId": "TXN001",
+          "paymentMethod": "Credit Card",
+          "amount": "500.00"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.transactionId",
+          "type": "TEXT",
+          "label": "Transaction ID",
+          "placeholder": "Enter Transaction ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.paymentMethod",
+          "type": "TEXT",
+          "label": "Payment Method",
+          "placeholder": "Enter Payment Method",
+          "randomValue": false
+        },
+        {
+          "key": "data.amount",
+          "type": "NUMBER",
+          "label": "Amount",
+          "placeholder": "Enter Amount",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service3",
+      "name": "Inventory Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "inventory-events",
+      "eventPayload": {
+        "eventType": "StockUpdated",
+        "id": "12345",
+        "data": {
+          "productId": "PROD001",
+          "quantity": "100",
+          "warehouseId": "WH001"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.productId",
+          "type": "TEXT",
+          "label": "Product ID",
+          "placeholder": "Enter Product ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.quantity",
+          "type": "NUMBER",
+          "label": "Quantity",
+          "placeholder": "Enter Quantity",
+          "randomValue": false
+        },
+        {
+          "key": "data.warehouseId",
+          "type": "TEXT",
+          "label": "Warehouse ID",
+          "placeholder": "Enter Warehouse ID",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service4",
+      "name": "Notification Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "notification-events",
+      "eventPayload": {
+        "eventType": "NotificationSent",
+        "id": "12345",
+        "data": {
+          "userId": "USER001",
+          "notificationType": "Email",
+          "message": "Test Message"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.userId",
+          "type": "TEXT",
+          "label": "User ID",
+          "placeholder": "Enter User ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.notificationType",
+          "type": "TEXT",
+          "label": "Notification Type",
+          "placeholder": "Enter Notification Type",
+          "randomValue": false
+        },
+        {
+          "key": "data.message",
+          "type": "TEXT",
+          "label": "Message",
+          "placeholder": "Enter Message",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service5",
+      "name": "User Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "user-events",
+      "eventPayload": {
+        "eventType": "UserCreated",
+        "id": "12345",
+        "data": {
+          "userId": "USR001",
+          "email": "user@example.com",
+          "firstName": "John",
+          "lastName": "Doe"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.userId",
+          "type": "TEXT",
+          "label": "User ID",
+          "placeholder": "Enter User ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.email",
+          "type": "TEXT",
+          "label": "Email Address",
+          "placeholder": "Enter Email",
+          "randomValue": false
+        },
+        {
+          "key": "data.firstName",
+          "type": "TEXT",
+          "label": "First Name",
+          "placeholder": "Enter First Name",
+          "randomValue": false
+        },
+        {
+          "key": "data.lastName",
+          "type": "TEXT",
+          "label": "Last Name",
+          "placeholder": "Enter Last Name",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service6",
+      "name": "Analytics Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "analytics-events",
+      "eventPayload": {
+        "eventType": "EventTracked",
+        "id": "12345",
+        "data": {
+          "sessionId": "SES001",
+          "eventName": "PageView",
+          "properties": "{}"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.sessionId",
+          "type": "TEXT",
+          "label": "Session ID",
+          "placeholder": "Enter Session ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.eventName",
+          "type": "TEXT",
+          "label": "Event Name",
+          "placeholder": "Enter Event Name",
+          "randomValue": false
+        },
+        {
+          "key": "data.properties",
+          "type": "TEXT",
+          "label": "Properties (JSON)",
+          "placeholder": "Enter Properties",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service7",
+      "name": "Email Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "email-events",
+      "eventPayload": {
+        "eventType": "EmailSent",
+        "id": "12345",
+        "data": {
+          "to": "recipient@example.com",
+          "subject": "Test Email",
+          "template": "Welcome"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.to",
+          "type": "TEXT",
+          "label": "Recipient Email",
+          "placeholder": "Enter Email",
+          "randomValue": false
+        },
+        {
+          "key": "data.subject",
+          "type": "TEXT",
+          "label": "Subject",
+          "placeholder": "Enter Subject",
+          "randomValue": false
+        },
+        {
+          "key": "data.template",
+          "type": "TEXT",
+          "label": "Template Name",
+          "placeholder": "Enter Template",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service8",
+      "name": "Report Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "report-events",
+      "eventPayload": {
+        "eventType": "ReportGenerated",
+        "id": "12345",
+        "data": {
+          "reportId": "REP001",
+          "reportType": "Sales",
+          "dateRange": "2024-01-01 to 2024-06-01"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.reportId",
+          "type": "TEXT",
+          "label": "Report ID",
+          "placeholder": "Enter Report ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.reportType",
+          "type": "TEXT",
+          "label": "Report Type",
+          "placeholder": "Enter Report Type",
+          "randomValue": false
+        },
+        {
+          "key": "data.dateRange",
+          "type": "TEXT",
+          "label": "Date Range",
+          "placeholder": "Enter Date Range",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service9",
+      "name": "Audit Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "audit-events",
+      "eventPayload": {
+        "eventType": "AuditLog",
+        "id": "12345",
+        "data": {
+          "userId": "AUDIT001",
+          "action": "CREATE",
+          "resourceType": "Order",
+          "resourceId": "RES001"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.userId",
+          "type": "TEXT",
+          "label": "User ID",
+          "placeholder": "Enter User ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.action",
+          "type": "TEXT",
+          "label": "Action",
+          "placeholder": "Enter Action",
+          "randomValue": false
+        },
+        {
+          "key": "data.resourceType",
+          "type": "TEXT",
+          "label": "Resource Type",
+          "placeholder": "Enter Resource Type",
+          "randomValue": false
+        },
+        {
+          "key": "data.resourceId",
+          "type": "TEXT",
+          "label": "Resource ID",
+          "placeholder": "Enter Resource ID",
+          "randomValue": false
+        }
+      ]
+    },
+    {
+      "id": "service10",
+      "name": "Webhook Service",
+      "connectionString": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
+      "eventHubNamespace": "YOUR_NAMESPACE",
+      "eventHubName": "webhook-events",
+      "eventPayload": {
+        "eventType": "WebhookTriggered",
+        "id": "12345",
+        "data": {
+          "webhookId": "WHOOK001",
+          "endpoint": "https://example.com/webhook",
+          "retryCount": "0"
+        },
+        "timestamp": "2024-06-01T12:00:00Z"
+      },
+      "editableFields": [
+        {
+          "key": "data.webhookId",
+          "type": "TEXT",
+          "label": "Webhook ID",
+          "placeholder": "Enter Webhook ID",
+          "randomValue": true
+        },
+        {
+          "key": "data.endpoint",
+          "type": "TEXT",
+          "label": "Endpoint URL",
+          "placeholder": "Enter Endpoint URL",
+          "randomValue": false
+        },
+        {
+          "key": "data.retryCount",
+          "type": "NUMBER",
+          "label": "Retry Count",
+          "placeholder": "Enter Retry Count",
+          "randomValue": false
+        }
+      ]
+    }
+  ]
+}

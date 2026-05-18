@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Habit Tracker</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+    }
+
+    header {
+      text-align: center;
+      padding: 12px;
+      background: #1a73e8;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .iframe-container {
+      width: 100%;
+      height: calc(100vh - 50px);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+
+<body>
+  <header>📋 My Daily Habit Tracker</header>
+
+  <div class="iframe-container">
+    <iframe 
+      src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTSoEja6DbU3fH12AXtZVc2QJF_7w4kh-gX-sr60eYHHfhE8axrJKotysuZbHHir8DzYKc5lrKFJWD0/pubhtml?gid=0&single=true&widget=true&headers=false"
+      loading="lazy">
+    </iframe>
+  </div>
+</body>
+</html>

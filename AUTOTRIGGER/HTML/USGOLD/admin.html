@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>USGolds • Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">USGolds</div>
+      <div class="tagline">Admin Dashboard</div>
+    </div>
+    <nav class="nav">
+      <a href="index.html">Back to Site</a>
+    </nav>
+  </header>
+
+  <section class="section-header">
+    <h2>Admin Login</h2>
+    <p>Secure access to manage products, rates, and contact</p>
+  </section>
+
+  <section class="filters" id="login-section">
+    <div class="filters-row">
+      <div class="filter">
+        <label>Username</label>
+        <input id="admin-username">
+      </div>
+      <div class="filter">
+        <label>Password</label>
+        <input id="admin-password" type="password">
+      </div>
+      <div class="filter actions">
+        <button class="btn" id="admin-login">Login</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="filters hidden" id="dashboard">
+    <div class="filters-row">
+      <div class="filter">
+        <label>Gold Rate (1g)</label>
+        <input id="rate-gold" type="number" min="1">
+      </div>
+      <div class="filter">
+        <label>Silver Rate (1g)</label>
+        <input id="rate-silver" type="number" min="1">
+      </div>
+      <div class="filter">
+        <label>Currency</label>
+        <select id="rate-currency">
+          <option value="INR">INR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+      <div class="filter actions">
+        <button class="btn" id="save-rates">Save Rates</button>
+      </div>
+    </div>
+    <div class="filters-row">
+      <div class="filter">
+        <label>Hero Title</label>
+        <input id="hero-title">
+      </div>
+      <div class="filter">
+        <label>Hero Subtitle</label>
+        <input id="hero-subtitle">
+      </div>
+      <div class="filter">
+        <label>Contact Phone</label>
+        <input id="contact-phone-input">
+      </div>
+      <div class="filter">
+        <label>WhatsApp Number</label>
+        <input id="contact-whatsapp-input">
+      </div>
+      <div class="filter actions">
+        <button class="btn" id="save-home-contact">Save Home & Contact</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="section-header hidden" id="products-admin-header">
+    <h2>Manage Products</h2>
+    <p>Add, edit, or delete catalogue items</p>
+  </section>
+  <section class="admin-panel hidden" id="products-admin">
+    <div class="admin-form-container">
+      <!-- Row 1: Basic Info -->
+      <div class="form-row">
+        <div class="form-group flex-2">
+          <label>Product Name</label>
+          <input id="prod-name" placeholder="e.g. Royal Gold Necklace">
+        </div>
+        <div class="form-group flex-1">
+          <label>Product ID</label>
+          <input id="prod-id" placeholder="e.g. GN-001">
+        </div>
+      </div>
+
+      <!-- Row 2: Attributes -->
+      <div class="form-row three-col">
+        <div class="form-group">
+          <label>Metal</label>
+          <select id="prod-metal">
+            <option value="gold">Gold</option>
+            <option value="silver">Silver</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="prod-category">
+            <option value="necklace">Necklace</option>
+            <option value="ring">Ring</option>
+            <option value="bracelet">Bracelet</option>
+            <option value="earrings">Earrings</option>
+            <option value="pendant">Pendant</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Gender</label>
+          <select id="prod-gender">
+            <option value="women">Women</option>
+            <option value="men">Men</option>
+            <option value="kids">Kids</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Weight (grams)</label>
+          <input id="prod-weight" type="number" min="0" step="0.1" placeholder="0.0">
+        </div>
+      </div>
+
+      <!-- Row 3: Description -->
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label>Description</label>
+          <textarea id="prod-desc" rows="2" placeholder="Brief description of the item..."></textarea>
+        </div>
+      </div>
+
+      <!-- Row 4: Image Upload -->
+      <div class="form-row">
+        <div class="form-group full-width image-upload-group">
+          <label>Product Image</label>
+          <div class="image-upload-ui">
+            <div id="image-preview" class="image-preview-box hidden">
+              <img src="" alt="Preview">
+              <button id="remove-image" type="button" class="remove-btn">×</button>
+            </div>
+            <div class="file-upload-wrapper">
+              <input type="file" id="prod-image-file" accept="image/*" class="file-input">
+              <input type="hidden" id="prod-image">
+              <div class="upload-hint">Supported: JPG, PNG, WEBP</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Row 5: Actions -->
+      <div class="form-actions">
+        <button class="btn primary large" id="add-product">Save Product</button>
+        <button class="btn outline" id="clear-form">Clear Form</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="products hidden" id="products-list-section">
+    <div id="products-list" class="grid"></div>
+  </section>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module" src="scripts/admin.js"></script>
+</body>
+</html>

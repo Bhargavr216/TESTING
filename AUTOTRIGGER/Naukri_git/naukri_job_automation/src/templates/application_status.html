@@ -1,0 +1,379 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Application Status — Naukri</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#080a0f;--s:#111622;--s2:#1a2130;--b:#2a3348;--t:#e8ecf4;--m:#8b95a8;--ac:#2dd4bf;--ok:#4ade80;--warn:#fbbf24;--err:#fb7185;--info:#60a5fa;--pur:#a78bfa;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Outfit",sans-serif;background:var(--bg);color:var(--t);min-height:100vh;background-image:radial-gradient(ellipse 120% 80% at 50% -40%,rgba(45,212,191,.10),transparent);}
+.wrap{max-width:1320px;margin:0 auto;padding:1.5rem 1.25rem 4rem;}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:2rem;}
+h1{font-size:1.75rem;font-weight:700;letter-spacing:-.02em;}
+.sub{color:var(--m);font-size:.9rem;margin-top:.25rem;}
+.hright{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;}
+.ts{font-size:.8rem;color:var(--m);}
+.navlink{font-size:.85rem;color:var(--ac);text-decoration:none;border:1px solid rgba(45,212,191,.35);border-radius:8px;padding:.45rem .9rem;}
+.navlink:hover{background:rgba(45,212,191,.12);}
+.btn{font-family:inherit;font-size:.88rem;font-weight:600;background:var(--ac);color:#080a0f;border:none;border-radius:8px;padding:.5rem 1.1rem;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:opacity .15s;}
+.btn:hover{opacity:.85;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.err{background:rgba(251,113,133,.12);border:1px solid rgba(251,113,133,.35);color:#fecdd3;padding:1rem 1.25rem;border-radius:12px;margin-bottom:1.25rem;display:none;}
+.spin-wrap{display:none;flex-direction:column;align-items:center;justify-content:center;padding:5rem;gap:1rem;color:var(--m);}
+.spin-wrap.show{display:flex;}
+.spin{width:36px;height:36px;border:3px solid var(--b);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-msg{font-size:.95rem;color:var(--t);}
+.spin-sub{font-size:.8rem;color:var(--m);}
+.main{display:none;}
+.main.show{display:block;}
+
+/* Summary bar */
+.summary-bar{display:flex;gap:2.5rem;align-items:center;background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.1rem 1.75rem;margin-bottom:1.5rem;flex-wrap:wrap;}
+.sum-item .n{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1;}
+.sum-item .l{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);margin-top:.2rem;}
+.sum-div{width:1px;height:2.5rem;background:var(--b);}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.75rem;margin-bottom:1.5rem;}
+.sc{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:.85rem 1rem;cursor:pointer;transition:border-color .15s,background .15s;}
+.sc:hover{border-color:#3d4a63;}
+.sc.on{border-color:var(--ac);background:rgba(45,212,191,.12);}
+.sc .n{font-size:1.5rem;font-weight:700;font-variant-numeric:tabular-nums;}
+.sc .l{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--m);margin-top:.2rem;}
+
+/* Toolbar */
+.toolbar{display:flex;flex-wrap:wrap;gap:.75rem;align-items:center;margin-bottom:1rem;}
+.sbox{position:relative;flex:1;min-width:200px;max-width:440px;}
+.sbox svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--m);pointer-events:none;}
+.search{width:100%;background:var(--s);border:1px solid var(--b);border-radius:10px;padding:.65rem 1rem .65rem 2.4rem;color:var(--t);font-family:inherit;font-size:.95rem;}
+.search::placeholder{color:var(--m);}
+.search:focus{outline:none;border-color:var(--ac);}
+select{background:var(--s2);border:1px solid var(--b);border-radius:10px;color:var(--t);padding:.62rem 1rem;font-family:inherit;font-size:.9rem;cursor:pointer;}
+select:focus{outline:none;border-color:var(--ac);}
+.rc{font-size:.85rem;color:var(--m);margin-left:auto;}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:.45rem;margin-bottom:1.5rem;}
+.chip{border:1px solid var(--b);background:var(--s);color:var(--m);padding:.38rem .8rem;border-radius:999px;font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .15s;}
+.chip:hover{color:var(--t);border-color:var(--m);}
+.chip.on{color:#080a0f;background:var(--ac);border-color:var(--ac);font-weight:600;}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1rem;}
+.card{background:var(--s);border:1px solid var(--b);border-radius:14px;padding:1.15rem 1.2rem 1rem;display:flex;flex-direction:column;gap:.65rem;transition:transform .12s,border-color .12s,box-shadow .12s;}
+.card:hover{transform:translateY(-2px);border-color:#3d4a63;box-shadow:0 8px 32px rgba(0,0,0,.3);}
+
+.ctop{display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;}
+.cco{font-size:1.05rem;font-weight:700;line-height:1.25;flex:1;}
+.csrc{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.2rem .5rem;border-radius:5px;white-space:nowrap;flex-shrink:0;}
+.src-n{background:rgba(45,212,191,.18);color:var(--ac);}
+.src-e{background:rgba(167,139,250,.18);color:var(--pur);}
+.cti{font-size:.9rem;color:var(--m);line-height:1.35;}
+.cmeta{display:flex;flex-wrap:wrap;gap:.45rem;align-items:center;}
+
+/* Status badge */
+.badge{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding:.25rem .6rem;border-radius:6px;}
+.b-applied       {background:rgba(96,165,250,.18);color:var(--info);}
+.b-sent          {background:rgba(45,212,191,.18);color:var(--ac);}
+.b-viewed        {background:rgba(251,191,36,.18);color:var(--warn);}
+.b-shortlisted   {background:rgba(74,222,128,.18);color:var(--ok);}
+.b-not_shortlisted{background:rgba(251,113,133,.18);color:var(--err);}
+.b-external      {background:rgba(167,139,250,.18);color:var(--pur);}
+.b-default       {background:rgba(139,149,168,.18);color:var(--m);}
+
+.cdate{font-size:.78rem;color:var(--m);}
+.crating{font-size:.72rem;color:var(--warn);background:rgba(251,191,36,.12);border-radius:5px;padding:.15rem .4rem;}
+.rec-note{font-size:.78rem;color:var(--m);font-style:italic;}
+
+/* 4-step stepper */
+.stepper{display:flex;align-items:flex-start;gap:0;margin:.1rem 0;}
+.step{display:flex;flex-direction:column;align-items:center;gap:.3rem;flex:1;}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--b);border:2px solid var(--b);z-index:1;flex-shrink:0;}
+.step.done  .dot{background:var(--ac);border-color:var(--ac);}
+.step.active.dot-ok  .dot{background:var(--ok);border-color:var(--ok);box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.step.active.dot-err .dot{background:var(--err);border-color:var(--err);box-shadow:0 0 0 3px rgba(251,113,133,.25);}
+.step.active .dot{background:var(--ok);border-color:var(--ok);box-shadow:0 0 0 3px rgba(74,222,128,.25);}
+.slbl{font-size:.58rem;color:var(--m);text-align:center;line-height:1.3;margin-top:.1rem;}
+.step.done .slbl,.step.active .slbl{color:var(--t);}
+.sline{flex:1;height:2px;background:var(--b);margin-top:-1.45rem;}
+.sline.done{background:var(--ac);}
+.sline.err{background:var(--err);}
+
+/* Activity stats */
+.cstats{display:flex;gap:1rem;flex-wrap:wrap;}
+.cstat{font-size:.78rem;color:var(--m);}
+.cstat strong{color:var(--t);font-weight:600;}
+.clink{font-size:.75rem;color:var(--ac);text-decoration:none;opacity:.8;}
+.clink:hover{opacity:1;}
+.empty{grid-column:1/-1;text-align:center;padding:4rem 1rem;color:var(--m);}
+@media(max-width:600px){.grid{grid-template-columns:1fr;}.stats{grid-template-columns:repeat(3,1fr);}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Job Application Status</h1>
+      <p class="sub">Live from Naukri — fetched fresh on every page load</p>
+    </div>
+    <div class="hright">
+      <span class="ts" id="ts"></span>
+      <a href="/" class="navlink">&#8592; Reports</a>
+      <button class="btn" id="refreshBtn" onclick="load()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        Refresh
+      </button>
+    </div>
+  </header>
+
+  <div class="err" id="err"></div>
+
+  <div class="spin-wrap" id="spinner">
+    <div class="spin"></div>
+    <div class="spin-msg" id="spinMsg">Opening Naukri and fetching your applications…</div>
+    <div class="spin-sub">This takes 30–60 seconds while Chrome scrolls through all your jobs</div>
+  </div>
+
+  <div class="main" id="main">
+    <div class="summary-bar" id="summaryBar"></div>
+    <div class="stats" id="statsBar"></div>
+    <div class="toolbar">
+      <div class="sbox">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search" id="q" placeholder="Search company or role…" autocomplete="off"/>
+      </div>
+      <select id="sort">
+        <option value="new">Newest First</option>
+        <option value="old">Oldest First</option>
+        <option value="az">Company A–Z</option>
+      </select>
+      <span class="rc" id="rc"></span>
+    </div>
+    <div class="chips" id="chips"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<script>
+const API = location.protocol === 'file:' ? 'http://127.0.0.1:8765' : '';
+let all = [], activeFilter = 'all', sortKey = 'new';
+
+// Naukri 4 steps — in order
+const STEPS = [
+  { key: 'step_applied',     label: 'Applied' },
+  { key: 'step_sent',        label: 'Application Sent' },
+  { key: 'step_viewed',      label: 'Application Viewed' },
+  { key: 'step_shortlisted', label: 'Shortlisted' },
+];
+
+const BADGE = {
+  applied:         ['b-applied',        'Applied'],
+  sent:            ['b-sent',           'Application Sent'],
+  viewed:          ['b-viewed',         'Application Viewed'],
+  shortlisted:     ['b-shortlisted',    'Shortlisted ✓'],
+  not_shortlisted: ['b-not_shortlisted','Not Shortlisted'],
+  external:        ['b-external',       'External Apply'],
+};
+
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function counts() {
+  const c = {all:all.length, applied:0, sent:0, viewed:0, shortlisted:0, not_shortlisted:0, external:0};
+  all.forEach(a => {
+    const k = a.status || 'applied';
+    if (k in c) c[k]++; else c.applied++;
+  });
+  return c;
+}
+
+function renderSummary(totalApplies, appUpdates) {
+  const c = counts();
+  document.getElementById('summaryBar').innerHTML = `
+    <div class="sum-item"><div class="n">${totalApplies}</div><div class="l">Total Applies</div></div>
+    <div class="sum-div"></div>
+    <div class="sum-item"><div class="n" style="color:var(--ac)">${appUpdates}</div><div class="l">Application Updates</div></div>
+    <div class="sum-div"></div>
+    <div class="sum-item"><div class="n" style="color:var(--ok)">${c.shortlisted}</div><div class="l">Shortlisted</div></div>
+    <div class="sum-div"></div>
+    <div class="sum-item"><div class="n" style="color:var(--warn)">${c.viewed}</div><div class="l">Viewed</div></div>
+    <div class="sum-div"></div>
+    <div class="sum-item"><div class="n" style="color:var(--err)">${c.not_shortlisted}</div><div class="l">Not Shortlisted</div></div>`;
+}
+
+function renderStats() {
+  const c = counts();
+  const defs = [
+    ['all',             'Total',            'var(--t)'],
+    ['applied',         'Applied',          'var(--info)'],
+    ['sent',            'App. Sent',        'var(--ac)'],
+    ['viewed',          'App. Viewed',      'var(--warn)'],
+    ['shortlisted',     'Shortlisted',      'var(--ok)'],
+    ['not_shortlisted', 'Not Shortlisted',  'var(--err)'],
+    ['external',        'External',         'var(--pur)'],
+  ];
+  document.getElementById('statsBar').innerHTML = defs.map(([k,l,col])=>`
+    <div class="sc ${activeFilter===k?'on':''}" onclick="setFilter('${k}')">
+      <div class="n" style="color:${col}">${c[k]??0}</div>
+      <div class="l">${l}</div>
+    </div>`).join('');
+}
+
+function renderChips() {
+  const chips = [
+    ['all',             'All'],
+    ['applied',         '🔵 Applied'],
+    ['sent',            '✅ App. Sent'],
+    ['viewed',          '👁 Viewed'],
+    ['shortlisted',     '🌟 Shortlisted'],
+    ['not_shortlisted', '❌ Not Shortlisted'],
+    ['external',        '🔗 External'],
+  ];
+  document.getElementById('chips').innerHTML = chips.map(([k,l])=>
+    `<button class="chip ${activeFilter===k?'on':''}" onclick="setFilter('${k}')">${l}</button>`).join('');
+}
+
+function setFilter(k){ activeFilter=k; renderStats(); renderChips(); renderCards(); }
+
+function buildStepper(a) {
+  // 4 steps: Applied → Sent → Viewed → Shortlisted/Not Shortlisted
+  const stepKeys = ['step_applied','step_sent','step_viewed','step_shortlisted'];
+  const stepLabels = ['Applied','Application Sent','Application Viewed',
+    a.status === 'not_shortlisted' ? 'Not Shortlisted' : 'Shortlisted'];
+
+  // Find the last completed step index
+  let lastDone = -1;
+  stepKeys.forEach((k,i) => { if (a[k]) lastDone = i; });
+
+  let html = '<div class="stepper">';
+  stepKeys.forEach((k, i) => {
+    const done   = i < lastDone;
+    const active = i === lastDone;
+    const isNotShortlisted = active && i === 3 && a.status === 'not_shortlisted';
+    const dotExtra = isNotShortlisted ? ' dot-err' : (active ? ' dot-ok' : '');
+    const cls = done ? 'done' : active ? ('active' + dotExtra) : '';
+
+    if (i > 0) {
+      // Line between steps — red if leading to "not shortlisted"
+      const lineClass = done ? 'done' : (active && isNotShortlisted ? 'err' : '');
+      html += `<div class="sline ${lineClass}"></div>`;
+    }
+    html += `<div class="step ${cls}">
+      <div class="dot"></div>
+      <div class="slbl">${stepLabels[i]}</div>
+    </div>`;
+  });
+  return html + '</div>';
+}
+
+function visible() {
+  const q = (document.getElementById('q').value||'').toLowerCase().trim();
+  let rows = all.filter(a => {
+    if (activeFilter !== 'all' && (a.status||'applied') !== activeFilter) return false;
+    if (!q) return true;
+    return (a.company+' '+a.title).toLowerCase().includes(q);
+  });
+  if (sortKey==='az') rows.sort((a,b)=>(a.company||'').localeCompare(b.company||''));
+  // For date sort, keep original order (Naukri returns newest first already)
+  else if (sortKey==='old') rows.reverse();
+  return rows;
+}
+
+function renderCards() {
+  const rows = visible();
+  document.getElementById('rc').textContent = rows.length + ' application' + (rows.length!==1?'s':'');
+  const grid = document.getElementById('grid');
+  if (!rows.length) {
+    grid.innerHTML = '<div class="empty">No applications match your filters.</div>';
+    return;
+  }
+  grid.innerHTML = rows.map(a => {
+    const st = a.status || 'applied';
+    const [bcls, blbl] = BADGE[st] || ['b-default', st];
+    const isExt = a.source === 'external';
+    const srcBadge = isExt
+      ? '<span class="csrc src-e">External</span>'
+      : '<span class="csrc src-n">Naukri</span>';
+    const ratingHtml = a.company_rating
+      ? `<span class="crating">★ ${esc(a.company_rating)}${a.company_reviews?' · '+esc(a.company_reviews)+' reviews':''}</span>` : '';
+    const recHtml = a.recruiter_last_active
+      ? `<div class="rec-note">Recruiter last active: ${esc(a.recruiter_last_active)}</div>` : '';
+    const statsHtml = (a.total_applications != null || a.viewed_by_recruiter != null)
+      ? `<div class="cstats">
+          ${a.total_applications!=null?`<div class="cstat"><strong>${a.total_applications}</strong> total applicants</div>`:''}
+          ${a.viewed_by_recruiter!=null?`<div class="cstat"><strong>${a.viewed_by_recruiter}</strong> viewed by recruiter</div>`:''}
+        </div>` : '';
+    const linkHtml = a.url
+      ? `<a class="clink" href="${esc(a.url)}" target="_blank" rel="noopener">↗ View Job</a>` : '';
+
+    return `<div class="card">
+      <div class="ctop"><div class="cco">${esc(a.company||'Unknown')}</div>${srcBadge}</div>
+      <div class="cti">${esc(a.title||'Job Application')}</div>
+      <div class="cmeta">
+        <span class="badge ${bcls}">${blbl}</span>
+        ${ratingHtml}
+        <span class="cdate">${esc(a.applied_date||'')}</span>
+      </div>
+      ${recHtml}
+      ${buildStepper(a)}
+      ${statsHtml}
+      ${linkHtml}
+    </div>`;
+  }).join('');
+}
+
+async function load() {
+  const btn = document.getElementById('refreshBtn');
+  const spinner = document.getElementById('spinner');
+  const main = document.getElementById('main');
+  const err = document.getElementById('err');
+
+  btn.disabled = true;
+  err.style.display = 'none';
+  main.classList.remove('show');
+  spinner.classList.add('show');
+
+  try {
+    const res = await fetch(API + '/api/application-status');
+    if (!res.ok) {
+      const d = await res.json().catch(()=>({}));
+      throw new Error(d.detail || 'Server error ' + res.status);
+    }
+    const data = await res.json();
+
+    if (data.error) {
+      err.style.display = 'block';
+      err.textContent = '⚠ ' + data.error;
+    }
+
+    all = data.applications || [];
+
+    document.getElementById('ts').textContent =
+      'Updated ' + new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) +
+      (data.cached ? ' (cached)' : ' (live)');
+
+    renderSummary(data.total_applies || all.length, data.application_updates || 0);
+    renderStats();
+    renderChips();
+    renderCards();
+
+    spinner.classList.remove('show');
+    main.classList.add('show');
+  } catch(e) {
+    spinner.classList.remove('show');
+    err.style.display = 'block';
+    err.textContent = '⚠ ' + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('q').addEventListener('input', renderCards);
+document.getElementById('sort').addEventListener('change', e => { sortKey = e.target.value; renderCards(); });
+
+load();
+</script>
+</body>
+</html>

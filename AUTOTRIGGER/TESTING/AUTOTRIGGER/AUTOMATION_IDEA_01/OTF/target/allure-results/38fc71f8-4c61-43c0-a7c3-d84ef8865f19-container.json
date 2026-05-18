@@ -1,0 +1,1 @@
+{"uuid":"38fc71f8-4c61-43c0-a7c3-d84ef8865f19","name":"Scenario: Validate event Event-202 order ORD202 type ORDER_VALIDATED","children":["83621cd9-4d1b-4620-b41a-376bd26c11f6"],"befores":[],"afters":[],"start":1770531729062,"stop":1770531729103}

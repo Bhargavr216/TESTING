@@ -1,0 +1,138 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+VBR Turf Cricket Singles Tracker</title>
+<style>
+body {font-family: Arial; margin:0; background:#0f172a; color:#fff;}
+.container{max-width:1100px;margin:auto;padding:20px}
+.card{background:#1e293b;padding:15px;border-radius:12px;margin-bottom:15px}
+h1{text-align:center}
+input,select,button{padding:10px;margin:5px;border-radius:8px;border:none}
+button{background:#38bdf8;font-weight:bold;cursor:pointer}
+button:hover{background:#0ea5e9}
+.score-buttons button{width:60px;height:50px;font-size:18px}
+table{width:100%;margin-top:10px;border-collapse:collapse}
+th,td{padding:10px;text-align:center}
+th{background:#020617}
+.top{color:gold;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🏏 Advanced Turf Cricket Tracker</h1><div class="card">
+<h3>Add Player</h3>
+<input id="playerName" placeholder="Player name">
+<button onclick="addPlayer()">Add</button>
+<button onclick="generateOrder()">🎲 Random Batting Order</button>
+</div><div class="card">
+<h3>Batting Order</h3>
+<ul id="orderList"></ul>
+</div><div class="card">
+<h3>Live Score Entry</h3>
+<select id="playerSelect"></select>
+<div class="score-buttons">
+<button onclick="addRun(0)">0</button>
+<button onclick="addRun(1)">1</button>
+<button onclick="addRun(2)">2</button>
+<button onclick="addRun(3)">3</button>
+<button onclick="addRun(4)">4</button>
+<button onclick="addRun(6)">6</button>
+<button onclick="outPlayer()">OUT</button>
+</div>
+<p>Runs: <span id="liveRuns">0</span> | Balls: <span id="liveBalls">0</span></p>
+<button onclick="finishInnings()">Finish Player</button>
+</div><div class="card">
+<h3>Leaderboard</h3>
+<table>
+<thead><tr><th>Rank</th><th>Name</th><th>Runs</th><th>Balls</th><th>SR</th></tr></thead>
+<tbody id="table"></tbody>
+</table>
+</div><div class="card">
+<h3>Next Match Order</h3>
+<ol id="nextOrder"></ol>
+</div></div><script>
+let players=[];
+let current={runs:0,balls:0,index:null};
+
+function addPlayer(){
+ let name=document.getElementById('playerName').value.trim();
+ if(!name) return alert('Enter name');
+ players.push({name,runs:0,balls:0});
+ document.getElementById('playerName').value='';
+ updateSelect();
+}
+
+function updateSelect(){
+ let sel=document.getElementById('playerSelect');
+ sel.innerHTML='';
+ players.forEach((p,i)=>{
+ let o=document.createElement('option');
+ o.value=i;o.text=p.name;sel.appendChild(o);
+ });
+}
+
+function generateOrder(){
+ players.sort(()=>Math.random()-0.5);
+ let list=document.getElementById('orderList');
+ list.innerHTML='';
+ players.forEach(p=>{
+ let li=document.createElement('li');
+ li.textContent=p.name;
+ list.appendChild(li);
+ });
+ updateSelect();
+}
+
+function addRun(r){
+ current.runs+=r;
+ current.balls++;
+ updateLive();
+}
+
+function outPlayer(){
+ current.balls++;
+ updateLive();
+ finishInnings();
+}
+
+function updateLive(){
+ document.getElementById('liveRuns').textContent=current.runs;
+ document.getElementById('liveBalls').textContent=current.balls;
+}
+
+function finishInnings(){
+ let idx=document.getElementById('playerSelect').value;
+ if(idx===null) return;
+ players[idx].runs=current.runs;
+ players[idx].balls=current.balls;
+ current={runs:0,balls:0,index:null};
+ updateLive();
+ renderTable();
+}
+
+function renderTable(){
+ let tbody=document.getElementById('table');
+ tbody.innerHTML='';
+ let sorted=[...players].sort((a,b)=>b.runs-a.runs);
+ sorted.forEach((p,i)=>{
+ let sr=p.balls?((p.runs/p.balls)*100).toFixed(1):0;
+ let tr=document.createElement('tr');
+ tr.innerHTML=`<td class="${i==0?'top':''}">${i+1}</td><td>${p.name}</td><td>${p.runs}</td><td>${p.balls}</td><td>${sr}</td>`;
+ tbody.appendChild(tr);
+ });
+ generateNextOrder(sorted);
+}
+
+function generateNextOrder(sorted){
+ let next=[...sorted].reverse();
+ let list=document.getElementById('nextOrder');
+ list.innerHTML='';
+ next.forEach(p=>{
+ let li=document.createElement('li');
+ li.textContent=p.name;
+ list.appendChild(li);
+ });
+}
+</script></body>
+</html>

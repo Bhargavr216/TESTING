@@ -1,0 +1,60 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Personal data (NEVER commit)
+config/profile.yaml
+cv.md
+Resume.pdf
+resume.pdf
+auth.json
+storage_state*.json
+
+# Generated output
+output/
+reports/
+data/
+
+# Debug/debugging
+debug_*.png
+diagnose_*.png
+test_*.png
+*.log
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / Secrets
+.env
+.env.local
+.env.production
+
+# Tool caches
+.ruff_cache/
+.mypy_cache/
+.pytest_cache/
+
+# Kilo CLI
+.kilo/
+
+# Standalone scripts (use the CLI instead)
+naukri_automation.py
+
+# Diagnostics
+diagnose_form.py

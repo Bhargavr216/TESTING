@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | Bhargav Reddy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"/>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <nav>
+      <div class="container nav-inner navbar">
+        <div class="logo">Bhargav Reddy</div>
+        <ul class="menu">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="projects.html">Projects</a></li>
+          <li><a href="contact.html">Contact</a></li>
+          <div class="cancel-btn"><i class="fas fa-times"></i></div>
+        </ul>
+        <div class="menu-btn"><i class="fas fa-bars"></i></div>
+      </div>
+    </nav>
+
+    <section class="section" style="padding-top:120px">
+      <div class="container reveal">
+        <div class="title">Projects</div>
+        <div class="filterbar">
+          <input id="search" type="text" placeholder="Search projects">
+          <div class="filters">
+            <button class="btn btn-outline" data-filter="all">All</button>
+            <button class="btn btn-outline" data-filter="testing">Testing</button>
+            <button class="btn btn-outline" data-filter="java">Java</button>
+            <button class="btn btn-outline" data-filter="html">HTML</button>
+            <button class="btn btn-outline" data-filter="api">API</button>
+            <button class="btn btn-outline" data-filter="mtech">MTech</button>
+          </div>
+        </div>
+        <div class="grid grid-3">
+          <div class="card" data-tag="testing">
+            <div class="icon"><i class="fas fa-vial"></i></div>
+            <h3>DemoProjectSelenium</h3>
+            <p>POM, TestNG, cross-browser, reporting, screenshots.</p>
+            <div class="card-buttons">
+              <a href="https://github.com/Bhargavr216/TESTING/tree/main/DemoProjectSelenium" target="_blank" rel="noopener noreferrer" class="btn btn-sm">View Source Code</a>
+            </div>
+          </div>
+          <div class="card" data-tag="testing">
+            <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+            <h3>EcommerceWebsiteAutomation</h3>
+            <p>Login, filtering, cart, checkout, logout — end-to-end flows.</p>
+            <div class="card-buttons">
+              <a href="https://github.com/Bhargavr216/TESTING/tree/main/EcommerceWebsiteAutomation" target="_blank" rel="noopener noreferrer" class="btn btn-sm">View Source Code</a>
+            </div>
+          </div>
+          <div class="card" data-tag="testing">
+            <div class="icon"><i class="fas fa-globe"></i></div>
+            <h3>shops2-website</h3>
+            <p>Responsive landing page with automated UI tests.</p>
+            <div class="card-buttons">
+              <a href="https://github.com/Bhargavr216/TESTING/tree/main/shops2-website" target="_blank" rel="noopener noreferrer" class="btn btn-sm">View Source Code</a>
+            </div>
+          </div>
+          <div class="card" data-tag="api">
+            <div class="icon"><i class="fas fa-plug"></i></div>
+            <h3>Social-Media-Platform</h3>
+            <p>REST API tests: auth, CRUD, social actions with Node.js/Mocha.</p>
+            <div class="card-buttons">
+              <a href="https://github.com/Bhargavr216/TESTING/tree/main/Social-Media-Platform" target="_blank" rel="noopener noreferrer" class="btn btn-sm">View Source Code</a>
+            </div>
+          </div>
+          <div class="card" data-tag="java">
+            <div class="icon"><i class="fas fa-coffee"></i></div>
+            <h3>Java Projects</h3>
+            <p>Core Java utilities and samples.</p>
+            <div class="card-buttons">
+              <a href="https://github.com/Bhargavr216/JavaProjects" target="_blank" rel="noopener noreferrer" class="btn btn-sm">View Source Code</a>
+            </div>
+          </div>
+          <div class="card" data-tag="html">
+            <div class="icon"><i class="fas fa-code"></i></div>
+            <h3>HTML Frontend</h3>
+            <p>Responsive pages and UI demos.</p>
+            <div class="card-buttons">
+              <a href="https://github.com/Bhargavr216/HTML" target="_blank" rel="noopener noreferrer" class="btn btn-sm">View Source Code</a>
+              <a href="https://rawcdn.githack.com/Bhargavr216/HTML/main/index.html" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-secondary">Run Project</a>
+            </div>
+          </div>
+        </div>
+        <div class="title" style="margin-top:30px">Testing Repo Projects</div>
+        <div id="testing-repo-grid" class="grid grid-3"></div>
+
+        <div class="title" style="margin-top:30px">Java Repo Projects</div>
+        <div id="java-repo-grid" class="grid grid-3"></div>
+
+        <div class="title" style="margin-top:30px">HTML Repo Projects</div>
+        <div id="html-repo-grid" class="grid grid-3"></div>
+
+        <div class="title" style="margin-top:30px">MTech Repo Projects</div>
+        <div id="mtech-repo-grid" class="grid grid-3"></div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="container">© Bhargav Reddy</div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

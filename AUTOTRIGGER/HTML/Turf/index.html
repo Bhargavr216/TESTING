@@ -1,0 +1,283 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+    <title>VBR Live Cricket Scoreboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <div class="title-bar">
+        <h1>VBR</h1>
+        <p>Browser-only live cricket scoreboard for Turf matches</p>
+      </div>
+      <div id="actionToast" class="action-toast hidden"></div>
+      <section class="live-scoreboard" id="liveScoreboard">
+        <div class="score-inner">
+          <div>
+            <p class="label">Total Score</p>
+            <p class="value" id="scoreValue">0/0</p>
+            <p class="sub" id="oversDisplay">0.0 overs</p>
+          </div>
+          <div>
+            <p class="label">Current Over</p>
+            <p class="value" id="currentOverBalls">-</p>
+            <p class="sub" id="ballsThisOver">Balls this over: 0</p>
+          </div>
+          <div>
+            <p class="label">Batsmen</p>
+            <p class="value" id="strikerDisplay">Striker -</p>
+            <p class="value" id="nonStrikerDisplay">Non-striker -</p>
+          </div>
+          <div>
+            <p class="label">Bowler</p>
+            <p class="value" id="bowlerDisplay">-</p>
+            <p class="sub" id="matchResult">Awaiting setup</p>
+          </div>
+        </div>
+        <div class="live-history">
+          <p class="label">Ball-by-ball history</p>
+          <div class="history-line" id="ballHistory">-</div>
+        </div>
+      </section>
+      <div class="scoreboard-actions">
+        <button id="downloadScoreboardBtn" class="tiny-btn">Download live scoreboard</button>
+        <button id="resetScoreboardBtn" class="secondary">Reset scoreboard</button>
+        <button id="resetAllBtn" class="secondary">Reset everything</button>
+      </div>
+    </header>
+
+    <main class="main-layout">
+      <div class="section-links">
+        <button type="button" data-target="teamsPanel">Teams &amp; Players</button>
+        <button type="button" data-target="setupPanel">Toss &amp; Decision</button>
+        <button type="button" data-target="playerSelectionPanel">Player Selection</button>
+        <button type="button" data-target="scoringPanel">Scoring</button>
+        <button type="button" data-target="scorecardPanel">Scorecard</button>
+      </div>
+      <button id="toggleSetupBtn" class="setup-toggle hidden">Show setup</button>
+      <section class="panel" id="teamsPanel">
+        <div class="panel-heading">
+          <h2>Team &amp; Player Management</h2>
+          <p>
+            Add two teams with comma-separated players, assign a captain, and hit
+            Save so the data stays in localStorage.
+          </p>
+        </div>
+        <div class="team-grid">
+          <article class="team-card" data-team="a">
+            <label>
+              Team name
+              <input id="teamAName" type="text" placeholder="Team A" />
+            </label>
+            <label>
+              Add players (comma separated)
+              <input
+                id="teamAPlayers"
+                type="text"
+                placeholder="e.g. Bhargav, Sai"
+              />
+            </label>
+            <button class="tiny-btn" id="teamAAdd">Add players</button>
+            <ul class="player-list" id="teamAList"></ul>
+          </article>
+          <article class="team-card" data-team="b">
+            <label>
+              Team name
+              <input id="teamBName" type="text" placeholder="Team B" />
+            </label>
+            <label>
+              Add players (comma separated)
+              <input
+                id="teamBPlayers"
+                type="text"
+                placeholder="e.g. Ruturaj, Jadeja"
+              />
+            </label>
+            <button class="tiny-btn" id="teamBAdd">Add players</button>
+            <ul class="player-list" id="teamBList"></ul>
+          </article>
+        </div>
+        <div class="team-actions">
+          <button id="saveTeamsBtn">Save teams</button>
+          <button id="editTeamsBtn" class="secondary">Edit teams</button>
+        </div>
+      </section>
+
+      <section class="panel" id="setupPanel">
+        <div class="panel-heading">
+          <h2>Match Setup Flow</h2>
+          <p>Follow the steps in order. Each section locks when you proceed.</p>
+        </div>
+        <div class="setup-step" id="setupStep1">
+          <h3>Step 1 — Toss result</h3>
+          <div class="radio-row">
+            <label><input type="radio" name="tossCall" value="heads" /> Heads</label>
+            <label><input type="radio" name="tossCall" value="tails" /> Tails</label>
+          </div>
+          <button id="tossNextBtn">Next</button>
+          <p class="helper" id="tossOutcome">Pick head or tail</p>
+        </div>
+        <div class="setup-step hidden" id="setupStep2">
+          <h3>Step 2 — Who won the toss?</h3>
+          <select id="tossWinnerSelect">
+            <option value="" disabled selected>Select team</option>
+          </select>
+          <button id="tossWinnerNextBtn">Next</button>
+        </div>
+        <div class="setup-step hidden" id="setupStep3">
+          <h3>Step 3 — Choose decision</h3>
+          <div class="radio-row">
+            <label><input type="radio" name="tossDecision" value="bat" /> Bat</label>
+            <label><input type="radio" name="tossDecision" value="bowl" /> Bowl</label>
+          </div>
+          <button id="confirmDecisionBtn">Confirm decision</button>
+          <p class="helper" id="decisionStatus">Awaiting decision</p>
+        </div>
+        <div class="setup-step hidden" id="setupStep4">
+          <h3>Step 4 — Match length</h3>
+          <label class="input-card">
+            Overs per innings
+            <input id="oversInput" type="number" min="1" max="50" value="6" />
+          </label>
+          <button id="oversNextBtn">Save overs</button>
+          <p class="helper" id="oversHelper">Set how many overs this innings should last.</p>
+        </div>
+      </section>
+
+      <section class="panel hidden" id="playerSelectionPanel">
+        <div class="panel-heading">
+          <h2>Player Selection</h2>
+          <p>Pick striker, non-striker, and bowler from the selected teams.</p>
+        </div>
+        <div class="select-grid">
+          <label>
+            Striker
+            <select id="strikerSelect">
+              <option value="" disabled selected>Select striker</option>
+            </select>
+          </label>
+          <label>
+            Non-striker
+            <select id="nonStrikerSelect">
+              <option value="" disabled selected>Select non-striker</option>
+            </select>
+          </label>
+          <label>
+            Bowler
+            <select id="bowlerSelect">
+              <option value="" disabled selected>Select bowler</option>
+            </select>
+          </label>
+        </div>
+        <button id="confirmPlayersBtn">Confirm players</button>
+        <p class="helper" id="playerSelectionStatus">Waiting for toss decision</p>
+      </section>
+
+      <section class="panel hidden" id="scoringPanel">
+        <div class="panel-heading">
+          <h2>Scoring Controls</h2>
+          <p>Use the buttons to log runs, extras, and wickets.</p>
+        </div>
+        <div class="score-buttons">
+          <button data-action="run" data-value="0">0</button>
+          <button data-action="run" data-value="1">1</button>
+          <button data-action="run" data-value="2">2</button>
+          <button data-action="run" data-value="3">3</button>
+          <button data-action="run" data-value="4">4</button>
+          <button data-action="run" data-value="6">6</button>
+          <button data-action="wide">Wide</button>
+          <button data-action="nobb">No Ball</button>
+          <button data-action="wicket">Wicket</button>
+        </div>
+        <div class="match-controls" id="matchActionButtons">
+          <button id="undoBtn" class="secondary">Undo last ball</button>
+          <button id="redoBtn" class="secondary">Redo ball</button>
+          <button id="completeMatchBtn" class="tiny-btn">Mark innings complete</button>
+          <button id="resetMatchBtn" class="secondary">Reset match</button>
+        </div>
+        <p class="helper" id="scoringMessage">Select players to start scoring.</p>
+        <div class="wicket-prompt hidden" id="wicketPrompt">
+          <p>Select next batsman</p>
+          <label class="input-card wicket-card">
+            Who got out?
+            <select id="outBatsmanSelect">
+              <option value="" disabled selected>Out batsman</option>
+            </select>
+          </label>
+          <select id="nextBatsmanSelect">
+            <option value="" disabled selected>Next batter</option>
+          </select>
+          <button id="confirmNextBatsman">Confirm batsman</button>
+        </div>
+      </section>
+
+      <section class="panel scorecard-panel" id="scorecardPanel">
+        <div class="panel-heading">
+          <h2>Scorecard &amp; Bowling</h2>
+          <p>Live overview of batsmen, bowlers, and over logs.</p>
+          <div class="panel-heading-actions">
+            <button id="resetScorecardBtn" class="secondary">Reset scorecard</button>
+          </div>
+        </div>
+        <div class="scorecard-grid">
+          <div class="scorecard-column">
+            <h3>Batsmen</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>R</th>
+                    <th>Balls</th>
+                    <th>4s</th>
+                    <th>6s</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="batsmanTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="scorecard-column">
+            <h3>Bowlers</h3>
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>O</th>
+                    <th>R</th>
+                    <th>W</th>
+                    <th>Eco</th>
+                  </tr>
+                </thead>
+                <tbody id="bowlerTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="over-log">
+          <h3>Over log</h3>
+          <div id="overHistoryDisplay">-</div>
+        </div>
+      </section>
+
+      <section class="panel archive-panel" id="completedMatchesPanel">
+        <div class="panel-heading">
+          <h2>Completed matches</h2>
+          <p>Old scorecards remain saved even if you change the lineup.</p>
+        </div>
+        <div id="completedMatchesList" class="completed-list">
+          <p class="helper">No matches recorded yet.</p>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

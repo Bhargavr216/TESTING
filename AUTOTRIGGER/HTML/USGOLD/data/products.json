@@ -1,0 +1,62 @@
+[
+  {
+    "id": "GN-001",
+    "name": "Royal Gold Necklace",
+    "metal": "gold",
+    "category": "necklace",
+    "gender": "women",
+    "weightGrams": 24.5,
+    "imageUrl": "/images/US1.png",
+    "description": "22K Gold necklace with intricate floral patterns"
+  },
+  {
+    "id": "GR-002",
+    "name": "Classic Solitaire Ring",
+    "metal": "gold",
+    "category": "ring",
+    "gender": "women",
+    "weightGrams": 4.2,
+    "imageUrl": "/images/US2.png",
+    "description": "Elegant gold ring with a single solitaire diamond"
+  },
+  {
+    "id": "SB-003",
+    "name": "Sterling Silver Cuff",
+    "metal": "silver",
+    "category": "bracelet",
+    "gender": "men",
+    "weightGrams": 18.0,
+    "imageUrl": "/images/US3.png",
+    "description": "Solid silver cuff bracelet for men"
+  },
+  {
+    "id": "GE-004",
+    "name": "Golden Drop Earrings",
+    "metal": "gold",
+    "category": "earrings",
+    "gender": "women",
+    "weightGrams": 8.5,
+    "imageUrl": "/images/US4.png",
+    "description": "Traditional drop earrings with matte finish"
+  },
+  {
+    "id": "MC-005",
+    "name": "Heavy Gold Chain",
+    "metal": "gold",
+    "category": "necklace",
+    "gender": "men",
+    "weightGrams": 45.0,
+    "imageUrl": "/images/US5.png",
+    "description": "Thick rope chain design in 22K gold"
+  },
+  {
+    "id": "KB-006",
+    "name": "Kids Nazariya",
+    "metal": "silver",
+    "category": "bracelet",
+    "gender": "kids",
+    "weightGrams": 5.0,
+    "imageUrl": "/images/US6.png",
+    "description": "Protective silver bracelet with black beads"
+  }
+]
