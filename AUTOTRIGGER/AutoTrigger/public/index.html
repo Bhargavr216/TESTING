@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VBR - Event Hub Trigger</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="bi bi-lightning-charge"></i> VBR
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="toolsDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-tools"></i> Tools
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="toolsDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="openTool('json-schema-generator')">JSON Schema Generator</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openTool('json-beautifier')">JSON Beautifier</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openTool('json-validation')">JSON Validation</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openTool('find-duplicates')">Find Duplicates in JSON</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openTool('uuid-generator')">Random UUID Generator</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openTool('swagger-viewer')">Swagger Viewer</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="openTool('timepad-game')">Timepad Mini Game</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="showAbout()">About</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="showSettings()">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" onclick="clearCache()">Clear Cache</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row min-vh-100">
+            <!-- Left Sidebar - Service List -->
+            <div class="col-lg-3 col-md-4 border-end bg-light sidebar">
+                <div class="p-4">
+                    <h5 class="text-uppercase fw-bold text-primary mb-4">
+                        <i class="bi bi-list-check"></i> Services
+                    </h5>
+                    <div id="servicesList" class="list-group list-group-flush">
+                        <!-- Services will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="col-lg-9 col-md-8">
+                <div class="p-5">
+                    <!-- Welcome Section -->
+                    <div id="welcomeSection" class="text-center py-5">
+                        <h2 class="text-muted mb-2">
+                            <i class="bi bi-hand-index"></i> OTF Trigger
+                        </h2>
+                        <p class="text-secondary">Select a service from the left to get started</p>
+                    </div>
+
+                    <!-- Service Detail Section -->
+                    <div id="detailSection" style="display: none;">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header bg-gradient border-0 py-4">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <h4 id="serviceName" class="mb-1"></h4>
+                                        <small id="serviceEventHub" class="text-muted"></small>
+                                    </div>
+                                    <button class="btn btn-sm btn-secondary" onclick="closeModeSelector()">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body p-4">
+                                <!-- Mode Selector -->
+                                <div class="row mb-4">
+                                    <div class="col-12">
+                                        <label class="form-label fw-bold mb-3">Trigger Mode</label>
+                                        <div class="btn-group w-100" role="group">
+                                            <input type="radio" class="btn-check" name="triggerMode" id="singleMode" value="single" checked>
+                                            <label class="btn btn-outline-primary" for="singleMode">
+                                                <i class="bi bi-stop-circle"></i> Single
+                                            </label>
+
+                                            <input type="radio" class="btn-check" name="triggerMode" id="multipleMode" value="multiple">
+                                            <label class="btn btn-outline-primary" for="multipleMode">
+                                                <i class="bi bi-collection"></i> Multiple
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Single Mode Form -->
+                                <div id="singleModeForm" class="mode-form">
+                                    <form id="singlePayloadForm">
+                                        <!-- Dynamic fields will be inserted here -->
+                                    </form>
+                                </div>
+
+                                <!-- Multiple Mode Form -->
+                                <div id="multipleModeForm" class="mode-form" style="display: none;">
+                                    <div class="row g-3 align-items-end mb-3">
+                                        <div class="col-md-4">
+                                            <label for="multipleCountInput" class="form-label fw-bold">How many payloads?</label>
+                                            <input id="multipleCountInput" type="number" class="form-control" min="1" max="1000" value="10">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="randomPrefixInput" class="form-label fw-bold">Random Prefix</label>
+                                            <input id="randomPrefixInput" type="text" class="form-control" placeholder="Example: Event-ST-">
+                                        </div>
+                                        <div class="col-md-4 d-flex gap-2">
+                                            <button id="buildTableBtn" type="button" class="btn btn-outline-primary w-100" onclick="buildMultipleTable()">
+                                                <i class="bi bi-table"></i> Build Table
+                                            </button>
+                                            <button id="clearTableBtn" type="button" class="btn btn-outline-secondary w-100" onclick="clearMultipleTable()">
+                                                <i class="bi bi-trash"></i> Clear
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div id="multipleTableContainer" class="table-responsive">
+                                        <!-- Dynamic table will be inserted here -->
+                                    </div>
+
+                                    <!-- Legacy textarea (kept for compatibility, but hidden) -->
+                                    <textarea id="multiplePayloadsInput" class="form-control d-none" rows="8"></textarea>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="row mt-5 pt-3 border-top">
+                                    <div class="col-12 d-flex gap-2">
+                                        <button id="triggerBtn" type="button" class="btn btn-primary btn-lg flex-grow-1" onclick="triggerPayload()">
+                                            <i class="bi bi-lightning-charge"></i> Trigger
+                                        </button>
+                                        <button id="showPayloadBtn" type="button" class="btn btn-outline-primary btn-lg" onclick="showPayloadPreview()">
+                                            <i class="bi bi-eye"></i> Show Payload
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-lg" onclick="resetForm()">
+                                            <i class="bi bi-arrow-clockwise"></i> Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Result Alert -->
+                        <div id="resultAlert" style="display: none;" class="mt-4"></div>
+                    </div>
+
+                    <!-- Tools Container (loads tool pages here) -->
+                    <div id="toolsContainer" style="display: none;">
+                        <!-- Tool content will be injected here via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for About -->
+    <div class="modal fade" id="aboutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">About VBR</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>VBR - Event Hub Trigger System</strong></p>
+                    <p>A modern web application for triggering JSON payloads to Azure Event Hub services.</p>
+                    <ul>
+                        <li>Single payload triggering</li>
+                        <li>Batch payload processing</li>
+                        <li>Dynamic form generation</li>
+                        <li>Real-time feedback</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+﻿# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+.idea1_venv/
+idea1_project/venv/
+
+# Local env/config
+.env
+*.env
+
+# OS/editor artifacts
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Runtime outputs
+idea1_project/reports/
+idea1_project/logs/
+
+# Local DB credentials (keep a sample file instead)
+idea1_project/config/db_config.json

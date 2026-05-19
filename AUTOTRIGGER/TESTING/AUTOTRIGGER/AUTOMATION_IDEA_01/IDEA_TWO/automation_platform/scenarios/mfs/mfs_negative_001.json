@@ -1,0 +1,31 @@
+{
+  "scenario_no": "MFS_NEGATIVE_001",
+  "service": "MFS",
+  "tags": {
+    "type": "negative",
+    "priority": "high"
+  },
+  "lookup_key": "mfs_negative_001_event",
+  "description": "End-to-end negative validation for MFS",
+  "states": [
+    {
+      "name": "EVENT_PROCESSED",
+      "event_payload": null,
+      "look_up_ref": {},
+      "rules": [
+        {
+          "type": "audit_validate",
+          "validations": {
+            "count": 1,
+            "exact_sequence": [
+              {
+                "operation": "API_EXCEPTION",
+                "exception": "!MANDATORY"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

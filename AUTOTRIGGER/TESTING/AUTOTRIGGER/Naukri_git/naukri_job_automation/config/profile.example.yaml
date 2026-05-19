@@ -1,0 +1,168 @@
+candidate:
+  full_name: "Your Full Name"
+  email: "your.email@example.com"
+  phone: "+91-9876543210"
+  location: "Bangalore, Karnataka"
+  current_company: "Current Company Name"
+  current_role: "SDET | Automation Engineer"
+  experience_years: 4.5
+  notice_period_days: 30
+  naukri_profile_url: "https://www.naukri.com/mnjuser/profile"
+  linkedin: "linkedin.com/in/yourname"
+  github: "https://github.com/yourhandle"
+  portfolio_url: "https://your-site.example"
+
+naukri_credentials:
+  email: "your.naukri@email.com"
+  password: "CHANGE_ME_USE_ENV_VAR"
+  # Optional: reuse a saved Playwright session (Playwright storage_state JSON).
+  # If omitted, the project defaults to auth.json in the package root (same as naukri-auto-update).
+  storage_state_path: ""
+
+# Local resume file path. Use an absolute path or a path relative to the project root.
+resume_path: "config/Resume.pdf"
+
+target_roles:
+  primary:
+    - "SDET"
+    - "QA Automation Engineer"
+    - "Quality Engineer"
+    - "Test Automation Engineer"
+  secondary:
+    - "Senior QA Engineer"
+    - "Automation Test Lead"
+  keywords_positive:
+    - "java"
+    - "selenium"
+    - "restassured"
+    - "api testing"
+    - "postman"
+    - "postgresql"
+    - "sql"
+    - "cucumber"
+    - "testng"
+    - "wiremock"
+    - "azure"
+    - "event hub"
+    - "automation framework"
+  keywords_negative:
+    - "intern"
+    - "fresher"
+    - "trainee"
+    - "lecturer"
+    - "academic"
+    - "Developer"
+    - "Development" # Exclude pure development roles if not interested
+  seniority:
+    - "senior"
+    - "lead"
+    - "analyst"
+    - "consultant"
+
+compensation:
+  current_ctc: "15 LPA"
+  expected_ctc: "25-35 LPA"
+  currency: "INR"
+  minimum_ctc: "20 LPA"
+  current_ctc_fixed: "12 LPA"
+  current_ctc_variable: "3 LPA"
+
+screening_answers:
+  total_experience_years: 4
+  total_experience_months: 6
+  notice_period: "30 Days"
+  current_location: "Bangalore"
+  willing_to_relocate: true
+  highest_education: "B.Tech"
+  education_type: "Full Time"
+  employment_status: "Serving Notice" # e.g. "Immediate Joiner", "Serving Notice", "Notice Period"
+  has_gap: false
+  comfortable_night_shifts: false
+  comfortable_rotational_shifts: true
+  team_size_managed: 4
+  passport_valid: true
+  any_offer_in_hand: false
+  # Optional fallbacks (compensation.* takes priority when present)
+  current_ctc: "15 LPA"
+  expected_ctc: "25-35 LPA"
+  # Used for “preferred location” dropdowns/multiselects during apply flows
+  preferred_locations:
+    - "Bangalore"
+    - "Remote"
+  skills_experience:
+    Java: 4
+    Python: 2
+    "JavaScript": 1
+    Selenium: 4
+    RestAssured: 4
+    PostgreSQL: 4
+    SQL: 4
+    Cucumber: 3
+    TestNG: 4
+    WireMock: 2
+  industries_worked:
+    - "IT Services"
+  certifications: []
+
+location:
+  country: "India"
+  preferred_cities:
+    - "Bangalore"
+    - "Hyderabad"
+    - "Pune"
+    - "Mumbai"
+    - "Remote"
+  willing_to_relocate: true
+  remote_preference: "remote_first"
+
+narrative:
+  headline: "SDET | Automation Engineer"
+  exit_story: "4.5 years building UI/API/DB automation and event-driven validation. Now looking for strong QA automation/SDET roles with ownership and impact."
+
+# Optional: Local AI for answering unknown chatbot questions.
+# Uses a locally running LLM (no cloud). Recommended: Ollama (default).
+local_ai:
+  enabled: false
+  mode: "fallback"          # "fallback" (rules first) or "always" (ask local AI first)
+  provider: "ollama"        # "ollama" or "openai_compat"
+  base_url: "http://127.0.0.1:11434"
+  model: "llama3.1:8b"
+  timeout_seconds: 20
+  temperature: 0.2
+  max_tokens: 256
+
+# Optional: hard overrides for chatbot questions (applies before AI).
+# Useful when you want the exact same answer every time.
+chatbot_custom_answers: []
+# Example:
+# chatbot_custom_answers:
+#   - kind: "radio"
+#     match_type: "contains"
+#     match: "family member"
+#     answer: "No"
+#   - kind: "text"
+#     match_type: "contains"
+#     match: "college"
+#     answer: "GIST"
+  superpowers:
+    - "Building scalable automation frameworks"
+    - "API + DB validation (end-to-end quality)"
+    - "Event-driven testing (async workflows)"
+  proof_points:
+    - name: "Project Alpha"
+      hero_metric: "Reduced p99 latency from 5s to 200ms"
+    - name: "Open Source Tool"
+      hero_metric: "1K+ GitHub stars"
+
+search_preferences:
+  sort_by: "relevance"
+  experience_range:
+    min: 3
+    max: 10
+  salary_filter: true
+  fresh_jobs_only: true
+  max_jobs_per_search: 50
+  max_search_pages: 3
+  max_locations_per_run: 4
+  apply_delay_seconds: 15
+  max_applications_per_day: 30

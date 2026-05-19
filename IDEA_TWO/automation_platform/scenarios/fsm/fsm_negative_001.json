@@ -1,0 +1,41 @@
+{
+  "scenario_no": "FSM_NEGATIVE_001",
+  "service": "FSM",
+  "tags": {
+    "type": "negative",
+    "priority": "high"
+  },
+  "lookup_key": "fsm_negative_001_event",
+  "description": "End-to-end negative validation for FSM",
+  "states": [
+    {
+      "name": "EVENT_PROCESSED",
+      "event_payload": [
+        {
+          "id": "fsm_negative_001_event",
+          "data": {
+            "ful_id": "ful_001"
+          }
+        }
+      ],
+      "look_up_ref": {
+        "id": "event_id",
+        "data.ful_id": "fulfilment_id"
+      },
+      "rules": [
+        {
+          "type": "audit_validate",
+          "validations": {
+            "count": 1,
+            "exact_sequence": [
+              {
+                "operation": "API_EXCEPTION",
+                "exception": "!MANDATORY"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

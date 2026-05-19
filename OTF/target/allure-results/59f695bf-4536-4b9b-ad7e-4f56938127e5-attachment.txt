@@ -1,0 +1,34 @@
+Scenario event-id=Event-202 order-id=ORD202
+Table: audit
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+Table: item_details
+orderid -> PASS
+time -> PASS
+eventpayload.bundle.parent -> PASS
+eventpayload.bundle.children[0] -> PASS
+eventpayload.bundle.children[1] -> PASS
+poiresponse.availability -> PASS
+jobsettime -> PASS
+Table: job_queue_arch
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.retry.count -> PASS
+eventpayload.retry.max -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS
+Table: job_queue
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.retry.count -> PASS
+eventpayload.retry.max -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS

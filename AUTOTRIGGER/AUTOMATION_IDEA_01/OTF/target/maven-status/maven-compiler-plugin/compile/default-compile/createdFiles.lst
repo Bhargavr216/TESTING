@@ -1,0 +1,7 @@
+utilities\databasecolumnUtil.class
+utilities\JsonCompare$ColumnResult.class
+utilities\JsonCompare$Schema.class
+utilities\EventTrigger.class
+utilities\JsonCompare.class
+utilities\JsonCompare$ValidationReport.class
+utilities\JsonCompare$ColumnRule.class

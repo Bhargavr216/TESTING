@@ -1,0 +1,1048 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enterprise Order Suite - Execution Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root { --pass-color: #28a745; --fail-color: #dc3545; --bg-light: #f4f7f9; }
+        body { background-color: var(--bg-light); font-family: 'Inter', system-ui, sans-serif; }
+        .navbar { background: #1a1c23; border-bottom: 3px solid #0d6efd; }
+        .summary-tile { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center; }
+        .scenario-card { border: none; border-radius: 12px; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        .scenario-header { cursor: pointer; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; transition: background 0.2s; }
+        .scenario-header:hover { background-color: #f8f9fa; }
+        .status-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 600; font-size: 0.85rem; }
+        .pill-pass { background: #d1e7dd; color: #0f5132; }
+        .pill-fail { background: #f8d7da; color: #842029; }
+        .rule-row { border-left: 4px solid #dee2e6; margin-left: 1rem; padding: 1rem; background: #fff; margin-bottom: 0.5rem; border-radius: 0 8px 8px 0; }
+        .rule-pass { border-left-color: var(--pass-color); }
+        .rule-fail { border-left-color: var(--fail-color); }
+        .json-block { background: #272822; color: #f8f8f2; padding: 1rem; border-radius: 6px; font-family: monospace; font-size: 0.85rem; overflow-x: auto; }
+        .log-line { font-family: 'Consolas', monospace; font-size: 0.85rem; color: #666; border-bottom: 1px solid #eee; padding: 2px 0; }
+        .filter-bar { background: white; padding: 1rem; border-radius: 12px; margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark py-3 mb-4">
+        <div class="container">
+            <span class="navbar-brand mb-0 h1"><i class="bi bi-cpu"></i> Enterprise Validation Dashboard</span>
+            <span class="text-light small"><i class="bi bi-calendar3"></i> 2026-03-01 02:24:20</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Summary Section -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="summary-tile">
+                    <h6 class="text-muted small fw-bold">TOTAL SCENARIOS</h6>
+                    <h2 class="fw-bold mb-0">9</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-tile">
+                    <h6 class="text-muted small fw-bold text-success">PASSED</h6>
+                    <h2 class="fw-bold text-success mb-0">9</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-tile">
+                    <h6 class="text-muted small fw-bold text-danger">FAILED</h6>
+                    <h2 class="fw-bold text-danger mb-0">0</h2>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="summary-tile">
+                    <h6 class="text-muted small fw-bold text-primary">RULES RUN</h6>
+                    <h2 class="fw-bold text-primary mb-0">10</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar d-flex gap-3 align-items-center">
+            <div class="flex-grow-1">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                    <input type="text" id="globalSearch" class="form-control border-start-0" placeholder="Search scenario or service..." onkeyup="filterScenarios()">
+                </div>
+            </div>
+            <select id="serviceFilter" class="form-select w-auto" onchange="filterScenarios()">
+                <option value="all">All Services</option>
+                <option value="FOS">FOS</option><option value="FSM">FSM</option><option value="MFS">MFS</option>
+            </select>
+        </div>
+
+        <!-- Scenario List -->
+        <div id="scenarioContainer">
+        
+            <div class="scenario-card bg-white" data-service="FSM" data-name="FSM_HAPPY_PATH_001">
+                <div class="scenario-header" onclick="toggleDetails('FSM_HAPPY_PATH_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">FSM_HAPPY_PATH_001</div>
+                            <span class="badge bg-light text-muted border small">FSM</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-FSM_HAPPY_PATH_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-FSM_HAPPY_PATH_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>AUDIT_COUNT</code></td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (CREATE)</code></td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_2 (PUBLISHED)</code></td>
+                    <td>{
+  "operation": "PUBLISHED",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "PUBLISHED",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>SMART_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>fsm_job_queue_arch</code></td>
+                    <td><code>PERSISTENCE (event_id=fsm_happy_path_001_event)</code></td>
+                    <td>PERSIST</td>
+                    <td>EXISTS</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_job_queue_arch</code></td>
+                    <td><code>operation</code></td>
+                    <td>PUBLISHED</td>
+                    <td>PUBLISHED</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_job_queue_arch</code></td>
+                    <td><code>retry_count</code></td>
+                    <td>0</td>
+                    <td>0</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="FSM" data-name="FSM_NEGATIVE_001">
+                <div class="scenario-header" onclick="toggleDetails('FSM_NEGATIVE_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">FSM_NEGATIVE_001</div>
+                            <span class="badge bg-light text-muted border small">FSM</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-FSM_NEGATIVE_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-FSM_NEGATIVE_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>AUDIT_COUNT</code></td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (API_EXCEPTION)</code></td>
+                    <td>{
+  "operation": "API_EXCEPTION",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "API_EXCEPTION",
+  "exception": "500 Error"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="FSM" data-name="FSM_RETRY_001">
+                <div class="scenario-header" onclick="toggleDetails('FSM_RETRY_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">FSM_RETRY_001</div>
+                            <span class="badge bg-light text-muted border small">FSM</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-FSM_RETRY_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-FSM_RETRY_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>RETRY_ATTEMPTS</code></td>
+                    <td>3</td>
+                    <td>3</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (CREATE)</code></td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_2 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 1"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_3 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 2"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_4 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 3"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fsm_audit</code></td>
+                    <td><code>SEQUENCE_STEP_5 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="MFS" data-name="MFS_HAPPY_PATH_001">
+                <div class="scenario-header" onclick="toggleDetails('MFS_HAPPY_PATH_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">MFS_HAPPY_PATH_001</div>
+                            <span class="badge bg-light text-muted border small">MFS</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-MFS_HAPPY_PATH_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-MFS_HAPPY_PATH_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>AUDIT_COUNT</code></td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (CREATE)</code></td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_2 (PUBLISHED)</code></td>
+                    <td>{
+  "operation": "PUBLISHED",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "PUBLISHED",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="MFS" data-name="MFS_NEGATIVE_001">
+                <div class="scenario-header" onclick="toggleDetails('MFS_NEGATIVE_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">MFS_NEGATIVE_001</div>
+                            <span class="badge bg-light text-muted border small">MFS</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-MFS_NEGATIVE_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-MFS_NEGATIVE_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>AUDIT_COUNT</code></td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (API_EXCEPTION)</code></td>
+                    <td>{
+  "operation": "API_EXCEPTION",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "API_EXCEPTION",
+  "exception": "500 Error"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="MFS" data-name="MFS_RETRY_001">
+                <div class="scenario-header" onclick="toggleDetails('MFS_RETRY_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">MFS_RETRY_001</div>
+                            <span class="badge bg-light text-muted border small">MFS</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-MFS_RETRY_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-MFS_RETRY_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>RETRY_ATTEMPTS</code></td>
+                    <td>3</td>
+                    <td>3</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (CREATE)</code></td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_2 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 1"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_3 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 2"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_4 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 3"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>mfs_audit</code></td>
+                    <td><code>SEQUENCE_STEP_5 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="FOS" data-name="FOS_HAPPY_PATH_001">
+                <div class="scenario-header" onclick="toggleDetails('FOS_HAPPY_PATH_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">FOS_HAPPY_PATH_001</div>
+                            <span class="badge bg-light text-muted border small">FOS</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-FOS_HAPPY_PATH_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-FOS_HAPPY_PATH_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>AUDIT_COUNT</code></td>
+                    <td>2</td>
+                    <td>2</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (CREATE)</code></td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_2 (PUBLISHED)</code></td>
+                    <td>{
+  "operation": "PUBLISHED",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "PUBLISHED",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="FOS" data-name="FOS_NEGATIVE_001">
+                <div class="scenario-header" onclick="toggleDetails('FOS_NEGATIVE_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">FOS_NEGATIVE_001</div>
+                            <span class="badge bg-light text-muted border small">FOS</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-FOS_NEGATIVE_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-FOS_NEGATIVE_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>AUDIT_COUNT</code></td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (API_EXCEPTION)</code></td>
+                    <td>{
+  "operation": "API_EXCEPTION",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "API_EXCEPTION",
+  "exception": "500 Error"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+            <div class="scenario-card bg-white" data-service="FOS" data-name="FOS_RETRY_001">
+                <div class="scenario-header" onclick="toggleDetails('FOS_RETRY_001')">
+                    <div class="d-flex align-items-center gap-3">
+                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                        <div>
+                            <div class="fw-bold text-dark">FOS_RETRY_001</div>
+                            <span class="badge bg-light text-muted border small">FOS</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-pill pill-pass">PASS</span>
+                        <i class="bi bi-chevron-down" id="icon-FOS_RETRY_001"></i>
+                    </div>
+                </div>
+                
+                <div class="collapse p-4 pt-0" id="details-FOS_RETRY_001">
+                    <hr class="mt-0">
+                    <h6 class="fw-bold text-muted small mb-3 text-uppercase">Rule Validations</h6>
+            
+                    <div class="rule-row rule-pass">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="fw-bold small"><i class="bi bi-check2 text-success me-2"></i>AUDIT_VALIDATE Validation</span>
+                            <span class="badge bg-success">PASS</span>
+                        </div>
+                        <div class="row g-2 small">
+                            <div class="col-md-4"><strong>Table:</strong> N/A</div>
+                            <div class="col-md-4"><strong>Column:</strong> N/A</div>
+                            <div class="col-md-12 mt-3">
+                                <div class="text-muted mb-1 text-uppercase small fw-bold">Validation Detail Table:</div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered mb-0 bg-white" style="font-size: 0.8rem;">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Table</th>
+                                                <th>Field / Path</th>
+                                                <th>Expected</th>
+                                                <th>Actual</th>
+                                                <th class="text-center">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>RETRY_ATTEMPTS</code></td>
+                    <td>3</td>
+                    <td>3</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_1 (CREATE)</code></td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "CREATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_2 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 1"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_3 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 2"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_4 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "!MANDATORY"
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": "Retry 3"
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                <tr>
+                    <td><code>fos_audit</code></td>
+                    <td><code>SEQUENCE_STEP_5 (VALIDATE)</code></td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": null
+}</td>
+                    <td>{
+  "operation": "VALIDATE",
+  "exception": null
+}</td>
+                    <td class="text-center text-success">PASS</td>
+                </tr>
+                
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleDetails(id) {
+            const el = document.getElementById('details-' + id);
+            const icon = document.getElementById('icon-' + id);
+            const isVisible = el.classList.contains('show');
+            
+            if(isVisible) {
+                new bootstrap.Collapse(el).hide();
+                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
+            } else {
+                new bootstrap.Collapse(el).show();
+                icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
+            }
+        }
+
+        function filterScenarios() {
+            const search = document.getElementById('globalSearch').value.toLowerCase();
+            const service = document.getElementById('serviceFilter').value;
+            const cards = document.querySelectorAll('.scenario-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name').toLowerCase();
+                const srv = card.getAttribute('data-service');
+                const matchSearch = name.includes(search) || srv.toLowerCase().includes(search);
+                const matchService = service === 'all' || srv === service;
+
+                card.style.display = (matchSearch && matchService) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
+        

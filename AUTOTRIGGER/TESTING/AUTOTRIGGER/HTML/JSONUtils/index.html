@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>VBR</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #0f1115;
+        --muted: #4c5160;
+        --bg: #fff8dd;
+        --nav-bg: #0c0b0a;
+        --nav-ink: #fff8e6;
+        --nav-muted: #c9c2a8;
+        --accent: #ffd02a;
+        --accent-2: #ff9f1c;
+        --accent-3: #222222;
+        --card: rgba(255, 255, 255, 0.88);
+        --stroke: rgba(15, 17, 21, 0.12);
+        --shadow: 0 30px 70px rgba(15, 17, 21, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+        color: var(--ink);
+        background: radial-gradient(circle at 10% 10%, #fff7db 0%, #fff0c2 45%, #ffe39a 100%);
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        inset: -20% -10% auto auto;
+        height: 320px;
+        width: 320px;
+        background: radial-gradient(circle, rgba(255, 208, 42, 0.3), transparent 70%);
+        filter: blur(0.5px);
+        animation: float 12s ease-in-out infinite;
+        z-index: 0;
+      }
+
+      body::after {
+        inset: auto auto -25% -10%;
+        height: 360px;
+        width: 360px;
+        background: radial-gradient(circle, rgba(255, 159, 28, 0.24), transparent 70%);
+        animation-delay: -4s;
+      }
+
+      .glow {
+        position: fixed;
+        inset: 20% auto auto 8%;
+        height: 220px;
+        width: 220px;
+        background: radial-gradient(circle, rgba(34, 34, 34, 0.18), transparent 70%);
+        filter: blur(2px);
+        animation: float 16s ease-in-out infinite;
+        z-index: 0;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-18px);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: translateY(0px);
+          box-shadow: 0 24px 60px rgba(255, 159, 28, 0.18);
+        }
+        50% {
+          transform: translateY(-4px);
+          box-shadow: 0 30px 70px rgba(255, 208, 42, 0.24);
+        }
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: minmax(220px, 270px) 1fr;
+        position: relative;
+        z-index: 1;
+      }
+
+      .sidebar {
+        background: linear-gradient(160deg, #0c0b0a 0%, #121016 100%);
+        color: var(--nav-ink);
+        padding: 40px 28px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .sidebar::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(255, 208, 42, 0.08) 0px,
+          rgba(255, 208, 42, 0.08) 6px,
+          transparent 6px,
+          transparent 16px
+        );
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      .sidebar::after {
+        content: "";
+        position: absolute;
+        inset: -30% -60% auto auto;
+        height: 220px;
+        width: 220px;
+        background: radial-gradient(circle, rgba(255, 208, 42, 0.35), transparent 70%);
+        opacity: 0.7;
+      }
+
+      .scanline {
+        position: absolute;
+        inset: 0;
+        background: repeating-linear-gradient(
+          to bottom,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.02) 1px,
+          transparent 1px,
+          transparent 5px
+        );
+        pointer-events: none;
+        mix-blend-mode: overlay;
+      }
+
+      .brand {
+        font-family: "Fraunces", serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .brand-sub {
+        font-size: 0.95rem;
+        color: var(--nav-muted);
+        margin-bottom: 32px;
+      }
+
+      nav ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 12px;
+      }
+
+      nav a {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-decoration: none;
+        color: var(--nav-ink);
+        padding: 12px 14px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.04);
+        transition: transform 0.25s ease, background 0.25s ease;
+      }
+
+      nav a span {
+        color: var(--nav-muted);
+        font-size: 0.85rem;
+      }
+
+      nav a:hover {
+        transform: translateX(4px);
+        background: rgba(255, 208, 42, 0.22);
+      }
+
+      nav a.active {
+        background: linear-gradient(120deg, rgba(255, 208, 42, 0.4), rgba(255, 159, 28, 0.35));
+        color: #ffffff;
+      }
+
+      .cta {
+        margin-top: 40px;
+        padding: 16px;
+        border-radius: 16px;
+        background: linear-gradient(140deg, rgba(255, 208, 42, 0.2), rgba(255, 159, 28, 0.18));
+        font-size: 0.95rem;
+      }
+
+      .main {
+        padding: 48px clamp(24px, 4vw, 64px);
+        display: grid;
+        gap: 28px;
+      }
+
+      .topbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        background: rgba(255, 255, 255, 0.76);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        border-radius: 18px;
+        box-shadow: 0 20px 50px rgba(18, 20, 22, 0.08);
+        backdrop-filter: blur(10px);
+      }
+
+      .topbar h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .status-pill {
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(34, 34, 34, 0.1);
+        color: #2b2b2b;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+
+      .title-block {
+        display: grid;
+        gap: 14px;
+      }
+
+      .title-block h1 {
+        font-family: "Fraunces", serif;
+        font-size: clamp(2.3rem, 3vw, 3.4rem);
+        margin: 0;
+      }
+
+      .title-block p {
+        max-width: 560px;
+        color: var(--muted);
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      .hero {
+        display: grid;
+        gap: 18px;
+        padding: 22px;
+        border-radius: 22px;
+        background: linear-gradient(130deg, rgba(255, 208, 42, 0.2), rgba(255, 159, 28, 0.16), rgba(34, 34, 34, 0.08));
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        box-shadow: 0 24px 60px rgba(255, 159, 28, 0.2);
+        animation: pulse 6s ease-in-out infinite;
+      }
+
+      .hero-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+        justify-content: space-between;
+      }
+
+      .hero-kicker {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #b87400;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(255, 208, 42, 0.18);
+        color: #9a6a00;
+        font-size: 0.78rem;
+        font-weight: 600;
+        width: fit-content;
+      }
+
+      .footer {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .workspace {
+        display: grid;
+        gap: 16px;
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: 22px;
+        padding: 22px;
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        animation: pulse 7s ease-in-out infinite;
+      }
+
+      .workspace::after {
+        content: "データ";
+        position: absolute;
+        top: 18px;
+        right: 24px;
+        font-size: 2.6rem;
+        font-family: "Fraunces", serif;
+        color: rgba(15, 17, 21, 0.06);
+        letter-spacing: 4px;
+        pointer-events: none;
+      }
+
+      .workspace-header {
+        display: grid;
+        gap: 8px;
+      }
+
+      .workspace-header h2 {
+        margin: 0;
+        font-size: 1.4rem;
+      }
+
+      .workspace-header p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .io-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      label {
+        font-weight: 600;
+        font-size: 0.92rem;
+      }
+
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        min-height: 160px;
+        resize: vertical;
+        border-radius: 14px;
+        border: 1px solid var(--stroke);
+        padding: 12px;
+        font-family: "Space Grotesk", system-ui, sans-serif;
+        font-size: 0.95rem;
+        background: rgba(255, 255, 255, 0.92);
+        color: var(--ink);
+      }
+
+      textarea:focus {
+        outline: 2px solid rgba(255, 208, 42, 0.35);
+        border-color: rgba(255, 208, 42, 0.55);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+      }
+
+      button {
+        border: none;
+        background: linear-gradient(120deg, #ffd02a, #ff9f1c);
+        color: #23160d;
+        padding: 10px 16px;
+        border-radius: 999px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button.secondary {
+        background: rgba(34, 34, 34, 0.1);
+        color: #2b2b2b;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(18, 20, 22, 0.12);
+      }
+
+      .hint {
+        font-size: 0.85rem;
+        color: var(--muted);
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .control {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(18, 20, 22, 0.06);
+        font-size: 0.85rem;
+      }
+
+      select {
+        border: none;
+        background: transparent;
+        font-family: inherit;
+        font-weight: 600;
+        color: var(--ink);
+      }
+
+      @media (max-width: 900px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          padding: 28px 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="glow"></div>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">Coles JSON Lab</div>
+        <div class="brand-sub">Utilities for clean, readable data.</div>
+        <nav>
+          <ul>
+            <li><a href="#" data-tool="beautify">JSON Beautifier <span>Format</span></a></li>
+            <li><a href="#" data-tool="uuid">Random UUID Generate <span>v4</span></a></li>
+            <li><a href="#" data-tool="compact">Remove \t/\r <span>Cleanup</span></a></li>
+            <li><a href="#" data-tool="schema">JSON Schema Generator <span>Draft</span></a></li>
+            <li><a href="#" data-tool="more">More Tools <span>Explore</span></a></li>
+          </ul>
+        </nav>
+        <div class="cta">
+          Build and chain utilities with zero friction. Add favorites to the top
+          of the list as your workflow grows.
+        </div>
+        <div class="scanline"></div>
+      </aside>
+
+      <main class="main">
+        <section class="title-block">
+          <div class="pill">Main Title</div>
+          <h1>VBR</h1>
+        </section>
+
+        <section class="hero">
+          <div class="hero-row">
+            <div class="hero-kicker">Thunder Form Console</div>
+          </div>
+        </section>
+
+        <section class="workspace" id="workspace">
+          <div class="workspace-header">
+            <h2 id="toolTitle">JSON Beautifier</h2>
+            <p id="toolDesc">Paste JSON and format it with readable indentation.</p>
+          </div>
+          <div class="controls">
+            <div class="control">
+              Indent
+              <select id="indentSelect">
+                <option value="2">2 spaces</option>
+                <option value="4">4 spaces</option>
+              </select>
+            </div>
+            <div class="control">
+              Schema
+              <select id="schemaSelect">
+                <option value="draft-07">draft-07</option>
+                <option value="2020-12">2020-12</option>
+              </select>
+            </div>
+            <label class="control">
+              <input type="checkbox" id="autoRun" checked />
+              Auto-run
+            </label>
+          </div>
+          <div class="io-grid">
+            <div class="field" id="inputField">
+              <label for="inputText">Input</label>
+              <textarea id="inputText" placeholder='{"hello":"world"}'></textarea>
+              <div class="hint" id="inputHint">Tip: invalid JSON will show an error.</div>
+            </div>
+            <div class="field" id="outputField">
+              <label for="outputText">Output</label>
+              <textarea id="outputText" readonly></textarea>
+              <div class="hint" id="outputHint">Output appears here.</div>
+            </div>
+          </div>
+          <div class="actions" id="actionRow">
+            <div class="action-group">
+              <button id="runBtn">Beautify</button>
+              <button class="secondary" id="copyBtn">Copy Output</button>
+              <button class="secondary" id="downloadBtn">Download</button>
+            </div>
+            <div class="action-group">
+              <button class="secondary" id="sampleBtn">Load Sample</button>
+              <button class="secondary" id="clearBtn">Clear</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="footer">All tools run locally in your browser.</div>
+      </main>
+    </div>
+    <script>
+      const tools = {
+        beautify: {
+          title: "JSON Beautifier",
+          desc: "Paste JSON and format it with readable indentation.",
+          actionLabel: "Beautify",
+          inputPlaceholder: '{"hello":"world"}',
+          run: (input) => {
+            const parsed = JSON.parse(input);
+            return JSON.stringify(parsed, null, 2);
+          },
+        },
+        uuid: {
+          title: "Random UUID Generator",
+          desc: "Generate a secure UUID v4 instantly.",
+          actionLabel: "Generate",
+          inputPlaceholder: "",
+          hideInput: true,
+          run: () => crypto.randomUUID(),
+        },
+        compact: {
+          title: "Remove \\t/\\r (Single Line)",
+          desc: "Remove tab and carriage return characters and compact JSON to a single line.",
+          actionLabel: "Compact",
+          inputPlaceholder: '{"hello":"world"}',
+          run: (input) => {
+            const stripped = input.replace(/\t/g, "").replace(/\r/g, "");
+            const parsed = JSON.parse(stripped);
+            return JSON.stringify(parsed);
+          },
+        },
+        schema: {
+          title: "JSON Schema Generator",
+          desc: "Generate a JSON Schema (draft-07) from sample JSON.",
+          actionLabel: "Generate Schema",
+          inputPlaceholder: '{"name":"Ada","age":29,"active":true}',
+          run: (input) => {
+            const parsed = JSON.parse(input);
+            const schema = buildSchema(parsed);
+            schema.$schema = "http://json-schema.org/draft-07/schema#";
+            return JSON.stringify(schema, null, 2);
+          },
+        },
+        more: {
+          title: "More Tools",
+          desc: "This slot is ready for future utilities.",
+          actionLabel: "Coming Soon",
+          inputPlaceholder: "",
+          disableRun: true,
+          run: () => "",
+        },
+      };
+
+      const toolTitle = document.getElementById("toolTitle");
+      const toolDesc = document.getElementById("toolDesc");
+      const inputField = document.getElementById("inputField");
+      const outputField = document.getElementById("outputField");
+      const inputText = document.getElementById("inputText");
+      const outputText = document.getElementById("outputText");
+      const runBtn = document.getElementById("runBtn");
+      const copyBtn = document.getElementById("copyBtn");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const clearBtn = document.getElementById("clearBtn");
+      const sampleBtn = document.getElementById("sampleBtn");
+      const inputHint = document.getElementById("inputHint");
+      const outputHint = document.getElementById("outputHint");
+      const statusPill = document.getElementById("statusPill");
+      const indentSelect = document.getElementById("indentSelect");
+      const schemaSelect = document.getElementById("schemaSelect");
+      const autoRun = document.getElementById("autoRun");
+
+      let currentTool = "beautify";
+
+      function setStatus(message) {
+        if (!statusPill) return;
+        statusPill.textContent = message;
+      }
+
+      function setTool(name) {
+        currentTool = name;
+        const tool = tools[name];
+        toolTitle.textContent = tool.title;
+        toolDesc.textContent = tool.desc;
+        inputText.placeholder = tool.inputPlaceholder || "";
+        inputText.value = "";
+        outputText.value = "";
+        inputField.style.display = tool.hideInput ? "none" : "grid";
+        runBtn.textContent = tool.actionLabel;
+        runBtn.disabled = Boolean(tool.disableRun);
+        inputHint.textContent = tool.hideInput
+          ? "No input required for this tool."
+          : "Tip: invalid JSON will show an error.";
+        outputHint.textContent = "Output appears here.";
+        schemaSelect.disabled = name !== "schema";
+        indentSelect.disabled = name === "uuid" || name === "more";
+        [...document.querySelectorAll("nav a")].forEach((link) => {
+          link.classList.toggle(
+            "active",
+            link.dataset.tool === name
+          );
+        });
+        setStatus("Ready");
+      }
+
+      function buildSchema(value) {
+        if (value === null) {
+          return { type: "null" };
+        }
+        if (Array.isArray(value)) {
+          if (value.length === 0) {
+            return { type: "array", items: {} };
+          }
+          return { type: "array", items: buildSchema(value[0]) };
+        }
+        const type = typeof value;
+        if (type === "object") {
+          const properties = {};
+          const required = [];
+          for (const [key, val] of Object.entries(value)) {
+            properties[key] = buildSchema(val);
+            required.push(key);
+          }
+          return { type: "object", properties, required };
+        }
+        if (type === "string") {
+          return { type: "string" };
+        }
+        if (type === "number") {
+          return Number.isInteger(value) ? { type: "integer" } : { type: "number" };
+        }
+        if (type === "boolean") {
+          return { type: "boolean" };
+        }
+        return {};
+      }
+
+      document.querySelectorAll("nav a").forEach((link) => {
+        link.addEventListener("click", (event) => {
+          event.preventDefault();
+          setTool(link.dataset.tool);
+        });
+      });
+
+      function runTool() {
+        const tool = tools[currentTool];
+        try {
+          const indent = Number(indentSelect.value);
+          let result = "";
+          if (currentTool === "schema") {
+            const parsed = JSON.parse(inputText.value);
+            const schema = buildSchema(parsed);
+            schema.$schema =
+              schemaSelect.value === "2020-12"
+                ? "https://json-schema.org/draft/2020-12/schema"
+                : "http://json-schema.org/draft-07/schema#";
+            result = JSON.stringify(schema, null, indent);
+          } else if (currentTool === "beautify") {
+            const parsed = JSON.parse(inputText.value);
+            result = JSON.stringify(parsed, null, indent);
+          } else if (currentTool === "compact") {
+            const stripped = inputText.value.replace(/\t/g, "").replace(/\r/g, "");
+            const parsed = JSON.parse(stripped);
+            result = JSON.stringify(parsed);
+          } else {
+            result = tool.run(inputText.value);
+          }
+          outputText.value = result;
+          outputHint.textContent = "Done.";
+          setStatus("Success");
+        } catch (err) {
+          outputText.value = "";
+          outputHint.textContent = `Error: ${err.message}`;
+          setStatus("Fix input");
+        }
+      }
+
+      runBtn.addEventListener("click", runTool);
+
+      inputText.addEventListener("input", () => {
+        if (!autoRun.checked || tools[currentTool].hideInput) return;
+        runTool();
+      });
+
+      copyBtn.addEventListener("click", async () => {
+        if (!outputText.value) return;
+        try {
+          await navigator.clipboard.writeText(outputText.value);
+          outputHint.textContent = "Copied to clipboard.";
+          setStatus("Copied");
+        } catch (err) {
+          outputHint.textContent = "Copy failed. Select and copy manually.";
+          setStatus("Copy failed");
+        }
+      });
+
+      downloadBtn.addEventListener("click", () => {
+        if (!outputText.value) return;
+        const blob = new Blob([outputText.value], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${currentTool}-output.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setStatus("Downloaded");
+      });
+
+      clearBtn.addEventListener("click", () => {
+        inputText.value = "";
+        outputText.value = "";
+        outputHint.textContent = "Cleared.";
+        setStatus("Cleared");
+      });
+
+      sampleBtn.addEventListener("click", () => {
+        const samples = {
+          beautify: '{"team":"Coles","count":3,"active":true,"members":["Ada","Max","Jo"]}',
+          compact: '{\n\t"remove":"tabs",\r\n\t"value":123\n}',
+          schema: '{"user":{"id":1,"name":"Ada"},"roles":["admin","editor"]}',
+        };
+        inputText.value = samples[currentTool] || '{"hello":"world"}';
+        if (autoRun.checked) runTool();
+      });
+
+      setTool(currentTool);
+    </script>
+  </body>
+</html>

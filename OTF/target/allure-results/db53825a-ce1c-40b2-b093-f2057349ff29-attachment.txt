@@ -1,0 +1,40 @@
+Scenario event-id=Event-204 order-id=ORD204
+Table: audit
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+Table: item_details
+orderid -> PASS
+time -> PASS
+eventpayload.tracking.courier -> PASS
+eventpayload.tracking.checkpoints[0].city -> PASS
+eventpayload.tracking.checkpoints[0].status -> PASS
+eventpayload.tracking.checkpoints[1].city -> PASS
+eventpayload.tracking.checkpoints[1].status -> PASS
+poiresponse.eta -> PASS
+jobsettime -> PASS
+Table: job_queue_arch
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.queue.priority -> PASS
+eventpayload.queue.nodes[0] -> PASS
+eventpayload.queue.nodes[1] -> PASS
+eventpayload.queue.nodes[2] -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS
+Table: job_queue
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.queue.priority -> PASS
+eventpayload.queue.nodes[0] -> PASS
+eventpayload.queue.nodes[1] -> PASS
+eventpayload.queue.nodes[2] -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS

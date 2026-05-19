@@ -1,0 +1,24 @@
+[
+  {
+    "order_id": "ORD124",
+    "operation": "ERROR",
+    "exception": "INVALID_ORDER_DATA",
+    "ordermetadata": {
+      "customer": {
+        "name": "Bhargav"
+      }
+    },
+    "retry_count": 0
+  },
+  {
+    "order_id": "ORD500",
+    "operation": "VALIDATE",
+    "exception": "VALIDATION_FAILED_RETRY",
+    "ordermetadata": {
+      "customer": {
+        "name": "RetryCustomer"
+      }
+    },
+    "retry_count": 3
+  }
+]

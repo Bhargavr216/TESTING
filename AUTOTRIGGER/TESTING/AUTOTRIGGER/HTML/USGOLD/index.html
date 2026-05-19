@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>USGolds • Luxury Jewellery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand">
+      <div class="logo">USGolds</div>
+      <div class="tagline">Luxury Gold & Silver Jewellery</div>
+    </div>
+    <nav class="nav">
+      <a href="#" data-nav="home" class="active">Home</a>
+      <a href="#" data-nav="gold">Gold</a>
+      <a href="#" data-nav="silver">Silver</a>
+      <a href="#" data-nav="wishlist">Wishlist</a>
+      <a href="admin.html" class="admin-link">Admin</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">Timeless Elegance, Crafted in Gold & Silver</h1>
+      <p class="hero-subtitle">Discover premium jewellery for men, women, and kids</p>
+      <div class="hero-actions">
+        <button class="btn primary" data-filter-metal="gold">Shop Gold</button>
+        <button class="btn outline" data-filter-metal="silver">Shop Silver</button>
+      </div>
+    </div>
+    <div class="hero-rates">
+      <div class="rate-card">
+        <div class="rate-title">Today’s Gold Rate</div>
+        <div class="rate-values">
+          <div><span>1g</span><strong id="gold-1g">—</strong></div>
+          <div><span>10g</span><strong id="gold-10g">—</strong></div>
+        </div>
+      </div>
+      <div class="rate-card">
+        <div class="rate-title">Today’s Silver Rate</div>
+        <div class="rate-values">
+          <div><span>1g</span><strong id="silver-1g">—</strong></div>
+          <div><span>10g</span><strong id="silver-10g">—</strong></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="filters">
+    <div class="filters-row">
+      <div class="filter">
+        <label>Metal</label>
+        <select id="filter-metal">
+          <option value="all">All</option>
+          <option value="gold">Gold</option>
+          <option value="silver">Silver</option>
+        </select>
+      </div>
+      <div class="filter">
+        <label>Category</label>
+        <select id="filter-category">
+          <option value="all">All</option>
+          <option value="necklace">Necklace</option>
+          <option value="ring">Ring</option>
+          <option value="bracelet">Bracelet</option>
+          <option value="earrings">Earrings</option>
+          <option value="pendant">Pendant</option>
+        </select>
+      </div>
+      <div class="filter">
+        <label>Gender</label>
+        <select id="filter-gender">
+          <option value="all">All</option>
+          <option value="men">Men</option>
+          <option value="women">Women</option>
+          <option value="kids">Kids</option>
+        </select>
+      </div>
+      <div class="filter">
+        <label>Weight (g)</label>
+        <input type="range" id="filter-weight" min="0" max="100" value="100">
+        <div class="range-value"><span id="filter-weight-val">≤ 100g</span></div>
+      </div>
+      <div class="filter">
+        <label>Price</label>
+        <input type="range" id="filter-price" min="0" max="500000" step="5000" value="500000">
+        <div class="range-value"><span id="filter-price-val">≤ ₹500,000</span></div>
+      </div>
+      <div class="filter actions">
+        <button class="btn sm" id="reset-filters">Reset</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="products">
+    <div class="section-header">
+      <h2>Featured Jewellery</h2>
+      <p>Handpicked pieces crafted for luxury</p>
+    </div>
+    <div id="products-grid" class="grid"></div>
+  </section>
+
+  <section class="wishlist-section hidden" id="wishlist-section">
+    <div class="section-header">
+      <h2>Your Wishlist</h2>
+      <p>Session-based wishlist resets on reload</p>
+    </div>
+    <div id="wishlist-grid" class="grid"></div>
+  </section>
+
+  <div id="enquiry-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="modal-close" data-close="enquiry">&times;</button>
+      <h3>Enquire / Buy</h3>
+      <div class="enquiry-actions">
+        <a id="enquiry-call" class="btn primary" href="#">Call</a>
+        <a id="enquiry-whatsapp" class="btn outline" href="#" target="_blank">WhatsApp</a>
+      </div>
+      <form id="enquiry-form" class="enquiry-form">
+        <div class="form-field">
+          <label>Name</label>
+          <input type="text" id="enq-name" required>
+        </div>
+        <div class="form-field">
+          <label>Phone</label>
+          <input type="tel" id="enq-phone" required>
+        </div>
+        <div class="form-field">
+          <label>Message</label>
+          <textarea id="enq-message" rows="3"></textarea>
+        </div>
+        <button class="btn primary" type="submit" style="width: 100%">Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="tryme-modal" class="modal hidden">
+    <div class="modal-content tryme-content">
+      <button class="modal-close" data-close="tryme">&times;</button>
+      <h3>Virtual Try-On</h3>
+      <div class="tryme-stage">
+        <video id="tryme-video" autoplay playsinline></video>
+        <img id="tryme-overlay" alt="">
+      </div>
+      <div class="tryme-controls">
+        <label>Scale</label>
+        <input type="range" id="overlay-scale" min="50" max="200" value="100">
+        <label>Vertical</label>
+        <input type="range" id="overlay-y" min="-100" max="100" value="0">
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <footer class="site-footer">
+    <div>© <span id="year"></span> USGolds • All rights reserved</div>
+    <div>Contact: <span id="contact-phone">—</span> • WhatsApp: <span id="contact-whatsapp">—</span></div>
+  </footer>
+
+  <script type="module" src="scripts/app.js"></script>
+</body>
+</html>

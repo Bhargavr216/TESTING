@@ -1,0 +1,12 @@
+[
+  {
+    "order_id": "ORD123",
+    "operation_type": "CREATE",
+    "status": "SUCCESS"
+  },
+  {
+    "order_id": "ORD123",
+    "operation_type": "VALIDATE",
+    "status": "SUCCESS"
+  }
+]

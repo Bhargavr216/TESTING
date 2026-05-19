@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="test.RunCucumberTest" time="1.318" tests="5" errors="0" skipped="0" failures="0">
+  <properties>
+    <property name="java.specification.version" value="24"/>
+    <property name="sun.cpu.isalist" value="amd64"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="java.class.path" value="C:\Users\OTF\target\test-classes;C:\Users\OTF\target\classes;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-java\7.14.0\cucumber-java-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-core\7.14.0\cucumber-core-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-gherkin\7.14.0\cucumber-gherkin-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-gherkin-messages\7.14.0\cucumber-gherkin-messages-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\messages\22.0.0\messages-22.0.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\tag-expressions\5.0.6\tag-expressions-5.0.6.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-expressions\16.1.2\cucumber-expressions-16.1.2.jar;C:\Users\bharg\.m2\repository\io\cucumber\datatable\7.14.0\datatable-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-plugin\7.14.0\cucumber-plugin-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\docstring\7.14.0\docstring-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\html-formatter\20.4.0\html-formatter-20.4.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\junit-xml-formatter\0.2.0\junit-xml-formatter-0.2.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\ci-environment\9.2.0\ci-environment-9.2.0.jar;C:\Users\bharg\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-junit\7.14.0\cucumber-junit-7.14.0.jar;C:\Users\bharg\.m2\repository\junit\junit\4.13.2\junit-4.13.2.jar;C:\Users\bharg\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\bharg\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.17.2\jackson-databind-2.17.2.jar;C:\Users\bharg\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.17.2\jackson-annotations-2.17.2.jar;C:\Users\bharg\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.17.2\jackson-core-2.17.2.jar;C:\Users\bharg\.m2\repository\com\mysql\mysql-connector-j\8.3.0\mysql-connector-j-8.3.0.jar;C:\Users\bharg\.m2\repository\com\google\protobuf\protobuf-java\3.25.1\protobuf-java-3.25.1.jar;C:\Users\bharg\.m2\repository\io\qameta\allure\allure-cucumber7-jvm\2.24.0\allure-cucumber7-jvm-2.24.0.jar;C:\Users\bharg\.m2\repository\io\qameta\allure\allure-java-commons\2.24.0\allure-java-commons-2.24.0.jar;C:\Users\bharg\.m2\repository\org\slf4j\slf4j-api\1.7.36\slf4j-api-1.7.36.jar;C:\Users\bharg\.m2\repository\io\qameta\allure\allure-model\2.24.0\allure-model-2.24.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\gherkin\26.2.0\gherkin-26.2.0.jar;"/>
+    <property name="java.vm.vendor" value="Oracle Corporation"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="user.variant" value=""/>
+    <property name="java.vendor.url" value="https://java.oracle.com/"/>
+    <property name="user.timezone" value="Asia/Calcutta"/>
+    <property name="os.name" value="Windows 11"/>
+    <property name="java.vm.specification.version" value="24"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="IN"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk-24\bin"/>
+    <property name="sun.java.command" value="C:\Users\bharg\AppData\Local\Temp\surefire5993053309369768616\surefirebooter-20260208115235245_3.jar C:\Users\bharg\AppData\Local\Temp\surefire5993053309369768616 2026-02-08T11-52-35_111-jvmRun1 surefire-20260208115235245_1tmp surefire_0-20260208115235245_2tmp"/>
+    <property name="jdk.debug" value="release"/>
+    <property name="surefire.test.class.path" value="C:\Users\OTF\target\test-classes;C:\Users\OTF\target\classes;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-java\7.14.0\cucumber-java-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-core\7.14.0\cucumber-core-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-gherkin\7.14.0\cucumber-gherkin-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-gherkin-messages\7.14.0\cucumber-gherkin-messages-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\messages\22.0.0\messages-22.0.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\tag-expressions\5.0.6\tag-expressions-5.0.6.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-expressions\16.1.2\cucumber-expressions-16.1.2.jar;C:\Users\bharg\.m2\repository\io\cucumber\datatable\7.14.0\datatable-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-plugin\7.14.0\cucumber-plugin-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\docstring\7.14.0\docstring-7.14.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\html-formatter\20.4.0\html-formatter-20.4.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\junit-xml-formatter\0.2.0\junit-xml-formatter-0.2.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\ci-environment\9.2.0\ci-environment-9.2.0.jar;C:\Users\bharg\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\bharg\.m2\repository\io\cucumber\cucumber-junit\7.14.0\cucumber-junit-7.14.0.jar;C:\Users\bharg\.m2\repository\junit\junit\4.13.2\junit-4.13.2.jar;C:\Users\bharg\.m2\repository\org\hamcrest\hamcrest-core\1.3\hamcrest-core-1.3.jar;C:\Users\bharg\.m2\repository\com\fasterxml\jackson\core\jackson-databind\2.17.2\jackson-databind-2.17.2.jar;C:\Users\bharg\.m2\repository\com\fasterxml\jackson\core\jackson-annotations\2.17.2\jackson-annotations-2.17.2.jar;C:\Users\bharg\.m2\repository\com\fasterxml\jackson\core\jackson-core\2.17.2\jackson-core-2.17.2.jar;C:\Users\bharg\.m2\repository\com\mysql\mysql-connector-j\8.3.0\mysql-connector-j-8.3.0.jar;C:\Users\bharg\.m2\repository\com\google\protobuf\protobuf-java\3.25.1\protobuf-java-3.25.1.jar;C:\Users\bharg\.m2\repository\io\qameta\allure\allure-cucumber7-jvm\2.24.0\allure-cucumber7-jvm-2.24.0.jar;C:\Users\bharg\.m2\repository\io\qameta\allure\allure-java-commons\2.24.0\allure-java-commons-2.24.0.jar;C:\Users\bharg\.m2\repository\org\slf4j\slf4j-api\1.7.36\slf4j-api-1.7.36.jar;C:\Users\bharg\.m2\repository\io\qameta\allure\allure-model\2.24.0\allure-model-2.24.0.jar;C:\Users\bharg\.m2\repository\io\cucumber\gherkin\26.2.0\gherkin-26.2.0.jar;"/>
+    <property name="allure.results.directory" value="C:\Users\OTF\target/allure-results"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="user.home" value="C:\Users\bharg"/>
+    <property name="user.language" value="en"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.version.date" value="2025-04-15"/>
+    <property name="java.home" value="C:\Program Files\Java\jdk-24"/>
+    <property name="file.separator" value="\"/>
+    <property name="basedir" value="C:\Users\OTF"/>
+    <property name="java.vm.compressedOopsMode" value="32-bit"/>
+    <property name="line.separator" value="&#10;"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="surefire.real.class.path" value="C:\Users\bharg\AppData\Local\Temp\surefire5993053309369768616\surefirebooter-20260208115235245_3.jar"/>
+    <property name="user.script" value=""/>
+    <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
+    <property name="java.runtime.version" value="24.0.1+9-30"/>
+    <property name="user.name" value="bharg"/>
+    <property name="stdout.encoding" value="Cp1252"/>
+    <property name="path.separator" value=";"/>
+    <property name="os.version" value="10.0"/>
+    <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
+    <property name="file.encoding" value="UTF-8"/>
+    <property name="java.vm.name" value="Java HotSpot(TM) 64-Bit Server VM"/>
+    <property name="localRepository" value="C:\Users\bharg\.m2\repository"/>
+    <property name="java.vendor.url.bug" value="https://bugreport.java.com/bugreport/"/>
+    <property name="java.io.tmpdir" value="C:\Users\bharg\AppData\Local\Temp\"/>
+    <property name="java.version" value="24.0.1"/>
+    <property name="user.dir" value="C:\Users\OTF"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="sun.os.patch.level" value=""/>
+    <property name="native.encoding" value="Cp1252"/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk-24\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;c:\Users\bharg\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\debugCommand;c:\Users\bharg\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\copilotCli;C:\Python314\Scripts\;C:\Python314\;C:\Program Files\Common Files\Oracle\Java\javapath;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Windows\System32\OpenSSH\;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\xampp\mysql\bin;C:\Program Files\mysql-commercial-9.3.0-winx64\bin;C:\Program Files\apache-maven-3.9.9\bin;C:\Program Files\Java\jdk-24\bin;C:\Program Files\TortoiseGit\bin;C:\Program Files\nodejs\;C:\ProgramData\chocolatey\bin;C:\Users\bharg\AppData\Local\Microsoft\WindowsApps;C:\Users\bharg\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files\JetBrains\IntelliJ IDEA 2025.1.1.1\bin;C:\Users\bharg\AppData\Roaming\npm;C:\Users\bharg\AppData\Local\Programs\cursor\resources\app\bin;c:\Users\bharg\.vscode\extensions\vscjava.vscode-java-debug-0.58.5\bundled\scripts\noConfigScripts;."/>
+    <property name="java.vm.info" value="mixed mode, sharing"/>
+    <property name="stderr.encoding" value="Cp1252"/>
+    <property name="java.vendor" value="Oracle Corporation"/>
+    <property name="java.vm.version" value="24.0.1+9-30"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="java.class.version" value="68.0"/>
+  </properties>
+  <testcase name="Validate event Event-201 order ORD201 type ORDER_CREATED" classname="Event-driven DB validation" time="0.669">
+    <system-out><![CDATA[[Scenario - event_id - Event-201 and order-id ORD201 ] =>
+TableName - audit
+[JsonCompare] Comparing row. Expected keys=4 Actual keys=4
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+TableName - item_details
+[JsonCompare] Comparing row. Expected keys=5 Actual keys=5
+orderid -> PASS
+time -> PASS
+eventpayload.items[0].itemId -> PASS
+eventpayload.items[0].statusHistory[0].status -> PASS
+eventpayload.items[0].statusHistory[1].status -> PASS
+eventpayload.items[0].statusHistory[2].status -> PASS
+poiresponse.warehouse.id -> PASS
+poiresponse.warehouse.bins[0].binId -> PASS
+poiresponse.warehouse.bins[0].qty -> PASS
+poiresponse.warehouse.bins[1].binId -> PASS
+poiresponse.warehouse.bins[1].qty -> PASS
+jobsettime -> PASS
+TableName - job_queue_arch
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> SKIPPED | expected=ORD209 | actual=ORD201
+eventpayload.eventType -> PASS
+eventpayload.customer.customerId -> PASS
+eventpayload.customer.name -> PASS
+eventpayload.customer.contacts[0].type -> PASS
+eventpayload.customer.contacts[0].value -> PASS
+eventpayload.customer.contacts[1].type -> PASS
+eventpayload.customer.contacts[1].value -> PASS
+eventpayload.items[0].itemId -> PASS
+eventpayload.items[0].name -> PASS
+eventpayload.items[0].attributes.brand -> PASS
+eventpayload.items[0].attributes.ram -> PASS
+eventpayload.items[1].itemId -> PASS
+eventpayload.items[1].name -> PASS
+eventpayload.items[1].qty -> PASS
+eventpayload.shipping.address.city -> PASS
+eventpayload.shipping.address.state -> PASS
+eventpayload.shipping.address.pincode -> PASS
+eventpayload.shipping.modes[0] -> PASS
+eventpayload.shipping.modes[1] -> PASS
+poiresponse.status -> PASS
+poiresponse.poiId -> PASS
+poiresponse.timeline[0].stage -> PASS
+poiresponse.timeline[0].time -> PASS
+poiresponse.timeline[1].stage -> PASS
+poiresponse.timeline[1].time -> PASS
+jobsettime -> PASS
+TableName - job_queue
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.customer.customerId -> PASS
+eventpayload.customer.name -> PASS
+eventpayload.customer.contacts[0].type -> PASS
+eventpayload.customer.contacts[0].value -> PASS
+eventpayload.customer.contacts[1].type -> PASS
+eventpayload.customer.contacts[1].value -> PASS
+eventpayload.items[0].itemId -> PASS
+eventpayload.items[0].name -> PASS
+eventpayload.items[0].attributes.brand -> PASS
+eventpayload.items[0].attributes.ram -> PASS
+eventpayload.items[1].itemId -> PASS
+eventpayload.items[1].name -> PASS
+eventpayload.items[1].qty -> PASS
+eventpayload.shipping.address.city -> PASS
+eventpayload.shipping.address.state -> PASS
+eventpayload.shipping.address.pincode -> PASS
+eventpayload.shipping.modes[0] -> PASS
+eventpayload.shipping.modes[1] -> PASS
+poiresponse.status -> PASS
+poiresponse.poiId -> PASS
+poiresponse.timeline[0].stage -> PASS
+poiresponse.timeline[0].time -> PASS
+poiresponse.timeline[1].stage -> PASS
+poiresponse.timeline[1].time -> PASS
+jobsettime -> PASS
+]]></system-out>
+    <system-err><![CDATA[SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+]]></system-err>
+  </testcase>
+  <testcase name="Validate event Event-202 order ORD202 type ORDER_VALIDATED" classname="Event-driven DB validation" time="0.046">
+    <system-out><![CDATA[[Scenario - event_id - Event-202 and order-id ORD202 ] =>
+TableName - audit
+[JsonCompare] Comparing row. Expected keys=4 Actual keys=4
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+TableName - item_details
+[JsonCompare] Comparing row. Expected keys=5 Actual keys=5
+orderid -> PASS
+time -> PASS
+eventpayload.bundle.parent -> PASS
+eventpayload.bundle.children[0] -> PASS
+eventpayload.bundle.children[1] -> PASS
+poiresponse.availability -> PASS
+jobsettime -> PASS
+TableName - job_queue_arch
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.retry.count -> PASS
+eventpayload.retry.max -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS
+TableName - job_queue
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.retry.count -> PASS
+eventpayload.retry.max -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS
+]]></system-out>
+  </testcase>
+  <testcase name="Validate event Event-203 order ORD203 type ORDER_FAILED" classname="Event-driven DB validation" time="0.048">
+    <system-out><![CDATA[[Scenario - event_id - Event-203 and order-id ORD203 ] =>
+TableName - audit
+[JsonCompare] Comparing row. Expected keys=4 Actual keys=4
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+TableName - item_details
+[JsonCompare] Comparing row. Expected keys=5 Actual keys=5
+orderid -> PASS
+time -> PASS
+eventpayload.replacement.eligible -> PASS
+eventpayload.replacement.reason -> PASS
+poiresponse.refund.amount -> PASS
+poiresponse.refund.method -> PASS
+jobsettime -> PASS
+TableName - job_queue_arch
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.reasons[0] -> PASS
+eventpayload.reasons[1] -> PASS
+poiresponse.status -> PASS
+poiresponse.errorCode -> PASS
+jobsettime -> PASS
+TableName - job_queue
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.reasons[0] -> PASS
+eventpayload.reasons[1] -> PASS
+poiresponse.status -> PASS
+poiresponse.errorCode -> PASS
+jobsettime -> PASS
+]]></system-out>
+  </testcase>
+  <testcase name="Validate event Event-204 order ORD204 type ORDER_QUEUED" classname="Event-driven DB validation" time="0.039">
+    <system-out><![CDATA[[Scenario - event_id - Event-204 and order-id ORD204 ] =>
+TableName - audit
+[JsonCompare] Comparing row. Expected keys=4 Actual keys=4
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+TableName - item_details
+[JsonCompare] Comparing row. Expected keys=5 Actual keys=5
+orderid -> PASS
+time -> PASS
+eventpayload.tracking.courier -> PASS
+eventpayload.tracking.checkpoints[0].city -> PASS
+eventpayload.tracking.checkpoints[0].status -> PASS
+eventpayload.tracking.checkpoints[1].city -> PASS
+eventpayload.tracking.checkpoints[1].status -> PASS
+poiresponse.eta -> PASS
+jobsettime -> PASS
+TableName - job_queue_arch
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.queue.priority -> PASS
+eventpayload.queue.nodes[0] -> PASS
+eventpayload.queue.nodes[1] -> PASS
+eventpayload.queue.nodes[2] -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS
+TableName - job_queue
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.queue.priority -> PASS
+eventpayload.queue.nodes[0] -> PASS
+eventpayload.queue.nodes[1] -> PASS
+eventpayload.queue.nodes[2] -> PASS
+poiresponse.status -> PASS
+jobsettime -> PASS
+]]></system-out>
+  </testcase>
+  <testcase name="Validate event Event-205 order ORD205 type ORDER_COMPLETED" classname="Event-driven DB validation" time="0.046">
+    <system-out><![CDATA[[Scenario - event_id - Event-205 and order-id ORD205 ] =>
+TableName - audit
+[JsonCompare] Comparing row. Expected keys=4 Actual keys=4
+id -> PASS
+orderid -> PASS
+time -> PASS
+jobsettime -> PASS
+TableName - item_details
+[JsonCompare] Comparing row. Expected keys=5 Actual keys=5
+orderid -> PASS
+time -> PASS
+eventpayload.feedback.rating -> PASS
+eventpayload.feedback.comment -> PASS
+poiresponse.loyalty.points -> PASS
+jobsettime -> PASS
+TableName - job_queue_arch
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.event-id -> PASS
+eventpayload.order-id -> PASS
+eventpayload.eventType -> PASS
+eventpayload.summary.items -> PASS
+eventpayload.summary.amount -> PASS
+poiresponse.status -> PASS
+poiresponse.receipt.id -> PASS
+poiresponse.receipt.url -> PASS
+jobsettime -> PASS
+TableName - job_queue
+[JsonCompare] Comparing row. Expected keys=6 Actual keys=6
+id -> PASS
+orderid -> PASS
+time -> PASS
+eventpayload.eventType -> PASS
+eventpayload.summary.items -> PASS
+eventpayload.summary.amount -> PASS
+poiresponse.status -> PASS
+poiresponse.receipt.id -> PASS
+poiresponse.receipt.url -> PASS
+jobsettime -> PASS
+]]></system-out>
+  </testcase>
+</testsuite>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> Cart | E-COMMERCE WEBSITE BY EDYODA </title>
+    <link rel="stylesheet" href="css/cart.css">
+    <!-- favicon -->
+    <link rel="icon" href="https://yt3.ggpht.com/a/AGF-l78km1YyNXmF0r3-0CycCA0HLA_i6zYn_8NZEg=s900-c-k-c0xffffffff-no-rj-mo" type="image/gif" sizes="16x16">
+    <!-- header links -->
+    <script src="https://kit.fontawesome.com/4a3b1f73a2.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+    <style>     
+        #cartMainContainer {
+            width: 80%;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        h1, h3 {
+            text-align: center;
+        }
+        #cartContainer {
+            margin-bottom: 30px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .cart-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+        }
+        .item-details {
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+        .item-details h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: normal;
+        }
+        .item-details h4 {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #888;
+        }
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quantity-controls button {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f4f4f4;
+            cursor: pointer;
+        }
+        .quantity-controls span {
+            font-size: 16px;
+            padding: 0 10px;
+        }
+        #totalContainer {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .total-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        .total-item span {
+            font-weight: bold;
+        }
+        #discountContainer {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+        #discountContainer input {
+            padding: 8px;
+            width: 60%;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #discountContainer button {
+            padding: 8px 15px;
+            border: none;
+            background-color: #2a9d8f;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .total-container {
+            margin-top: 10px;
+        }
+        .total-container div {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+        <!-- HEADER -->
+    <div id="1"></div>
+    <script>
+        load("header.html");
+        function load(url)
+        {
+            req = new XMLHttpRequest();
+            req.open("GET", url, false);
+            req.send(null);
+            document.getElementById(1).innerHTML = req.responseText;
+        }
+    </script>
+
+        <!-- CART CONTAINER -->
+        <div id="cartMainContainer">
+            <h1>Checkout</h1>
+            <h3 id="totalItem">Total Items: 0</h3>
+            <div id="cartContainer">
+                <!-- JS rendered code -->
+            </div>
+        
+            <!-- Discount and Promo -->
+            <div id="discountContainer">
+                <input type="text" id="discountCode" placeholder="Enter Discount Code" />
+                <button onclick="applyDiscount()">Apply Discount</button>
+            </div>
+        
+            <div id="totalContainer">
+                <!-- Total Amount Breakdown -->
+                <div class="total-item">
+                    <span>Subtotal</span><span id="subtotalAmount">Rs 0</span>
+                </div>
+                <div class="total-item">
+                    <span>Tax (18%)</span><span id="taxAmount">Rs 0</span>
+                </div>
+                <div class="total-item">
+                    <span>Discount</span><span id="discountAmount">Rs 0</span>
+                </div>
+                <div class="total-item">
+                    <span>Total</span><span id="totalPrice">Rs 0</span>
+                </div>
+        
+                <button onclick="checkout()">Place Order</button>
+            </div>
+        </div>
+        
+</body>
+    <!-- FOOTER -->
+    <div id="4"></div>
+    <script>
+        load("footer.html");
+        function load(url)
+        {
+            req = new XMLHttpRequest();
+            req.open("GET", url, false);
+            req.send(null);
+            document.getElementById(4).innerHTML = req.responseText;
+        }
+    </script>
+<script src="/cart.js"></script>
+</html>

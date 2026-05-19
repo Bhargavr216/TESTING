@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 0.5in; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: #1a1a1a;
+    background: #fff;
+  }
+  .header {
+    border-bottom: 3px solid #1e40af;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+  }
+  .name {
+    font-size: 22pt;
+    font-weight: 700;
+    color: #1e3a5f;
+    letter-spacing: -0.5px;
+  }
+  .headline {
+    font-size: 11pt;
+    color: #3b82f6;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .contact-row {
+    font-size: 8.5pt;
+    color: #6b7280;
+    margin-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .section-title {
+    font-size: 11pt;
+    font-weight: 700;
+    color: #1e40af;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 16px;
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1.5px solid #dbeafe;
+  }
+  .summary {
+    font-size: 9.5pt;
+    color: #374151;
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  .experience-item {
+    margin-bottom: 12px;
+    page-break-inside: avoid;
+  }
+  .exp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+  .exp-title {
+    font-weight: 700;
+    font-size: 10.5pt;
+    color: #1a1a1a;
+  }
+  .exp-date {
+    font-size: 8.5pt;
+    color: #6b7280;
+    white-space: nowrap;
+  }
+  .exp-company {
+    font-size: 9.5pt;
+    color: #3b82f6;
+    font-weight: 600;
+    margin-top: 1px;
+  }
+  .exp-bullets {
+    margin-top: 4px;
+    padding-left: 16px;
+    font-size: 9pt;
+    color: #374151;
+  }
+  .exp-bullets li {
+    margin-bottom: 3px;
+  }
+  .inline-sep {
+    color: #9ca3af;
+  }
+  .skills-section {
+    margin-top: 4px;
+  }
+  .skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .skill-tag {
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: 8.5pt;
+    font-weight: 500;
+    border: 1px solid #bfdbfe;
+  }
+  .skill-tag.highlighted {
+    background: #dbeafe;
+    font-weight: 700;
+    border-color: #93c5fd;
+  }
+  .education-item {
+    margin-bottom: 8px;
+  }
+  .edu-title {
+    font-weight: 600;
+    font-size: 10pt;
+  }
+  .edu-detail {
+    font-size: 9pt;
+    color: #6b7280;
+  }
+  .project-item {
+    margin-bottom: 8px;
+    page-break-inside: avoid;
+  }
+  .project-title {
+    font-weight: 600;
+    font-size: 10pt;
+    color: #1a1a1a;
+  }
+  .project-detail {
+    font-size: 9pt;
+    color: #374151;
+    margin-top: 2px;
+  }
+  .metric {
+    color: #059669;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+  <div class="header">
+    <div class="name">{{ name }}</div>
+    {% if headline %}<div class="headline">{{ headline }}</div>{% endif %}
+    <div class="contact-row">
+      {% if profile.get('candidate', {}).get('email') %}
+      <span class="contact-item">{{ profile['candidate']['email'] }}</span>
+      {% endif %}
+      {% if profile.get('candidate', {}).get('phone') %}
+      <span class="contact-item">{{ profile['candidate']['phone'] }}</span>
+      {% endif %}
+      {% if profile.get('candidate', {}).get('location') %}
+      <span class="contact-item">{{ profile['candidate']['location'] }}</span>
+      {% endif %}
+      {% if profile.get('candidate', {}).get('linkedin') %}
+      <span class="contact-item">{{ profile['candidate']['linkedin'] }}</span>
+      {% endif %}
+      {% if profile.get('candidate', {}).get('github') %}
+      <span class="contact-item">{{ profile['candidate']['github'] }}</span>
+      {% endif %}
+      {% if profile.get('candidate', {}).get('portfolio_url') %}
+      <span class="contact-item">{{ profile['candidate']['portfolio_url'] }}</span>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if summary %}
+  <div class="section-title">Professional Summary</div>
+  <div class="summary">{{ summary }}</div>
+  {% endif %}
+
+  {% if experience %}
+  <div class="section-title">Experience</div>
+  {% for exp in experience %}
+  <div class="experience-item">
+    <div class="exp-header">
+      <span class="exp-title">
+        {% if exp.get('role') %}{{ exp['role'] }}{% else %}Experience{% endif %}
+      </span>
+      {% if exp.get('dates') %}<span class="exp-date">{{ exp['dates'] }}</span>{% endif %}
+    </div>
+    {% if exp.get('company') %}<div class="exp-company">{{ exp['company'] }}</div>{% endif %}
+    {% if exp.get('bullets') %}
+    <ul class="exp-bullets">
+      {% for b in exp['bullets'] %}
+      <li>{{ b }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if skills %}
+  <div class="section-title">Technical Skills</div>
+  <div class="skills-section">
+    <div class="skills-grid">
+      {% for skill in skills %}
+      <span class="skill-tag {% if skill.lower() in job_keywords %}highlighted{% endif %}">{{ skill }}</span>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if projects %}
+  <div class="section-title">Key Projects</div>
+  {% for proj in projects %}
+  <div class="project-item">
+    <div class="project-title">{{ proj.get('name', '') }}</div>
+    {% if proj.get('bullets') %}
+    <ul class="exp-bullets">
+      {% for b in proj['bullets'] %}
+      <li>{{ b }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% if proj.get('tech') %}
+    <div class="project-detail"><span class="metric">Tech:</span> {{ proj['tech'] }}</div>
+    {% endif %}
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if education %}
+  <div class="section-title">Education</div>
+  {% for edu in education %}
+  <div class="education-item">
+    <div class="edu-title">{{ edu }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  {% if certifications %}
+  <div class="section-title">Certifications</div>
+  {% for cert in certifications %}
+  <div class="education-item">
+    <div class="edu-title">{{ cert }}</div>
+  </div>
+  {% endfor %}
+  {% endif %}
+</body>
+</html>

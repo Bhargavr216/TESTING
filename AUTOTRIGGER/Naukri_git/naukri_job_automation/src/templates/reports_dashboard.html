@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reports — Naukri automation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg: #080a0f;
+      --surface: #111622;
+      --surface2: #1a2130;
+      --border: #2a3348;
+      --text: #e8ecf4;
+      --muted: #8b95a8;
+      --accent: #2dd4bf;
+      --accent-dim: rgba(45, 212, 191, 0.15);
+      --ok: #4ade80;
+      --warn: #fbbf24;
+      --err: #fb7185;
+      --info: #60a5fa;
+      --external: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Outfit", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 120% 80% at 50% -40%, rgba(45, 212, 191, 0.12), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(96, 165, 250, 0.06), transparent);
+    }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+    header {
+      display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between;
+      gap: 1rem; margin-bottom: 2rem;
+    }
+    h1 { font-size: 1.75rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-top: 0.35rem; max-width: 36rem; line-height: 1.45; }
+    .path { font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: var(--muted); word-break: break-all; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 0.75rem; margin-bottom: 1.5rem;
+    }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 0.85rem 1rem; cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    }
+    .stat:hover, .stat.on { border-color: var(--accent); background: var(--accent-dim); }
+    .stat .n { font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .stat .l { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-top: 0.2rem; }
+
+    .toolbar {
+      display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 1.25rem;
+    }
+    .search {
+      flex: 1; min-width: 200px; max-width: 420px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.65rem 1rem; color: var(--text); font-family: inherit; font-size: 0.95rem;
+    }
+    .search::placeholder { color: var(--muted); }
+    .search:focus { outline: none; border-color: var(--accent); }
+    select.sort {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+      color: var(--text); padding: 0.6rem 1rem; font-family: inherit; font-size: 0.9rem; cursor: pointer;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.25rem; }
+    .chip {
+      border: 1px solid var(--border); background: var(--surface); color: var(--muted);
+      padding: 0.4rem 0.75rem; border-radius: 999px; font-size: 0.8rem; cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip:hover { color: var(--text); border-color: var(--muted); }
+    .chip.on { color: var(--bg); background: var(--accent); border-color: var(--accent); font-weight: 600; }
+
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+      padding: 1.1rem 1.15rem; cursor: pointer; transition: transform 0.12s, border-color 0.12s;
+      text-align: left; display: flex; flex-direction: column; gap: 0.5rem;
+      position: relative;
+    }
+    .card:hover { transform: translateY(-2px); border-color: #3d4a63; }
+    .card-actions {
+      position: absolute;
+      top: 0.8rem;
+      right: 0.8rem;
+      display: flex;
+      gap: 0.4rem;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 2;
+    }
+    .card:hover .card-actions { opacity: 1; }
+    .action-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.12s;
+      font-size: 0.85rem;
+      padding: 0;
+    }
+    .action-btn:hover { border-color: var(--accent); color: var(--text); background: var(--surface); }
+    .action-btn.del:hover { border-color: var(--err); color: var(--err); }
+    .action-btn.ok:hover { border-color: var(--ok); color: var(--ok); }
+    .action-btn.fail:hover { border-color: var(--err); color: var(--err); }
+    .card .co { font-weight: 600; font-size: 1.05rem; line-height: 1.25; }
+    .card .ti { color: var(--muted); font-size: 0.88rem; line-height: 1.35; }
+    .card .meta { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.25rem; }
+    .badge {
+      font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+      padding: 0.25rem 0.5rem; border-radius: 6px;
+    }
+    .badge-applied { background: rgba(74, 222, 128, 0.2); color: var(--ok); }
+    .badge-uncertain { background: rgba(251, 191, 36, 0.2); color: var(--warn); }
+    .badge-error { background: rgba(251, 113, 133, 0.2); color: var(--err); }
+    .badge-external_apply { background: rgba(167, 139, 250, 0.2); color: var(--external); }
+    .badge-no_apply_button { background: rgba(139, 149, 168, 0.25); color: var(--muted); }
+    .badge-skipped { background: rgba(139, 149, 168, 0.25); color: var(--muted); }
+    .badge-evaluation { background: rgba(96, 165, 250, 0.2); color: var(--info); }
+    .badge-other { background: rgba(139, 149, 168, 0.2); color: var(--muted); }
+    .card .when { font-family: "JetBrains Mono", monospace; font-size: 0.72rem; color: var(--muted); }
+    .card .why {
+      font-size: 0.82rem; color: #c4cad8; margin-top: 0.35rem; line-height: 1.4;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .card .url { font-size: 0.72rem; color: var(--accent); word-break: break-all; opacity: 0.85; }
+
+    .empty { text-align: center; padding: 3rem 1rem; color: var(--muted); }
+    .err-banner {
+      background: rgba(251, 113, 133, 0.12); border: 1px solid rgba(251, 113, 133, 0.35);
+      color: #fecdd3; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1rem;
+    }
+    .file-note {
+      background: rgba(96, 165, 250, 0.12); border: 1px solid rgba(96, 165, 250, 0.4);
+      color: #bfdbfe; padding: 1rem 1.25rem; border-radius: 12px; margin-bottom: 1rem;
+      font-size: 0.9rem; line-height: 1.55;
+    }
+    .file-note code { background: var(--surface2); padding: 0.15rem 0.45rem; border-radius: 6px; font-size: 0.82rem; }
+    .file-note a { color: var(--accent); font-weight: 600; }
+
+    /* Modal */
+    .backdrop {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.65); backdrop-filter: blur(4px);
+      display: none; align-items: center; justify-content: center; z-index: 50; padding: 1rem;
+    }
+    .backdrop.open { display: flex; }
+    .modal {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+      max-width: 720px; width: 100%; max-height: 88vh; overflow: hidden; display: flex; flex-direction: column;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+    }
+    .modal-h {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+    }
+    .modal-h h2 { margin: 0; font-size: 1rem; font-weight: 600; }
+    .modal-h button {
+      background: transparent; border: none; color: var(--muted); font-size: 1.25rem;
+      cursor: pointer; line-height: 1; padding: 0.25rem;
+    }
+    .modal-h button:hover { color: var(--text); }
+    .modal-body { padding: 1.25rem; overflow-y: auto; font-size: 0.9rem; line-height: 1.55; }
+    .modal-body :is(h1, h2, h3) { margin-top: 1rem; margin-bottom: 0.5rem; }
+    .modal-body h1 { font-size: 1.25rem; }
+    .modal-body table { border-collapse: collapse; width: 100%; font-size: 0.85rem; margin: 0.75rem 0; }
+    .modal-body th, .modal-body td { border: 1px solid var(--border); padding: 0.4rem 0.55rem; text-align: left; }
+    .modal-body a { color: var(--accent); }
+
+    .loading { color: var(--muted); padding: 2rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="fileProtoNote" class="file-note" style="display:none"></div>
+    <header>
+      <div>
+        <h1>Application reports</h1>
+        <p class="sub">Browse everything under <code>reports/</code> — filter by outcome, search companies or roles, and open the full markdown for any entry.</p>
+        <p class="path" id="rootPath"></p>
+      </div>
+    </header>
+
+    <div id="loadErr" class="err-banner" style="display:none;"></div>
+
+    <section class="stats" id="stats"></section>
+
+    <div style="margin-bottom: 2rem;">
+      <div id="appliedStatus" style="color: var(--muted); font-size: 0.95rem; margin-bottom: 1rem;">Loading applied jobs from Naukri...</div>
+      <div class="stats" id="naukriSummary" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 1rem;"></div>
+      <div class="grid" id="appliedGrid"></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="search" class="search" id="q" placeholder="Search company, title, URL, details…" autocomplete="off" />
+      <select class="sort" id="sort">
+        <option value="new">Newest first</option>
+        <option value="old">Oldest first</option>
+        <option value="company">Company A–Z</option>
+      </select>
+    </div>
+
+    <div class="chips" id="chips"></div>
+
+    <div class="grid" id="grid">
+      <div class="loading">Loading reports…</div>
+    </div>
+  </div>
+
+  <div class="backdrop" id="backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-h">
+        <h2 id="modalTitle">Report</h2>
+        <button type="button" id="closeModal" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    /* Placeholders in the next two lines are replaced when the page is served by reports-ui */
+    const SERVER_API_INJECTION = "__NAUKRI_API_EMPTY__";
+    const DEFAULT_LOCAL_API_RAW = "__NAUKRI_ORIGIN__";
+    const DEFAULT_LOCAL_API = DEFAULT_LOCAL_API_RAW.includes("__NAUKRI_")
+      ? "http://127.0.0.1:8765"
+      : DEFAULT_LOCAL_API_RAW.replace(/\/$/, "");
+
+    const API_BASE = (() => {
+      const inj = (SERVER_API_INJECTION || "").trim();
+      if (inj && !inj.includes("__NAUKRI_")) return inj.replace(/\/$/, "");
+      const q = new URLSearchParams(location.search).get("api");
+      if (q) return q.replace(/\/$/, "");
+      if (location.protocol === "file:") return DEFAULT_LOCAL_API;
+      return "";
+    })();
+
+    function apiUrl(path) {
+      const p = path.startsWith("/") ? path : "/" + path;
+      return API_BASE ? API_BASE + p : p;
+    }
+
+    if (location.protocol === "file:") {
+      const el = document.getElementById("fileProtoNote");
+      el.style.display = "block";
+      el.innerHTML =
+        "<strong>You opened this HTML as a file.</strong> Browsers cannot call <code>/api/reports</code> from disk. " +
+        "<strong>Best:</strong> in a terminal run <code>naukri-auto reports-ui</code> — your browser should open automatically at<br>" +
+        `<a href="${DEFAULT_LOCAL_API}" target="_blank" rel="noopener">${DEFAULT_LOCAL_API}</a><br><br>` +
+        "<strong>Or</strong> with the server already running, reload this file after adding to the path: " +
+        `<code>?api=${encodeURIComponent(DEFAULT_LOCAL_API)}</code><br><br>` +
+        "This page will try <code>" +
+        API_BASE +
+        "</code> for API calls (needs CORS + a running server).";
+    }
+
+    const STATUS_FILTERS = [
+      { key: "all", label: "All" },
+      { key: "applied", label: "Applied" },
+      { key: "passed", label: "Passed" },
+      { key: "failed", label: "Failed" },
+      { key: "uncertain", label: "Uncertain" },
+      { key: "error", label: "Error" },
+      { key: "external_apply", label: "Company site" },
+      { key: "no_apply_button", label: "No apply btn" },
+      { key: "skipped", label: "Skipped" },
+      { key: "evaluation", label: "Evaluations" },
+    ];
+
+    let allRows = [];
+    let summary = {};
+    let activeStat = "total";
+    let activeChip = "all";
+    let sortKey = "new";
+
+    function badgeClass(status, kind) {
+      if (kind === "evaluation") return "badge-evaluation";
+      const m = {
+        applied: "badge-applied",
+        passed: "badge-applied",
+        failed: "badge-error",
+        error: "badge-error",
+        uncertain: "badge-uncertain",
+        external_apply: "badge-external_apply",
+        no_apply_button: "badge-no_apply_button",
+        skipped: "badge-skipped",
+      };
+      return m[status] || "badge-other";
+    }
+
+    function parseWhen(r) {
+      const s = r.when || "";
+      const m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+      return new Date(0);
+    }
+
+    function filtered() {
+      const q = (document.getElementById("q").value || "").trim().toLowerCase();
+      return allRows.filter((r) => {
+        if (activeChip !== "all") {
+          if (activeChip === "evaluation") {
+            if (r.kind !== "evaluation") return false;
+          } else if (r.status !== activeChip) return false;
+        }
+        if (activeStat !== "total") {
+          if (activeStat === "application") {
+            if (r.kind !== "application") return false;
+          } else if (activeStat === "evaluation") {
+            if (r.kind !== "evaluation") return false;
+          } else if ((r.status || "").toLowerCase() !== activeStat) return false;
+        }
+        if (!q) return true;
+        const blob = [
+          r.company, r.title, r.url, r.details, r.status, r.recommendation, r.location, r.job_id, r.filename,
+        ].join(" ").toLowerCase();
+        return blob.includes(q);
+      });
+    }
+
+    function sortRows(rows) {
+      const out = [...rows];
+      if (sortKey === "new") out.sort((a, b) => parseWhen(b) - parseWhen(a));
+      else if (sortKey === "old") out.sort((a, b) => parseWhen(a) - parseWhen(b));
+      else out.sort((a, b) => (a.company || "").localeCompare(b.company || ""));
+      return out;
+    }
+
+    function renderStats() {
+      const el = document.getElementById("stats");
+      const defs = [
+        ["total", "Total"],
+        ["application", "Applications"],
+        ["evaluation", "Evaluations"],
+        ["applied", "Applied"],
+        ["uncertain", "Uncertain"],
+        ["error", "Errors"],
+        ["external_apply", "Ext. apply"],
+        ["no_apply_button", "No button"],
+      ];
+      el.innerHTML = defs
+        .map(
+          ([k, label]) => `
+        <div class="stat ${activeStat === k ? "on" : ""}" data-stat="${k}">
+          <div class="n">${summary[k] ?? 0}</div>
+          <div class="l">${label}</div>
+        </div>`
+        )
+        .join("");
+      el.querySelectorAll(".stat").forEach((n) => {
+        n.onclick = () => {
+          activeStat = n.dataset.stat;
+          activeChip = "all";
+          renderStats();
+          renderChips();
+          renderGrid();
+        };
+      });
+    }
+
+    function renderChips() {
+      const el = document.getElementById("chips");
+      el.innerHTML = STATUS_FILTERS.map(
+        (c) => `<button type="button" class="chip ${activeChip === c.key ? "on" : ""}" data-chip="${c.key}">${c.label}</button>`
+      ).join("");
+      el.querySelectorAll(".chip").forEach((b) => {
+        b.onclick = () => {
+          activeChip = b.dataset.chip;
+          activeStat = "total";
+          renderStats();
+          renderChips();
+          renderGrid();
+        };
+      });
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById("grid");
+      const rows = sortRows(filtered());
+      if (!rows.length) {
+        grid.innerHTML = `<div class="empty">No reports match your filters. Run <code>naukri-auto apply</code> or <code>naukri-auto scan</code> to generate more.</div>`;
+        return;
+      }
+      grid.innerHTML = rows
+        .map((r) => {
+          const badge = badgeClass(r.status, r.kind);
+          const st = r.kind === "evaluation" ? "evaluation" : r.status;
+          const why = r.details || r.recommendation || "";
+          const score = r.score != null ? `<span class="badge badge-evaluation">${r.score}/5</span>` : "";
+          const actions = `
+            <div class="card-actions">
+              ${r.kind !== 'evaluation' && r.status !== 'passed' ? `<button type="button" class="action-btn ok" title="Move to Passed" data-status="passed" data-id="${r.id}">✓</button>` : ''}
+              ${r.kind !== 'evaluation' && r.status !== 'failed' ? `<button type="button" class="action-btn fail" title="Move to Failed" data-status="failed" data-id="${r.id}">✕</button>` : ''}
+              <button type="button" class="action-btn del" title="Delete Report" data-delete="${r.id}">🗑</button>
+            </div>
+          `;
+          return `<article class="card" data-id="${r.id}">
+            ${actions}
+            <div class="meta">
+              <span class="badge ${badge}">${st}</span>
+              ${score}
+              <span class="when">${r.when || "—"}</span>
+            </div>
+            <div class="co">${escapeHtml(r.company)}</div>
+            <div class="ti">${escapeHtml(r.title)}</div>
+            ${why ? `<div class="why">${escapeHtml(why)}</div>` : ""}
+            ${r.url ? `<div class="url">${escapeHtml(r.url)}</div>` : ""}
+          </article>`;
+        })
+        .join("");
+      grid.querySelectorAll(".card").forEach((card) => {
+        card.onclick = (e) => {
+          if (e.target.closest('.action-btn')) return;
+          openModal(card.dataset.id);
+        };
+      });
+      grid.querySelectorAll(".action-btn.del").forEach((btn) => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          deleteReport(btn.dataset.delete);
+        };
+      });
+      grid.querySelectorAll(".action-btn.ok, .action-btn.fail").forEach((btn) => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          updateStatus(btn.dataset.id, btn.dataset.status);
+        };
+      });
+    }
+
+    async function deleteReport(id) {
+      const row = allRows.find(r => r.id === id);
+      if (!row) return;
+      if (!confirm(`Are you sure you want to delete the report for "${row.company}"?`)) return;
+      try {
+        const url = apiUrl(`/api/reports/${id}/delete`);
+        console.log('Deleting via:', url);
+        const res = await fetch(url, { method: 'POST' });
+        if (res.ok) {
+          load();
+        } else {
+          const err = await res.json();
+          alert('Failed to delete report: ' + (err.detail || 'Unknown error'));
+        }
+      } catch (e) {
+        alert('Error deleting report: ' + e.message);
+      }
+    }
+
+    async function updateStatus(id, newStatus) {
+      try {
+        const url = apiUrl(`/api/reports/${id}/status`);
+        console.log('Updating status via:', url);
+        const res = await fetch(url, {
+          method: 'POST', // Use POST as a fallback for PATCH
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok) {
+          load();
+        } else {
+          const err = await res.json();
+          const msg = err.detail || 'Unknown error';
+          alert(`Failed to update status: ${msg}\n\n(Check terminal for DEBUG logs)`);
+        }
+      } catch (e) {
+        alert('Error updating status: ' + e.message);
+      }
+    }
+
+    async function loadAppliedJobs() {
+      const statusEl = document.getElementById("appliedStatus");
+      const grid = document.getElementById("appliedGrid");
+
+      statusEl.style.color = "var(--muted)";
+      statusEl.textContent = "Fetching applied jobs from Naukri...";
+      grid.style.display = "none";
+
+      try {
+        const res = await fetch(apiUrl("/api/applied-jobs"));
+        let data;
+        if (!res.ok) {
+          if (res.status === 404) {
+            const fallback = await fetch(apiUrl("/api/profile-applications"));
+            if (!fallback.ok) throw new Error(fallback.statusText);
+            data = await fallback.json();
+          } else {
+            throw new Error(res.statusText);
+          }
+        } else {
+          data = await res.json();
+        }
+
+        appliedJobs = data.applications || [];
+        appliedSourceCounts = data.source_counts || { naukri: 0, external: 0, unknown: 0 };
+
+        statusEl.textContent = `Loaded ${appliedJobs.length} applied jobs from Naukri`;
+        renderAppliedSummary();
+        renderAppliedGrid();
+        grid.style.display = "grid";
+      } catch (e) {
+        statusEl.textContent = "Failed to load applied jobs: " + e.message;
+        statusEl.style.color = "var(--err)";
+        grid.innerHTML = `<div class="empty">Could not load applied jobs. Check your Naukri login and restart the reports server.</div>`;
+        grid.style.display = "block";
+      }
+    }
+
+    function escapeHtml(s) {
+      if (!s) return "";
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    async function openModal(id) {
+      const backdrop = document.getElementById("backdrop");
+      const body = document.getElementById("modalBody");
+      const title = document.getElementById("modalTitle");
+      const row = allRows.find((r) => r.id === id);
+      title.textContent = row ? `${row.company} — ${row.title}` : "Report";
+      body.innerHTML = "<p class=\"loading\">Loading…</p>";
+      backdrop.classList.add("open");
+      backdrop.setAttribute("aria-hidden", "false");
+      try {
+        const res = await fetch(apiUrl("/api/reports/" + encodeURIComponent(id)));
+        const text = await res.text();
+        body.innerHTML = typeof marked !== "undefined" ? marked.parse(text) : "<pre style=\"white-space:pre-wrap\">" + escapeHtml(text) + "</pre>";
+      } catch (e) {
+        body.innerHTML = "<p>Could not load report.</p>";
+      }
+    }
+
+    function closeModal() {
+      const backdrop = document.getElementById("backdrop");
+      backdrop.classList.remove("open");
+      backdrop.setAttribute("aria-hidden", "true");
+    }
+
+    document.getElementById("closeModal").onclick = closeModal;
+    document.getElementById("backdrop").onclick = (e) => {
+      if (e.target.id === "backdrop") closeModal();
+    };
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    document.getElementById("q").oninput = () => renderGrid();
+    document.getElementById("sort").onchange = (e) => {
+      sortKey = e.target.value;
+      renderGrid();
+    };
+
+    let appliedJobs = [];
+    let appliedSourceCounts = { naukri: 0, external: 0, unknown: 0 };
+
+    function renderAppliedSummary() {
+      const panel = document.getElementById("naukriSummary");
+      panel.innerHTML = [
+        ["Total", appliedJobs.length],
+        ["Applied on Naukri", appliedSourceCounts.naukri || 0],
+        ["External links", appliedSourceCounts.external || 0],
+      ]
+        .map(
+          ([label, value]) => `
+            <div class="stat">
+              <div class="n">${value}</div>
+              <div class="l">${label}</div>
+            </div>`
+        )
+        .join("");
+    }
+
+    function renderAppliedGrid() {
+      const grid = document.getElementById("appliedGrid");
+      if (!appliedJobs.length) {
+        grid.innerHTML = `<div class="empty">No applied jobs found on Naukri.</div>`;
+        return;
+      }
+
+      const statusColors = {
+        'applied': 'var(--ok)',
+        'shortlisted': 'var(--accent)',
+        'viewed': 'var(--info)',
+        'rejected': 'var(--err)',
+        'interview': 'var(--accent)',
+        'unknown': 'var(--muted)'
+      };
+
+      grid.innerHTML = appliedJobs
+        .map((app) => {
+          const statusColor = statusColors[app.status.toLowerCase()] || 'var(--muted)';
+          return `<article class="card">
+            <div class="meta">
+              <span class="badge" style="background: ${statusColor}20; color: ${statusColor}; border: 1px solid ${statusColor}40;">${app.status}</span>
+              <span class="when">${app.applied_date || '—'}</span>
+            </div>
+            <div class="co">${escapeHtml(app.company)}</div>
+            <div class="ti">${escapeHtml(app.title)}</div>
+            ${app.url ? `<div class="url">${escapeHtml(app.url)}</div>` : ""}
+          </article>`;
+        })
+        .join("");
+    }
+
+    async function load() {
+      const errEl = document.getElementById("loadErr");
+      errEl.style.display = "none";
+      try {
+        const res = await fetch(apiUrl("/api/reports"));
+        if (!res.ok) throw new Error(res.statusText);
+        const data = await res.json();
+        allRows = data.reports || [];
+        summary = data.summary || {};
+        document.getElementById("rootPath").textContent = data.root || "";
+        renderStats();
+        renderChips();
+        renderGrid();
+      } catch (e) {
+        errEl.textContent = "Could not load reports: " + e.message;
+        errEl.style.display = "block";
+        document.getElementById("grid").innerHTML = "";
+      }
+
+      await loadAppliedJobs();
+    }
+
+    load();
+  </script>
+</body>
+</html>

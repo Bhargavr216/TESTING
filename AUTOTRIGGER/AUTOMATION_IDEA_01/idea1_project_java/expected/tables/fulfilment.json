@@ -1,0 +1,13 @@
+[
+  {
+    "fulfilment_id": "FUL123",
+    "order_id": "ORD123",
+    "status": "SHIPPED",
+    "fulfilment_details": {
+      "deliverySlot": {
+        "startTime": "10:00",
+        "endTime": "12:00"
+      }
+    }
+  }
+]

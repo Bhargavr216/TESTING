@@ -1,0 +1,46 @@
+[
+  {
+    "order_id": "ORD123",
+    "audit_id": "AUDIT_005",
+    "operation": "ORDER_CREATED",
+    "status": "SUCCESS",
+    "exception": null
+  },
+  {
+    "order_id": "ORD123",
+    "audit_id": "AUDIT_005",
+    "operation": "ORDER_VALIDATED",
+    "status": "SUCCESS",
+    "exception": null
+  },
+  {
+    "order_id": "ORD124",
+    "operation": "CREATE",
+    "status": "SUCCESS",
+    "exception": null
+  },
+  {
+    "order_id": "ORD124",
+    "operation": "VALIDATE",
+    "status": "FAILED",
+    "exception": "INVALID_ORDER_DATA"
+  },
+  {
+    "order_id": "ORD500",
+    "operation": "CREATE",
+    "status": "SUCCESS",
+    "exception": null
+  },
+  {
+    "order_id": "ORD500",
+    "operation": "VALIDATE",
+    "status": "FAILED",
+    "exception": "VALIDATION_FAILED_RETRY"
+  },
+  {
+    "order_id": "ORD500",
+    "operation": "VALIDATE",
+    "status": "FAILED",
+    "exception": "VALIDATION_FAILED_RETRY"
+  }
+]

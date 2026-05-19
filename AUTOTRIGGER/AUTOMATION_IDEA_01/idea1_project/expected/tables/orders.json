@@ -1,0 +1,16 @@
+[
+  {
+    "order_id": "ORD123",
+    "status": "CONFIRMED",
+    "total_amount": 500,
+    "order_metadata": {
+      "customer": {
+        "name": "Bhargav",
+        "city": "Hyderabad"
+      },
+      "payment": {
+        "method": "CARD"
+      }
+    }
+  }
+]

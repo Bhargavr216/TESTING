@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Ubuntu:wght@400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;color:#0E2431;background:#fff}
+a{text-decoration:none;color:inherit}
+img{max-width:100%;display:block}
+
+:root{--primary:#4070f4;--bg-soft:#F0F8FF;--dark:#0E2431;--muted:#546e7a}
+
+.container{width:90%;max-width:1100px;margin:0 auto}
+.section{padding:80px 0}
+.title{font-size:30px;font-weight:600;text-align:center;margin-bottom:32px;position:relative}
+.title::after{content:"";display:block;width:72px;height:3px;background:var(--primary);margin:12px auto 0;border-radius:2px}
+
+nav{position:fixed;top:0;left:0;width:100%;background:#fff;padding:16px 0;z-index:1000;transition:all .3s ease}
+nav.sticky{background:var(--primary);box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Ubuntu',sans-serif;font-size:26px;font-weight:700;color:var(--primary)}
+nav.sticky .logo{color:#fff}
+.menu{display:flex;gap:24px;list-style:none}
+.menu a{font-weight:500;color:#0E2431}
+.menu a:hover{color:var(--primary)}
+nav.sticky .menu a{color:#fff}
+.menu-btn,.cancel-btn{display:none;color:#fff;font-size:22px;cursor:pointer}
+
+.hero{min-height:70vh;display:flex;align-items:center;padding-top:96px;background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%)}
+.hero .intro{max-width:800px}
+.intro h1{font-size:40px;font-weight:700}
+.intro p{margin-top:12px;color:var(--muted)}
+.cta-row{margin-top:20px;display:flex;gap:12px;flex-wrap:wrap}
+
+.btn{display:inline-block;background:var(--primary);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;cursor:pointer;transition:transform .1s ease,opacity .2s ease}
+.btn:hover{opacity:.92}
+.btn:active{transform:scale(.98)}
+.btn-outline{background:#fff;color:var(--primary);border:2px solid var(--primary)}
+
+.grid{display:grid;gap:20px}
+.grid-3{grid-template-columns:repeat(3,1fr)}
+.grid-2{grid-template-columns:repeat(2,1fr)}
+@media(max-width:900px){.grid-3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:640px){.grid-3,.grid-2{grid-template-columns:1fr}}
+
+.card{border-radius:12px;border:1px solid #e6eefb;padding:18px;box-shadow:0 4px 14px rgba(64,112,244,.08);transition:transform .2s ease,box-shadow .2s ease;background:#fff;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(64,112,244,.15)}
+.card .icon{height:48px;width:48px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:10px}
+.card h3{font-size:18px;margin-bottom:6px;color:#0E2431}
+.card p{color:#546e7a;font-size:14px;margin-bottom:16px;flex-grow:1}
+.card-buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btn-sm{padding:8px 14px;font-size:13px;font-weight:600;border-radius:6px}
+.btn-secondary{background:#f0f4ff;color:var(--primary);border:1px solid var(--primary)}
+
+.skills-list{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.chip{border:1px solid #dbe7ff;color:#3461d9;padding:8px 12px;border-radius:24px;font-weight:600;background:#f6f9ff}
+
+.certs{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.cert{background:#fff;border:1px solid #e6eefb;border-radius:10px;padding:10px 12px;font-weight:600}
+
+.filterbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.filterbar input{padding:10px;border:1px solid #dbe7ff;border-radius:8px;width:260px}
+.filters .btn{padding:8px 12px}
+.filters .btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+.contact-form{max-width:600px;margin:0 auto}
+.form-row{display:flex;gap:10px;flex-wrap:wrap}
+.form-row input,.form-row textarea{flex:1;padding:10px;border:1px solid #dbe7ff;border-radius:8px}
+.form-row textarea{min-height:120px}
+
+footer{background:var(--primary);color:#fff;text-align:center;padding:18px 0;margin-top:40px}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.reveal.active{opacity:1;transform:none}
+
+@media(max-width:860px){
+  .menu-btn{display:block;color:#4070f4}
+  nav.sticky .menu-btn{color:#fff}
+  .menu{position:fixed;inset:0 0 0 auto;right:-100%;max-width:360px;width:100%;background:#0E2431;flex-direction:column;padding:80px 24px;transition:right .3s ease}
+  .menu a{color:#fff;font-size:20px}
+  .navbar.active .menu{right:0}
+  .cancel-btn{display:block;position:absolute;top:18px;right:18px}
+}
