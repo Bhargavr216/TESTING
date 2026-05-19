@@ -1,0 +1,13 @@
+{
+  "title": "Order Response Schema",
+  "type": "object",
+  "required": ["status", "eventType", "orderId"],
+  "properties": {
+    "status":     { "type": "string", "enum": ["SUCCESS", "FAILED", "PENDING"] },
+    "eventType":  { "type": "string" },
+    "orderId":    { "type": "string" },
+    "customerId": { "type": "string" },
+    "currency":   { "type": "string" }
+  },
+  "additionalProperties": true
+}

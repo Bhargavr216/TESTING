@@ -1,0 +1,5 @@
+{
+  "status":    "SUCCESS",
+  "eventType": "ORDER_CREATED",
+  "orderId":   "ORD-001"
+}

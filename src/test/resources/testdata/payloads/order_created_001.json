@@ -1,0 +1,11 @@
+{
+  "id": "EVT-001",
+  "eventType": "ORDER_CREATED",
+  "timestamp": "2026-05-19T10:00:00Z",
+  "payload": {
+    "orderId": "ORD-001",
+    "customerId": "CUST-100",
+    "amount": 250.00,
+    "currency": "USD"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "status":     "SUCCESS",
+  "eventType":  "ORDER_CREATED",
+  "orderId":    "ORD-001",
+  "customerId": "CUST-100",
+  "currency":   "USD"
+}
