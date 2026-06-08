@@ -1,0 +1,16 @@
+{
+  "api": {
+    "baseUrl": "http://localhost:8080",
+    "defaultHeaders": {
+      "Content-Type": "application/json"
+    }
+  },
+  "database": {
+    "schema": "public",
+    "connectionString": "jdbc:postgresql://localhost:5432/appdb?user=app&password=app"
+  },
+  "eventHub": {
+    "connectionString": "Endpoint=sb://<your-event-hub>.servicebus.windows.net/;SharedAccessKeyName=<keyname>;SharedAccessKey=<key>;EntityPath=<event-hub-name>",
+    "payloadPath": "src/test/resources/payloads"
+  }
+}

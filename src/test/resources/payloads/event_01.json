@@ -1,0 +1,9 @@
+{
+  "eventId": "event-fsm-01",
+  "type": "order.created",
+  "payload": {
+    "customerId": "1001",
+    "product": "widget",
+    "quantity": 2
+  }
+}
